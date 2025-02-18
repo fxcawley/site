@@ -14,6 +14,13 @@ module.exports = {
         icon: './static/favicon.png',
       },
     },
+  {
+    resolve: `gatsby-plugin-mdx`,
+      options: {
+        remarkPlugins: [require(`remark-math`)],
+        rehypePlugins: [require(`rehype-katex`)],
+      },
+    },
   ],
   siteMetadata: config,
   pathPrefix: config.pathPrefix,
