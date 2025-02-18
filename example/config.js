@@ -1,25 +1,23 @@
 module.exports = {
-  pathPrefix: '/gatsby-theme-academic',
-  siteUrl: 'https://tc-imba.github.io',
-  title: 'John Doe',
-  description: 'Personal Website of John Doe',
-  author: 'John Doe',
-  authorAlternative: '豆浆',
+  //pathPrefix: '/gatsby-theme-academic',
+  siteUrl: 'https://www.cawley.dev',
+  title: 'Liam Cawley',
+  description: 'Personal Website of Liam Cawley',
+  author: 'Liam Cawley',
+  authorAlternative: '连姆·考利',
   introduction: [
-    'You can write one or several paragraphs to introduce yourself here. You can find this introduction in the `config.js` file in the template.',
-    'In this site, almost everything supports Markdown Syntax. For example, you can add hyperlinks in the introduction such as [fxhsb](https://github.com/Reapor-Yurnero) with\n```markdown\n[fxhsb](https://github.com/Reapor-Yurnero)\n```',
-    'Here we try to test whether reloading is enabled when site updated (23).',
+    'I am an undergraduate student at the <href="https://www.umich.edu"> University of Michigan. I am interested in pre-doctoral programs in machine learning.',
   ],
   avatar: 'avatar.png',
   professions: [
-    'Software Engineer',
-    'Full Stack Developer',
+    'Research Engineer',
+    'Student',
   ],
   tocMaxDepth: 2,
   excerptMaxLength: 500,
-  birthday: 'Some day',
-  location: 'Earth',
-  email: 'john.doe@gmail.com',
+  // birthday: 'Some day',
+  location: 'New York, NY',
+  email: 'cawleyl@umich.edu',
   postsForArchivePage: 3,
   defaultLanguage: 'en',
   disqusScript: process.env.DISQUS_SCRIPT
@@ -34,14 +32,14 @@ module.exports = {
   },
   social: [
     {
-      url: '/resume.pdf',
+      url: '/LiamCawleyResume.pdf',
       icon: ['ai', 'cv'],
     }, {
-      url: 'https://github.com/',
+      url: 'https://github.com/cawley',
       icon: ['fab', 'github'],
     }, {
-      url: 'https://twitter.com/',
-      icon: ['fab', 'twitter'],
+      url: 'https://github.com/fxcawley',
+      icon: ['fab', 'github'],
     }, {
       url: 'https://scholar.google.com/',
       icon: ['fab', 'google-scholar'],
@@ -62,99 +60,107 @@ module.exports = {
   googleAnalyticTrackingId: process.env.GA_TRACKING_ID || 'G-ZK3P43DY6M',
   education: [
     {
-      date: 'Jan 2020 - Present',
-      icon: 'graduation-cap',
-      title: 'Ph.D in Computer Science',
-      location: 'Some University, Somewhere',
-    }, {
-      date: 'Sept 2015 - Aug 2019',
+      date: 'Sept 2021 - Present',
       icon: 'university',
-      title: 'B.S.E. in Electrical and Computer Engineering',
-      location: 'Some University, Somewhere',
+      title: 'B.S.E. in Computer Science',
+      location: 'University of Michigan',
     }, {
-      date: 'Sept 2008 - June 2015',
+      date: 'Sept 2017 - May 2021',
       icon: 'school',
-      title: 'Middle School',
-      location: 'Some Middle School, Somewhere',
+      title: 'High School',
+      location: 'Bronx High School of Science',
     }],
   interests: [
     {
       icon: 'cubes',
-      title: 'Distributed Systems',
+      title: 'Machine Learning',
     }, {
       icon: 'layer-group',
-      title: 'Full Stack Development',
+      title: 'Mechanistic Interpretability',
     }, {
-      icon: ['fab', 'linux'],
-      // icon: 'linux',
+      icon: 'linux',
       title: 'Open Source Community',
     }],
-  experience: [
-    {
-      title: 'Work',
-      position: 'left',
-      data: [
-        {
-          date: 'Aug 2019 - Present',
-          title: 'Software Engineer',
-          location: 'Somewhere',
-          description: 'description',
-        },
-      ],
-    }, {
-      title: 'Teaching',
-      position: 'right',
-      data: [
-        {
-          date: 'Aug 2019',
-          title: 'Teaching Assistant of XXX',
-          location: 'Somewhere',
-        }, {
-          date: 'Aug 2018',
-          title: 'Teaching Assistant of XXX',
-          location: 'Somewhere',
-        }, {
-          date: 'Aug 2017',
-          title: 'Teaching Assistant of XXX',
-          location: 'Somewhere',
-        }, {
-          date: 'Aug 2018',
-          title: 'Teaching Assistant of XXX',
-          location: 'Somewhere',
-        }, {
-          date: 'Aug 2017',
-          title: 'Teaching Assistant of XXX',
-          location: 'Somewhere',
-        },
-      ],
-    }, {
-      title: 'Volunteer',
-      position: 'left',
-      data: [
-        {
-          date: 'Aug 2019',
-          title: '[fxh](https://github.com/Reapor-Yurnero) home visit third time',
-          location: 'Somewhere',
-        }, {
-          date: 'Aug 2018',
-          title: '[fxh](https://github.com/Reapor-Yurnero) home visit second time',
-          location: 'Somewhere',
-        }, {
-          date: 'Aug 2017',
-          title: '[fxh](https://github.com/Reapor-Yurnero) home visit\n\n111',
-          location: 'Somewhere',
-        },
-      ],
-    },
-  ],
+    experience: [
+      {
+        title: 'Work',
+        position: 'left',
+        data: [
+          {
+            date: 'May 2024 - August 2024',
+            title: 'High Performance Computing Intern',
+            location: 'KLA Corporation, San Jose, CA',
+            description: 'Developed novel image processing CNNs for semiconductor manufacturing. Collaborated with cross-functional teams to optimize algorithms for high-performance computing environments. Conducted performance benchmarking and analysis of machine learning models.',
+          },
+          {
+            date: 'May 2023 - August 2023',
+            title: 'Machine Learning Intern',
+            location: 'EMAG Technologies, Ann Arbor, MI',
+            description: 'Developed novel calibration algorithms for phased array systems.',
+          },
+          {
+            date: 'May 2022 - August 2022',
+            title: 'Software Engineering Intern',
+            location: 'RTX Fintech & Research, New York, NY',
+            description: 'Built full-stack features for interest rate derivatives platform.',
+          },
+          {
+            date: 'June 2022 - August 2022',
+            title: 'Line Cook/Handyman',
+            location: "Little Frankie's, Manhattan, NY",
+            description: 'Worked night shifts, built out shelving, painted and cooked for the late night extension of Little Frankies.',
+          },
+        ],
+      },
+      {
+        title: 'Teaching',
+        position: 'right',
+        data: [
+          {
+            date: 'January 2022 - May 2022',
+            title: 'Math Lab Tutor',
+            location: 'University of Michigan',
+            description: 'Teaching Assistant for Math 216: Introduction to Differential Equations. Assisted students with problem sets and exam preparation in the Math LAB.',
+          },
+        ],
+      },
+      {
+        title: 'Volunteer',
+        position: 'right',
+        data: [
+          {
+            date: 'December 2019 - August 2021',
+            title: 'Meals on Wheels Volunteer',
+            location: 'Harlem, NY',
+            description: 'Supported meal delivery service for seniors and disabled residents.',
+          },
+          {
+            date: 'June 2023 - August 2023',
+            title: 'Get Out Stay Out Volunteer',
+            location: 'New York, NY',
+            description: 'Assisted with community outreach and support programs to end recidivism in the East Harlem.',
+          },
+          {
+            date: 'June 2022 - August 2022',
+            title: 'Carnegie Hill Neighbors Volunteer',
+            location: 'New York, NY',
+            description: 'Participated in community development and neighborhood improvement initiatives.',
+          },
+        ],
+      },
+    ],
   awards: [
     {
-      date: 'Someday',
-      title: 'Some Award',
-    }, {
-      date: 'Someday',
-      title: 'Another Award',
+      date: 'December 2020',
+      title: 'USA Computing Olympiad Silver',
     },
+    {
+      date: 'February 2020',
+      title: 'AIME Qualification',
+    }, {
+      date: 'February 2019',
+      title: 'AMC 10 8th Place in School',
+    }
   ],
   tagColors: [
     'magenta', 'red', 'volcano', 'orange', 'gold',
