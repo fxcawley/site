@@ -22,5 +22,8 @@
     "gatsby-plugin",
     "markdown"
   ],
-  "dependencies": {}
+  "dependencies": {},
+  "resolutions": {
+  "gatsby-plugin-build-date": "5.0.0"
+}
 }
