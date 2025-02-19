@@ -15,7 +15,7 @@ module.exports = {
   ],
   tocMaxDepth: 2,
   excerptMaxLength: 500,
-  // birthday: 'Some day',
+  birthday: 'Some day',
   location: 'New York, NY',
   email: 'cawleyl@umich.edu',
   postsForArchivePage: 3,
