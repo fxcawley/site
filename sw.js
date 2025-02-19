@@ -27,10 +27,10 @@ workbox.core.clientsClaim();
  */
 self.__precacheManifest = [
   {
-    "url": "webpack-runtime-9fa204ac8bc982a0cf77.js"
+    "url": "webpack-runtime-4b0ed9fc68b2884c4152.js"
   },
   {
-    "url": "styles.30b09781c4ff7009ab2c.css"
+    "url": "styles.51c18ab5879debdf097a.css"
   },
   {
     "url": "framework-03fbf18c02e5ddfb05e7.js"
@@ -51,15 +51,15 @@ self.__precacheManifest = [
     "url": "884b4bb2-3b6363cfc4461453b71d.js"
   },
   {
-    "url": "app-91104f273472435a1a46.js"
+    "url": "app-6875185a1409c68ebfe5.js"
   },
   {
     "url": "offline-plugin-app-shell-fallback/index.html",
-    "revision": "e6f1b94b93574d83dc2dd50b6971babc"
+    "revision": "6eb8ce291040d543be87385b89073fa4"
   },
   {
     "url": "manifest.webmanifest",
-    "revision": "c2f180fc6e266e6a743df7e77ceb7471"
+    "revision": "4d1947202978f17eed32b52bbb1c14aa"
   }
 ].concat(self.__precacheManifest || []);
 workbox.precaching.precacheAndRoute(self.__precacheManifest, {});
@@ -164,12 +164,12 @@ const navigationRoute = new NavigationRoute(async ({ event }) => {
   lastNavigationRequest = event.request.url
 
   let { pathname } = new URL(event.request.url)
-  pathname = pathname.replace(new RegExp(`^`), ``)
+  pathname = pathname.replace(new RegExp(`^/site`), ``)
 
   // Check for resources + the app bundle
   // The latter may not exist if the SW is updating to a new version
   const resources = await idbKeyval.get(`resources:${pathname}`)
-  if (!resources || !(await caches.match(`/app-91104f273472435a1a46.js`))) {
+  if (!resources || !(await caches.match(`/site/app-6875185a1409c68ebfe5.js`))) {
     return await fetch(event.request)
   }
 
@@ -182,7 +182,7 @@ const navigationRoute = new NavigationRoute(async ({ event }) => {
     }
   }
 
-  const offlineShell = `/offline-plugin-app-shell-fallback/index.html`
+  const offlineShell = `/site/offline-plugin-app-shell-fallback/index.html`
   const offlineShellWithKey = workbox.precaching.getCacheKeyForURL(offlineShell)
   return await caches.match(offlineShellWithKey)
 })
