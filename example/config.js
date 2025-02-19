@@ -6,7 +6,7 @@ module.exports = {
   author: 'Liam Cawley',
   authorAlternative: '连姆·考利',
   introduction: [
-    'I am an undergraduate student at the <href="https://www.umich.edu"> University of Michigan. I am interested in pre-doctoral programs in machine learning.',
+    'I am an undergraduate student at the University of Michigan. I am interested in pre-doctoral programs in machine learning.',
   ],
   avatar: 'headshot.png',
   professions: [
@@ -15,7 +15,7 @@ module.exports = {
   ],
   tocMaxDepth: 2,
   excerptMaxLength: 500,
-  birthday: 'Some day',
+  // birthday: ',
   location: 'New York, NY',
   email: 'cawleyl@umich.edu',
   postsForArchivePage: 3,
