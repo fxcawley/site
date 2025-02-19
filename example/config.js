@@ -1,5 +1,5 @@
 module.exports = {
-  pathPrefix: '/site',
+  //pathPrefix: '/site',
   siteUrl: 'https://www.cawley.dev',
   title: 'Liam Cawley',
   description: 'Personal Website of Liam Cawley',
@@ -8,7 +8,7 @@ module.exports = {
   introduction: [
     'I am an undergraduate student at the <href="https://www.umich.edu"> University of Michigan. I am interested in pre-doctoral programs in machine learning.',
   ],
-  avatar: 'avatar.png',
+  avatar: 'headshot.png',
   professions: [
     'Research Engineer',
     'Student',
