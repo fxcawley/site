@@ -63,7 +63,7 @@ module.exports = {
       date: 'Sept 2021 - Present',
       icon: 'university',
       title: 'B.S.E. in Computer Science',
-      location: 'University of Michigan',
+      location: 'University of Michigan, College of Engineering',
     }, {
       date: 'Sept 2017 - May 2021',
       icon: 'school',
