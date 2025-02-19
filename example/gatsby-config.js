@@ -1,3 +1,4 @@
+// Use import() for ESM modules
 const config = require('./config');
 
 module.exports = {
@@ -12,13 +13,6 @@ module.exports = {
         tagColors: config.tagColors,
         author: config.author,
         icon: './static/favicon.png',
-      },
-    },
-  {
-    resolve: `gatsby-plugin-mdx`,
-      options: {
-        remarkPlugins: [require(`remark-math`)],
-        rehypePlugins: [require(`rehype-katex`)],
       },
     },
   ],
