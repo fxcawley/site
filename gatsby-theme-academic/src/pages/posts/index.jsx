@@ -49,11 +49,7 @@ export const query = graphql`
     }
     allMdx(
       sort: {frontmatter: {date: DESC}}
-      filter: {
-        internal: {
-          contentFilePath: { regex: "/posts\/.*\/index\\.mdx?$/" }
-        }
-      }
+      filter: { frontmatter: { path: { regex: "/^posts\\//" } } }
     ) {
       edges {
         node {

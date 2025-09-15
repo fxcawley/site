@@ -48,11 +48,7 @@ export const query = graphql`
       }
     }
     allMdx(
-      filter: { 
-        internal: {
-          contentFilePath: { regex: "/research\/.*\/index\\.mdx?$/" }
-        }
-      }
+      filter: { frontmatter: { path: { regex: "/^research\\//" } } }
       sort: [{frontmatter: {priority: ASC}}, {frontmatter: {title: ASC}}]
     ) {
       edges {

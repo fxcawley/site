@@ -7,11 +7,15 @@
   "scripts": {
     "build": "yarn workspace example build",
     "develop": "yarn workspace example develop",
-    "clean": "yarn workspace example clean"
+    "clean": "yarn workspace example clean",
+    "build:prod": "yarn workspace prod build",
+    "develop:prod": "yarn workspace prod develop",
+    "clean:prod": "yarn workspace prod clean"
   },
   "workspaces": [
     "gatsby-theme-academic",
-    "example"
+    "example",
+    "prod"
   ],
   "repository": {
     "type": "git",
