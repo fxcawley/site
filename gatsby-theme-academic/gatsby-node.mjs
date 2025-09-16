@@ -665,6 +665,7 @@ export const onCreateWebpackConfig = ({
       fallback: {
         fs: false,
         path: require.resolve('path-browserify'),
+        canvas: false,
       },
     },
   });
