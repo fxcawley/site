@@ -384,10 +384,22 @@ export const createPages = async ({
     });
   }
 
-  // const statistics = {
-  //   tags,
-  //   git: getGitInfo(),
-  // };
+  // Create project pages from GithubRepo nodes
+  const reposResult = await graphql(`
+    { allGithubRepo { nodes { id fields { path } } } }
+  `);
+  if (!reposResult.errors) {
+    const template = require.resolve('./src/templates/project/project.jsx');
+    (reposResult.data.allGithubRepo.nodes || []).forEach((r) => {
+      if (r.fields && r.fields.path) {
+        createPage({
+          path: r.fields.path,
+          component: template,
+          context: { id: r.id },
+        });
+      }
+    });
+  }
 
   // fs.writeFileSync('content/statistics.json', JSON.stringify(statistics, null, 2));
 
@@ -409,36 +421,23 @@ export const sourceNodes = async ({ actions, createNodeId, createContentDigest, 
   try {
     const repos = await fetchGithubRepos(username, process.env.GITHUB_TOKEN || '');
     for (const repo of repos) {
-      const id = createNodeId(`github-repo-${repo.id}`);
+      const nodeData = { ...repo, repoNumericId: String(repo.id) };
       const node = {
-        id,
+        ...nodeData,
+        id: createNodeId(`github-repo-${repo.id}`),
         parent: null,
         children: [],
         internal: {
           type: 'GithubRepo',
-          contentDigest: createContentDigest(repo),
+          contentDigest: createContentDigest(nodeData),
         },
-        ...repo,
       };
       createNode(node);
-      createNodeField({ node, name: 'path', value: `${options.pages.projects}/${repo.name}` });
+      createNodeField({ node, name: 'path', value: utils.resolvePageUrl(options.pages.projects, repo.name) });
     }
   } catch (e) {
     reporter.warn(`Failed to fetch GitHub repos: ${e.message}`);
   }
-};
-
-export const createResolvers = ({ createResolvers }) => {
-  createResolvers({
-    GithubRepo: {
-      html_url: { type: 'String' },
-      stargazers_count: { type: 'Int' },
-      language: { type: 'String' },
-      description: { type: 'String' },
-      name: { type: 'String' },
-      fields: { type: 'JSON' },
-    },
-  });
 };
 
 export const onCreateNode = ({
@@ -594,6 +593,18 @@ export const createSchemaCustomization = async (
       icon: [String] @fontAwesomeIcon
       title: String!
       location: String!
+    }
+    type GithubRepoFields {
+      path: String
+    }
+    type GithubRepo implements Node {
+      node_id: String
+      name: String
+      description: String
+      html_url: String
+      stargazers_count: Int
+      language: String
+      fields: GithubRepoFields
     }
   `;
   const MdxFrontmatterDef = schema.buildObjectType({
