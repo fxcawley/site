@@ -27,6 +27,7 @@ const config = ({
     resume: 'resume',
     tags: 'tags',
     research: 'research',
+    projects: 'projects',
   },
   icon = '',
   tagColors = [

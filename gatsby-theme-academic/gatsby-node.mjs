@@ -9,6 +9,7 @@ import * as path from 'path';
 
 import { $ as execa } from 'execa';
 import fs from 'fs-extra';
+import fetch from 'node-fetch';
 import _ from 'lodash';
 import slash from 'slash';
 import nacl from 'tweetnacl';
@@ -391,6 +392,53 @@ export const createPages = async ({
   // fs.writeFileSync('content/statistics.json', JSON.stringify(statistics, null, 2));
 
   return 1;
+};
+
+const fetchGithubRepos = async (username, token) => {
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  const res = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&type=owner&sort=updated`, { headers });
+  if (!res.ok) {
+    throw new Error(`GitHub API error: ${res.status}`);
+  }
+  return res.json();
+};
+
+export const sourceNodes = async ({ actions, createNodeId, createContentDigest, reporter }, options) => {
+  const { createNode, createNodeField } = actions;
+  const username = 'fxcawley';
+  try {
+    const repos = await fetchGithubRepos(username, process.env.GITHUB_TOKEN || '');
+    for (const repo of repos) {
+      const id = createNodeId(`github-repo-${repo.id}`);
+      const node = {
+        id,
+        parent: null,
+        children: [],
+        internal: {
+          type: 'GithubRepo',
+          contentDigest: createContentDigest(repo),
+        },
+        ...repo,
+      };
+      createNode(node);
+      createNodeField({ node, name: 'path', value: `${options.pages.projects}/${repo.name}` });
+    }
+  } catch (e) {
+    reporter.warn(`Failed to fetch GitHub repos: ${e.message}`);
+  }
+};
+
+export const createResolvers = ({ createResolvers }) => {
+  createResolvers({
+    GithubRepo: {
+      html_url: { type: 'String' },
+      stargazers_count: { type: 'Int' },
+      language: { type: 'String' },
+      description: { type: 'String' },
+      name: { type: 'String' },
+      fields: { type: 'JSON' },
+    },
+  });
 };
 
 export const onCreateNode = ({
