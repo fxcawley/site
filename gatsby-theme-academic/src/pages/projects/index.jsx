@@ -4,7 +4,7 @@ import Panel from '../../components/Panel';
 import SEO from '../../components/Seo';
 
 const Projects = ({ data }) => {
-  const repos = data.allGithubRepo.nodes || [];
+  const repos = (data.allGithubRepo && data.allGithubRepo.nodes) ? data.allGithubRepo.nodes : [];
   return (
     <>
       <SEO title="Projects" description="Open-source projects from GitHub." path="projects" />
