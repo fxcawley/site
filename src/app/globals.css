@@ -1,0 +1,138 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@layer base {
+  :root {
+    --background: 255 255 255;
+    --foreground: 15 23 42;
+    --muted: 241 245 249;
+    --muted-foreground: 100 116 139;
+    --border: 226 232 240;
+    --card: 255 255 255;
+  }
+
+  .dark {
+    --background: 15 23 42;
+    --foreground: 226 232 240;
+    --muted: 30 41 59;
+    --muted-foreground: 148 163 184;
+    --border: 51 65 85;
+    --card: 30 41 59;
+  }
+
+  body {
+    @apply bg-[rgb(var(--background))] text-[rgb(var(--foreground))] antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+/* Prose styles for markdown content */
+.prose {
+  @apply max-w-none;
+}
+
+.prose h1 {
+  @apply text-3xl font-bold mt-8 mb-4 text-[rgb(var(--foreground))];
+}
+
+.prose h2 {
+  @apply text-2xl font-semibold mt-8 mb-3 text-[rgb(var(--foreground))];
+}
+
+.prose h3 {
+  @apply text-xl font-semibold mt-6 mb-2 text-[rgb(var(--foreground))];
+}
+
+.prose h4 {
+  @apply text-lg font-medium mt-4 mb-2 text-[rgb(var(--foreground))];
+}
+
+.prose p {
+  @apply my-4 leading-7 text-[rgb(var(--foreground))]/90;
+}
+
+.prose a {
+  @apply text-accent-600 dark:text-accent-400 underline underline-offset-2 hover:text-accent-700 dark:hover:text-accent-300 transition-colors;
+}
+
+.prose ul {
+  @apply my-4 pl-6 list-disc space-y-1;
+}
+
+.prose ol {
+  @apply my-4 pl-6 list-decimal space-y-1;
+}
+
+.prose li {
+  @apply leading-7 text-[rgb(var(--foreground))]/90;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-accent-500 pl-4 my-4 italic text-[rgb(var(--muted-foreground))];
+}
+
+.prose img {
+  @apply rounded-lg my-6;
+}
+
+.prose table {
+  @apply w-full my-6 text-sm;
+}
+
+.prose thead {
+  @apply border-b-2 border-[rgb(var(--border))];
+}
+
+.prose th {
+  @apply px-4 py-2 text-left font-semibold;
+}
+
+.prose td {
+  @apply px-4 py-2 border-b border-[rgb(var(--border))];
+}
+
+.prose hr {
+  @apply my-8 border-[rgb(var(--border))];
+}
+
+.prose strong {
+  @apply font-semibold text-[rgb(var(--foreground))];
+}
+
+.prose code {
+  @apply bg-[rgb(var(--muted))] text-sm px-1.5 py-0.5 rounded font-mono;
+}
+
+.prose pre {
+  @apply bg-[rgb(var(--muted))] rounded-lg p-4 my-6 overflow-x-auto;
+}
+
+.prose pre code {
+  @apply bg-transparent p-0;
+}
+
+/* Shiki code block styles */
+[data-rehype-pretty-code-figure] pre {
+  @apply bg-slate-950 dark:bg-slate-900 rounded-lg p-4 my-6 overflow-x-auto text-sm;
+}
+
+[data-rehype-pretty-code-figure] code {
+  @apply bg-transparent p-0 text-sm;
+  counter-reset: line;
+}
+
+[data-rehype-pretty-code-figure] [data-line] {
+  @apply px-4;
+}
+
+/* KaTeX overrides */
+.katex-display {
+  @apply my-6 overflow-x-auto overflow-y-hidden;
+}
+
+.katex {
+  font-size: 1.1em;
+}
