@@ -17,6 +17,7 @@ The writing voice for blog posts should be:
 - Performing excitement about results
 - Second-person hooks at paragraph openings
 - Tripartite parallelism for emphasis ("Practically... Theoretically... Philosophically...")
+- **Excessive em dashes.** Use them sparingly. Prefer commas, semicolons, parentheses, or separate sentences. One or two per post is fine; more than that reads as an AI tell.
 
 ## Thread System
 

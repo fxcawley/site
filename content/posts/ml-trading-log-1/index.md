@@ -1,48 +1,23 @@
 ---
-title: "Scope and Setup"
-tags: ["ml", "trading", "time-series"]
+title: "Why Markets"
+tags: ["anomaly-detection", "world-modeling", "markets"]
 date: 2025-03-01
-excerpt: Defining the project scope, data sources, and evaluation criteria for an ML-based equity trading strategy.
+excerpt: Using financial markets as a testbed for world modeling and anomaly detection, and why this domain is worth the trouble.
 thread: "ml-trading"
-threadTitle: "ML Trading Strategy"
+threadTitle: "World Modeling in Markets"
 threadOrder: 1
 ---
 
-The goal of this project is to determine whether a straightforward ML pipeline, trained on publicly available features, can outperform a passive equity benchmark after accounting for transaction costs. The setting is deliberately conventional — daily-frequency data on large-cap US equities — so that any signal (or lack thereof) is not attributable to exotic market structure or thin liquidity.
+I work in anomaly detection. The specifics of what I do at my day job are not something I can discuss here, but the general shape of the problem is: build a model of what "normal" looks like, then flag deviations from that model and decide which deviations matter. The interesting part is rarely the detection itself; it is the modeling of normal, which requires understanding the system well enough that genuine anomalies stand out from noise.
 
-This thread will serve as a running log. Each post corresponds to a stage of the project.
+Financial markets are a useful setting in which to generalize this kind of thinking. Not the only setting, and probably not the best, but one with several properties that make it attractive as a personal research domain.
 
-## Constraints
+First, the data is abundant and free. Price and volume history for thousands of instruments going back decades is available through Yahoo Finance. Regulatory filings are on EDGAR. Macro indicators are on FRED. Commitments of Traders reports from the CFTC are published weekly. The infrastructure cost for a backtesting environment is essentially zero.
 
-1. **Universe**: S&P 500 constituents, using point-in-time membership lists to avoid survivorship bias.
-2. **Horizon**: daily rebalancing, with a target holding period of 5–20 days.
-3. **Benchmark**: SPY buy-and-hold over the same evaluation window.
-4. **Cost model**: 5 basis points per side. No market impact modeling; position sizes are assumed small enough to justify this.
-5. **No lookahead**: all features are computed from strictly past data. The train/validation/test split is temporal.
+Second, markets provide a built-in evaluation criterion. If a model claims to have identified something real about the world, that claim can be tested by constructing a portfolio and measuring its performance against a benchmark. The feedback loop between belief and outcome is unusually tight. There are many layers of abstraction between "I have identified a real pattern" and "this pattern generates risk-adjusted returns after transaction costs," and those layers are themselves instructive. A model that detects a genuine anomaly in price data may still be worthless if the anomaly is too expensive to trade, or if it has already been arbitraged away, or if the detection depends on lookahead bias introduced during feature construction. Each failure mode teaches something about the relationship between a model and the system it claims to describe.
 
-## Data
+Third, financial markets are competitive and adversarial in a way that most detection problems are not. Other participants are actively trying to exploit the same patterns. This makes the domain a hard test for any modeling approach: signals that survive transaction costs and adversarial pressure are probably capturing something real about the underlying system, while signals that don't are probably capturing noise or artifacts.
 
-The pipeline draws from three sources:
+This thread documents a series of projects in this domain, starting with conventional price-based strategies, extending to alternative data sources, and eventually moving toward prediction markets. The long-term goal is to build a general anomaly detection framework that transfers what I have learned in my professional work to a domain where the evaluation criteria are explicit and the data is public.
 
-- **Price and volume**: adjusted closes from Yahoo Finance via `yfinance`.
-- **Fundamentals**: quarterly EPS, book value, and related items from SEC EDGAR bulk downloads.
-- **Macro indicators**: Fed funds rate, VIX, and the 10y–2y yield curve slope from FRED.
-
-These are stored in a local DuckDB instance, one table per source, joined on `(ticker, date)` at query time.
-
-## Initial feature set
-
-The first iteration uses a deliberately minimal feature set:
-
-- Returns over 1, 5, 20, and 60 trading days
-- 20-day rolling standard deviation of returns
-- 20-day average volume, and the ratio of current volume to that average
-- RSI(14)
-- A binary indicator for whether the 50-day moving average exceeds the 200-day
-- Most recent quarterly earnings surprise (actual minus consensus)
-
-This gives roughly 12 features per ticker per day. The intent is to establish a working end-to-end pipeline and a credible evaluation framework before introducing more complex features.
-
-## Next
-
-The following post covers the choice of model and the backtesting procedure.
+The results so far are largely negative, in the sense that most strategies I have tested do not produce statistically significant alpha. I consider this informative rather than discouraging. The negative results have taught me more about proper backtesting methodology, survivorship bias, transaction cost modeling, and out-of-sample validation than the positive results have.
