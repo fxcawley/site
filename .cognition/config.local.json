@@ -50,7 +50,8 @@
       "Exec(head)",
       "Exec(git show)",
       "Exec(cat content/research/lorambo/index.md)",
-      "Exec(cat content/posts/hello-world/index.md)"
+      "Exec(cat content/posts/hello-world/index.md)",
+      "Exec(npm run)"
     ]
   },
   "skills": {

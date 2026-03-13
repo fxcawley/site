@@ -1,149 +1,110 @@
 ---
-title: "Steiner Network Design - A Formal Introduction"
-tags: ["optimization", "networks", "algorithms", "graph-theory", "linear-programming"]
+title: "Steiner Networks, or, the Price of Fault Tolerance"
+tags: ["optimization", "networks", "graph-theory", "linear-programming", "approximation"]
 date: 2025-02-17
-excerpt: What follows are some notes on Steiner Network Design, in accordance with my lectures in EECS 598-001 Hardness of Approximation with Prof. Euiwoong Lee. I'll start with formal definitions and work through the key theoretical components.
+excerpt: How the jump from spanning trees to fault-tolerant network design breaks everything nice about LP relaxations, and what Jain figured out to get a 2-approximation anyway. Notes from EECS 598 with Euiwoong Lee.
 ---
 
-## 1. Problem Definition
+You want to wire up a chip. Pins need connecting, copper costs money. If you just need *one* path between every pair of pins, that's a minimum spanning tree and Kruskal will solve it before your coffee gets cold.
 
-Let $G = (V, E)$ be an undirected graph with costs $c(e) \geq 0$ for each edge $e \in E$. Given connectivity requirements $r(u,v)$ for pairs $(u,v) \in V \times V$, we want to find a minimum-cost subgraph $H \subseteq G$ satisfying these requirements.
+But chips fail. Links fail. If you need two independent paths between certain pairs of pins so a single fault doesn't kill the connection, you have a Steiner Network problem, and things get ugly fast.
 
-Formally:
+These are reworked notes from EECS 598-001 (Hardness of Approximation) with Euiwoong Lee. I've tried to organize them around a single question: what exactly breaks when you move from MST to Steiner networks, and how much can you recover?
 
-**Input**: 
-1. $G = (V,E)$ with $c(e) \geq 0$
-2. $r: V \times V \to \mathbb{Z}_{\geq 0}$
+---
 
-**Output**: $H \subseteq G$ minimizing $\sum_{e \in E(H)} c(e)$
+## MST as an LP
 
-**Constraint**: For all pairs $(u,v)$, edge-connectivity $\lambda_H(u,v) \geq r(u,v)$
-
-## 2. LP Formulation
-
-The canonical approach uses cut-based linear programs. For each $e \in E$, let $x_e \geq 0$ indicate how "much" of edge $e$ we take.
-
-First, define cut demand:
-
-$$r(S) = \max_{u\in S,\;v\notin S} r(u,v)$$
-
-This gives us:
+Start with the easy case. $G = (V, E)$, edge costs $c: E \to \mathbb{R}_{\geq 0}$, and you want the cheapest connected spanning subgraph. Put a binary variable $x_e$ on each edge:
 
 $$
 \begin{aligned}
-\text{(IP)}\quad
-&\min && \sum_{e\in E} c(e)x_e\\
-&\text{s.t.} && \sum_{e \in \delta(S)} x_e \geq r(S) \quad &&\forall\,S \subset V,\; S\neq\emptyset,\,S\neq V,\\
-&&& x_e \in \{0,1,\dots\}\quad &&\forall\,e \in E.
+\min \quad & \sum_{e \in E} c(e)\, x_e \\
+\text{s.t.} \quad & \sum_{e \in \delta(S)} x_e \geq 1 \quad \forall\; \emptyset \subset S \subset V \\
+& x_e \in \{0, 1\} \quad \forall\; e \in E
 \end{aligned}
 $$
 
-Typically relaxed to $x_e \geq 0$.
+Each constraint says: no matter how you split the vertices into two groups, at least one edge crosses. That's connectivity.
 
-## 3. Sub/Supermodularity 
+The nice thing about MST is that if you drop the integrality requirement and just ask $x_e \geq 0$, you still get integer solutions. The constraint matrix is totally unimodular, so every extreme point of the LP polytope is integral. Kruskal's is basically solving this LP without knowing it.
 
-This is where things get interesting. Many network design problems exhibit submodular or supermodular structure.
+This won't last.
 
-**Def**: $f: 2^V \to \mathbb{R}$ is submodular if for all $A,B \subseteq V$:
+## Steiner Networks
+
+Now let requirements vary. A function $r: V \times V \to \mathbb{Z}_{\geq 0}$ specifies, for each pair, how many edge-disjoint paths you need between them.
+
+> **Steiner Network Design.** Given $G = (V, E)$ with costs $c(e) \geq 0$ and requirements $r(u,v)$, find the cheapest subgraph $H \subseteq G$ with edge-connectivity $\lambda_H(u,v) \geq r(u,v)$ for all pairs.
+
+If all requirements are 0 or 1 and only some vertices need connecting, you get the Steiner Tree problem (already NP-hard). Requirements $\geq 2$ puts you into Steiner Network territory.
+
+The motivation for higher connectivity requirements is Menger's theorem: $r(u,v) = k$ means $u$ and $v$ stay connected even after removing any $k-1$ edges. That's the whole point. One cut fiber shouldn't partition a city. One dead trace on a board shouldn't brick a chip.
+
+## The LP and what goes wrong
+
+Same approach as MST. Define **cut demand** for a set $S$:
+
+$$r(S) = \max_{\substack{u \in S,\; v \notin S}} r(u, v)$$
+
+The integer program:
+
+$$
+\begin{aligned}
+\min \quad & \sum_{e \in E} c(e)\, x_e \\
+\text{s.t.} \quad & \sum_{e \in \delta(S)} x_e \geq r(S) \quad \forall\; \emptyset \subset S \subset V \\
+& x_e \in \{0, 1, 2, \ldots\} \quad \forall\; e \in E
+\end{aligned}
+$$
+
+Relax to $x_e \geq 0$. Exponentially many constraints, but the ellipsoid method with a min-cut separation oracle handles it.
+
+Now the question: how much does relaxing integrality cost us? The ratio $\text{OPT}_{\text{IP}} / \text{OPT}_{\text{LP}}$ is the integrality gap. For MST it's 1. For Steiner Tree it's conjectured around $\ln 4 / \ln 3 \approx 1.10$. For general Steiner Network, the best anyone's shown is that it's at most 2 (Jain, 2001). Nobody has improved this in over twenty years.
+
+## What survives: submodularity and uncrossing
+
+OK, so the LP doesn't give integer solutions anymore. The question is whether there's enough structure left to round fractional solutions without blowing up the cost too badly. Turns out there is.
+
+**Submodularity.** Cut capacity (edges crossing a cut) is submodular:
 
 $$f(A) + f(B) \geq f(A \cup B) + f(A \cap B)$$
 
-**Def**: $g$ is supermodular if $-g$ is submodular.
+This is the diminishing-returns inequality. It's what makes min-cut computable in polynomial time, which is what lets us solve the LP at all despite having $2^{|V|}$ constraints.
 
-In network design:
-- Cut capacity functions are often submodular
-- Deficit/surplus functions across cuts can be supermodular
-- These properties are crucial for:
-  1. Uncrossing arguments
-  2. Approximation bounds
-  3. Integrality proofs
+Meanwhile the demand $r(S)$ is supermodular:
 
-## 4. Laminar Families
+$$r(A) + r(B) \leq r(A \cup B) + r(A \cap B)$$
 
-A family $\mathcal{F} \subseteq 2^V$ is laminar if for any $S,T \in \mathcal{F}$:
-- $S \subseteq T$, or
-- $T \subseteq S$, or
-- $S \cap T = \emptyset$
+The tension between these two is where all the action is.
 
-**Key Point**: Through uncrossing arguments, we can often reduce exponentially many constraints to a laminar family without losing optimality.
+**Uncrossing.** A family of sets $\mathcal{F} \subseteq 2^V$ is **laminar** if any two members are disjoint or one contains the other. These families are tree-shaped and have size $\leq 2|V| - 1$.
 
-**Uncrossing Lemma**: For crossing violating cuts $S,T$, we can replace them with $S \cap T$ and $S \cup T$ while maintaining feasibility.
+At an optimal LP extreme point, some constraints are tight (binding with equality). If two tight cuts $S$ and $T$ cross, the sub/supermodularity pairing lets you replace them with $S \cap T$ and $S \cup T$ without losing tightness:
 
-## 5. Integrality and Tightness
+$$r(S \cap T) + r(S \cup T) \geq r(S) + r(T)$$
 
-The LP relaxation usually isn't integral. Key questions:
-1. What's the integrality gap?
-2. How do we get integer solutions?
+$$|\delta(S \cap T)| + |\delta(S \cup T)| \leq |\delta(S)| + |\delta(T)|$$
 
-Standard approach:
-1. Find optimal LP solution
-2. Show tight sets form laminar family
-3. Use iterative rounding or primal-dual
+Repeat until nothing crosses. You end up with a laminar family of tight constraints. Exponentially many constraints have been tamed into a tree of at most $2|V| - 1$ sets.
 
-## 6. Applications
+This is the key structural fact that makes everything else work.
 
-Quick hits (each deserves its own post):
-- VLSI design
-- Network infrastructure
-- Phylogenetic trees
-- Telecommunication networks
+## Jain's 2-approximation
 
-## 7. MST: The Base Case
+Jain's algorithm is almost offensively simple:
 
-Let's dig into the simplest non-trivial case: Minimum Spanning Tree (MST). This gives concrete intuition for the abstract machinery we've covered.
+1. Solve the LP.
+2. Find any edge with $x_e \geq 1/2$. Round it up to $\lceil x_e \rceil$. Fix it.
+3. Reduce the problem. Repeat.
 
-In MST, we have $r(u,v) = 1$ for all pairs $(u,v)$, and all vertices are terminals. This leads to:
+Why does this work? The laminar structure of tight constraints bounds the number of fractional variables at any extreme point, and a counting argument shows at least one variable must be $\geq 1/2$. So the loop always makes progress.
 
-$$
-\begin{aligned}
-\min && \sum_{e\in E} c(e)x_e\\
-\text{s.t.} && \sum_{e \in \delta(S)} x_e \geq 1 \quad &&\forall S \subset V,\\
-&& x_e \in \{0,1\} &&\forall e \in E.
-\end{aligned}
-$$
+Since each edge gets rounded up by at most a factor of 2, the total cost is at most $2 \cdot \text{OPT}_{\text{LP}} \leq 2 \cdot \text{OPT}_{\text{IP}}$.
 
-### 7.1 Quick Example
+A 2-approximation. You can build a network guaranteed to cost at most twice optimal, in polynomial time, for a problem that's NP-hard to solve exactly. For something like chip wiring or telecom backbone design, that's a useful guarantee.
 
-Take $V = \{A,B,C,D\}$ with edges:
-$E = \{(A,B),(A,C),(B,C),(B,D),(C,D)\}$
-$c(A,B) = 3, c(A,C) = 1, c(B,C) = 2, c(B,D) = 4, c(C,D) = 3$
+## Why I think this matters
 
-Optimal solution: $\{(A,C),(B,C),(C,D)\}$ with cost 6.
+The progression from MST to Steiner Network is a clean example of what approximation algorithms are really about. MST is trivially polynomial. Add non-uniform connectivity requirements and you're NP-hard. But the problem doesn't become structureless; the submodularity and laminar family machinery from MST degrades but doesn't die. Jain's rounding exploits exactly what's left.
 
-### 7.2 The Cut Property
-
-**Theorem**: If $e$ is the minimum-cost edge crossing cut $(S,V\setminus S)$, then some minimum spanning tree includes $e$.
-
-This emerges from submodularity and leads to greedy algorithms like Kruskal's. Key insight: Crossing minimal edges are always safe to take.
-
-### 7.3 Why MST is Special
-
-1. The LP is totally unimodular
-2. Integrality gap = 1
-3. Extreme points are integral
-4. Combinatorial algorithms (Kruskal/Prim) directly solve the LP
-
-This "niceness" vanishes when:
-- $r(u,v) > 1$ for some pairs
-- Only certain vertices are terminals
-- Edge capacities enter the picture
-
-## 8. From MST to General Steiner
-
-The jump from MST to general Steiner networks shows exactly where things get hard:
-
-1. **LP Integrality**: MST's perfect integrality breaks
-2. **Cut Structure**: Instead of uniform demands ($r(S) = 1$), we get complex requirements
-3. **Solution Space**: The spanning tree polytope's structure is lost
-
-Yet the tools persist:
-- Submodularity guides cut-based arguments
-- Uncrossing reduces to laminar families
-- Iterative rounding replaces natural integrality
-
-## Next Steps
-
-1. Approximation algorithms and tight examples
-2. Implementation techniques 
-3. Real-world applications
-4. Extensions to directed/weighted cases
+The tools here (submodularity, uncrossing, iterative rounding) show up everywhere in combinatorial optimization. Learning them on Steiner networks is a good investment because the setting is concrete enough to see what's happening but general enough that the techniques transfer directly to survivable network design, facility location, and a bunch of other problems covered later in the course.
