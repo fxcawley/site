@@ -1,44 +1,37 @@
 ---
-title: "Novel Optimizer for Phased Array Calibration"
+title: "Phased Array Calibration via Metaheuristic and Learned Optimizers"
 tags:
-  - "metaheuristic-optimization"
-  - "computer-vision"
+  - "optimization"
+  - "phased-arrays"
   - "neural-networks"
-  - "research"
+  - "metaheuristics"
 date: 2023-07-01
-venue: EMag Technologies, Inc.
+venue: "EMAG Technologies, Inc."
 authors:
   - name: "Liam Cawley"
   - name: "Gabe Ronan"
-excerpt: This Python repository focuses on creating a calibrator application that optimizes the amplitude of a phased array by adjusting the phase shift and attenuator positions of Anokiwave AWS-0103 beamformers. We use several metaheuristic algorithms including PSO, GA, Simulated Annealing, and Quantum Annealing.
+excerpt: "Calibration of Anokiwave phased array beamformers by searching over phase-shift and attenuator configurations. We compare metaheuristic search (PSO, GA, simulated annealing), gradient-boosted regressors, reinforcement learning, and a CNN-based predictor."
 selected: false
 priority: 3
 links: []
 ---
 
-# Phased Array Calibrator
+# Phased Array Calibration via Metaheuristic and Learned Optimizers
 
-## Project Overview
+## Problem
 
-This Python repository focuses on creating a calibrator application that optimizes the amplitude of a phased array by adjusting the phase shift and attenuator positions of Anokiwave AWS-0103 beamformers.
+A phased array antenna steers its beam by adjusting per-element phase shifts and attenuator settings. For an $N$-element Anokiwave AWS-0103 array, the mapping from control parameters to far-field beam pattern is nonlinear, noisy, and expensive to evaluate: each candidate configuration requires a physical measurement cycle through the beamformer, an SDR digitizer, and back.
 
-## Our Approaches
+The calibration task is to find the configuration that produces a target beam pattern. Classical gradient methods are inapplicable because no closed-form model of the system exists; each function evaluation costs real wall-clock time on hardware.
 
-- **Memoryless Machine Learning** — Metaheuristic algorithms (GA, PSO, SARR, QA) take inspiration from natural phenomena to optimize poorly defined functions for which traditional derivatives are not applicable.
-- **Weighted and Cached Machine Learning** — Memory, multithreading, encodings, caching and other optimization strategies built on to each metaheuristic algorithm to help scale up to large-N input size.
-- **Linear Model Approach** — Linear learning models like XGB, RFR and GBM proved not to have the complexity necessary to accurately model these nonlinear systems.
-- **Reinforcement Learning Approach** — Reinforcement learning models create a set of actions called an Agent, and create an optimal strategy called a policy based on a reward system.
-- **Nonlinear Output Prediction via Convolutional Neural Net** — We encode the state of the phased array as an image where each cell is a pixel and apply the calculated optimal improvements based on historical data.
+## Approaches
 
-## Problem Statement
+**Metaheuristic search.** We implemented particle swarm optimization (PSO), genetic algorithms (GA), simulated annealing, and a quantum-inspired annealing variant. These methods treat the calibration as black-box optimization. The main engineering challenge is amortizing the cost of hardware-in-the-loop evaluations --- we added caching, parallel evaluations via multithreading, and warm-starting from previous calibration runs.
 
-Given the complex and multidimensional nature of our problem, we don't have a well-defined function relating the beamformer wave magnitude to the phase shifter and attenuator values. As a result, we use metaheuristic algorithms to search the solution space for an optimal solution efficiently.
+**Supervised learning.** Gradient-boosted models (XGBoost, random forests) trained on historical (configuration, measurement) pairs. These models achieve reasonable interpolation accuracy but struggle to extrapolate, particularly when the array is reconfigured or environmental conditions change.
 
-## Solution Approach
+**CNN predictor.** We encode the array state as a 2D image (one pixel per element, channels for phase and attenuation) and train a convolutional network to predict the resulting beam pattern. The predicted pattern is then used as a differentiable surrogate for gradient-based optimization. This approach outperforms the tabular models on out-of-distribution configurations.
 
-The main bottleneck in our problem is the calls to the fitness function because each call requires us to loop through the entire system: from the beamformer to grab the state, through the Software Defined Radio (SDR) to digitize the signal, and then back to the Python program to rate its efficacy.
+## Outcome
 
-## Authors
-
-- [Liam Cawley](https://github.com/cawley)
-- [Gabe Ronan](https://github.com/ronangabriel)
+The metaheuristic methods converge reliably but slowly; the CNN surrogate converges faster once trained but requires a substantial data collection phase. In practice, the best strategy is a two-phase approach: collect an initial dataset with PSO, train the surrogate, then fine-tune with surrogate-guided search. The key bottleneck throughout is measurement throughput, not compute.

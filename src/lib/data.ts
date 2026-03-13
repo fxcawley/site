@@ -8,10 +8,23 @@ export const siteConfig = {
   avatar: '/headshot.png',
   resumeUrl: '/LiamCawley__Resume.pdf',
   location: 'New York, NY',
-  professions: ['Research Engineer', 'Student'],
+  professions: ['ML Engineer'],
   introduction: [
-    'I am an undergraduate student at the University of Michigan. I am interested in pre-doctoral programs in machine learning.',
+    'I work in the plasma group at KLA where I develop machine learning systems to examine semiconductor wafers.',
+    'I am broadly interested in building robust, performant and interpretable models. I deal with two main types of models, to paraphrase Belinda Li.',
   ],
+  modelTypes: [
+    {
+      name: 'World models',
+      description: 'of an external environment that support coherent downstream prediction.',
+    },
+    {
+      name: 'Self models',
+      description: "an intelligent system's own internal computations, behaviors, and limitations.",
+    },
+  ],
+  aside: 'In my spare time, I read, write and exercise.',
+  reading: 'Annie Ernaux, Georg Trakl, EE Cummings, Jennifer Egan, Mahmoud Darwish.',
   social: [
     { name: 'CV', url: '/LiamCawley__Resume.pdf', icon: 'cv' },
     { name: 'GitHub', url: 'https://github.com/cawley', icon: 'github' },
@@ -22,7 +35,7 @@ export const siteConfig = {
 
 export const education = [
   {
-    date: 'Sept 2021 - Present',
+    date: 'Sept 2021 - May 2025',
     title: 'B.S.E. in Computer Science',
     location: 'University of Michigan, College of Engineering',
     icon: 'university',
@@ -46,25 +59,25 @@ export const experience = [
     title: 'Work',
     data: [
       {
-        date: 'May 2024 - August 2024',
-        title: 'High Performance Computing Intern',
-        location: 'KLA Corporation, San Jose, CA',
+        date: 'May 2024 - Present',
+        title: 'ML Engineer, Plasma Group',
+        location: 'KLA Corporation',
         description:
-          'Developed novel image processing CNNs for semiconductor manufacturing. Collaborated with cross-functional teams to optimize algorithms for high-performance computing environments. Conducted performance benchmarking and analysis of machine learning models.',
+          'Machine learning systems for semiconductor wafer inspection.',
       },
       {
         date: 'May 2023 - August 2023',
-        title: 'Machine Learning Intern',
-        location: 'EMAG Technologies, Ann Arbor, MI',
+        title: 'ML Intern',
+        location: 'EMAG Technologies',
         description:
-          'Developed novel calibration algorithms for phased array systems.',
+          'Calibration algorithms for phased array antenna systems.',
       },
       {
         date: 'May 2022 - August 2022',
-        title: 'Software Engineering Intern',
-        location: 'RTX Fintech & Research, New York, NY',
+        title: 'Software Engineer Intern',
+        location: 'RTX Fintech & Research',
         description:
-          'Built full-stack features for interest rate derivatives platform.',
+          'Interest rate derivatives platform.',
       },
       {
         date: 'June 2022 - August 2022',

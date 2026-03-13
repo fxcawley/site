@@ -5,48 +5,45 @@ tags:
   - "safety"
   - "language-models"
   - "benchmark"
-date: 2024-10-01
+date: 2025-03-01
 venue: ""
 authors:
   - name: "Liam Cawley"
-excerpt: "A benchmark for evaluating language model robustness to context manipulation attacks — adversarial perturbations to in-context examples, system prompts, and retrieved documents that exploit the model's reliance on context."
+excerpt: "A benchmark for conversation history poisoning attacks on language models. We evaluate false conversation injection, gaslighting, and iterative context poisoning, measuring coherence collapse, safety bypass rates, and attention failure modes."
 selected: false
 priority: 8
 links:
   - name: "code"
-    url: "https://github.com/cawley/context-manipulation-attack-benchmark"
+    url: "https://github.com/fxcawley/context-manipulation-attack-benchmark"
 ---
 
 # Context Manipulation Attack Benchmark
 
 ## Problem
 
-Language models are increasingly deployed in settings where they consume external context: retrieved documents (RAG), user-provided examples (ICL), and system prompts. Each of these context channels is a potential attack surface.
+Language models treat their entire context window as trusted input. In a multi-turn conversation, the model has no cryptographic or stateful mechanism to distinguish its own prior responses from fabricated ones. An attacker who controls the conversation history can inject false assistant turns --- making it appear that the model has already provided harmful advice or contradicted its safety training --- and use this fabricated context to steer subsequent generations.
 
-Context manipulation attacks craft adversarial inputs for these channels to induce targeted misbehavior — incorrect answers, policy violations, or information leakage — without modifying the model's weights.
+This is distinct from prompt injection, which targets instruction-following; context manipulation targets the model's implicit trust in its own conversational history.
 
-## Benchmark Design
+## Attack Variants
 
-We evaluate robustness across three attack surfaces:
+**False conversation injection.** Insert fabricated assistant responses into the conversation history. For example, a false turn in which the model enthusiastically endorses a harmful action, followed by a user turn asking it to elaborate. The model, seeing "its own" prior endorsement, is more likely to comply.
 
-### 1. In-Context Example Poisoning
-Adversarial few-shot examples that steer the model toward incorrect or harmful outputs while appearing benign.
+**Gaslighting.** Repeatedly contradict the model's actual outputs with false context claiming it said something different. Over multiple turns, this can destabilize the model's generation, producing semantic drift and eventually degenerate output.
 
-### 2. System Prompt Injection
-Inputs designed to override or subvert the system prompt's behavioral constraints.
+**Iterative context poisoning.** A compounding variant: each round injects a slightly more extreme fabricated response, gradually shifting the Overton window of what the model treats as its established position. After 3--5 rounds, the model may produce outputs it would categorically refuse in a clean context.
 
-### 3. Retrieved Document Manipulation
-Adversarial documents injected into a RAG pipeline to control the model's outputs on downstream queries.
+## Breakdown Phenomena
 
-## Metrics
+Successful attacks produce observable failure modes:
+- **Coherence collapse**: loss of grammatical structure, random token emission, unexpected language switching
+- **Safety bypass**: the model agreeing with or elaborating on harmful content it would normally refuse
+- **Attention failure**: the model unable to maintain consistent reasoning across the manipulated context, producing contradictions within a single response
 
-- **Attack success rate** across prompt templates and model scales
-- **Detection difficulty**: How hard is it for a classifier to distinguish adversarial from benign contexts?
-- **Defense transferability**: Do defenses trained against one attack type generalize?
+## Evaluation
 
-## Goals
+We measure attack success rate, coherence degradation (perplexity and entropy spikes), safety bypass rate, and semantic drift across GPT-2 family models and Gemma-2 (2B/9B). The benchmark provides standardized attack implementations, prompt templates, and scoring scripts to enable controlled comparison of defense mechanisms.
 
-The benchmark aims to make it easy to:
-1. Evaluate new models against known attack patterns
-2. Test proposed defenses under controlled conditions
-3. Track progress in robustness over time
+## Takeaway
+
+Context manipulation is a category of attack that is underexplored relative to its severity. Unlike prompt injection, it requires no special tokens or formatting tricks --- only the ability to edit conversation history, which is trivially available in most chat interfaces. Effective defenses likely require changes to the serving infrastructure (cryptographic turn signing, server-side history tracking) rather than model-level alignment, because the model fundamentally cannot distinguish real from fabricated context using in-context information alone.

@@ -82,6 +82,27 @@ export default function HomePage() {
             {line}
           </p>
         ))}
+
+        {siteConfig.modelTypes && (
+          <div className="ml-6 mb-4 space-y-1">
+            {siteConfig.modelTypes.map((m) => (
+              <p key={m.name} className="leading-relaxed" style={{ color: 'var(--fg)' }}>
+                <em className="not-italic font-semibold" style={{ color: 'var(--fg-heading)' }}>{m.name}</em>: {m.description}
+              </p>
+            ))}
+          </div>
+        )}
+
+        {siteConfig.aside && (
+          <p className="leading-relaxed mb-1" style={{ color: 'var(--fg)' }}>
+            {siteConfig.aside}
+          </p>
+        )}
+        {siteConfig.reading && (
+          <p className="text-sm leading-relaxed" style={{ color: 'var(--fg-muted)' }}>
+            I&rsquo;m a fan of {siteConfig.reading}
+          </p>
+        )}
       </section>
 
       {/* Education & Interests */}

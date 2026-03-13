@@ -1,83 +1,51 @@
 ---
-title: "DDPM for Super Resolution"
+title: "DDPM-Inspired Single Image Super Resolution"
 tags:
   - "deep-learning"
   - "computer-vision"
   - "super-resolution"
-  - "ddpm"
-  - "neural-networks"
+  - "diffusion-models"
 date: 2024-04-30
-venue: University Research Project
+venue: "Course project, University of Michigan"
 authors:
   - name: "Liam Cawley"
   - name: "Alexandra Lavacek"
   - name: "Sophia Tesic"
-excerpt: This research explores novel approaches for single image super resolution using deep learning techniques inspired by Denoising Diffusion Probabilistic Models (DDPM). We introduce several unique features and modifications that adapt DDPM concepts to the super resolution domain.
+excerpt: "Adapting denoising diffusion concepts to single-image super resolution. We progressively build from a naive upsampler to a residual architecture with channel attention and perceptual loss, achieving 34.0 dB PSNR on DIV2K at 2x upscaling."
 selected: false
 priority: 4
 links:
-  - name: "pdf"
+  - name: "paper"
     url: "/research/super-resolution-ddpm/442_final_report-combined.pdf"
 ---
 
-# DDPM-Inspired Super Resolution
+# DDPM-Inspired Single Image Super Resolution
 
-This research focuses on developing an enhanced super resolution model that adapts key concepts from DDPMs. While DDPMs are typically used for image generation tasks, we've modified their architecture to specifically tackle the challenges of super resolution.
+## Motivation
 
-## Technical Approach
+Denoising diffusion probabilistic models (DDPMs) generate high-quality images by learning to reverse a noise process. The core idea --- iteratively refining a corrupted signal toward a clean target --- is naturally suited to super resolution, where the low-resolution input can be viewed as a degraded version of the high-resolution target.
 
-### Dataset: DIV2K
-Our models are trained and evaluated on the DIV2K dataset:
-- 800 high-quality training images
-- 100 test images
-- Created with downsampling factor of 2
+We adapt this perspective to build a single-image super resolution model, drawing on the residual denoising structure of DDPMs without the full iterative sampling chain.
 
-### Model Architecture Evolution
+## Approach
 
-We developed three increasingly sophisticated models:
+We trained three models of increasing complexity on DIV2K (800 training images, 2x downsampling factor):
 
-#### Model 1: Basic Architecture
-```python
-model = Sequential([
-    Conv2D(64, (3, 3), padding='same'),
-    LeakyReLU(alpha=0.2),
-    Conv2DTranspose(64, (3, 3), strides=(2, 2), padding='same'),
-    Conv2D(3, (3, 3), padding='same', activation='tanh')
-])
-```
+1. **Baseline**: Direct upsampling with a shallow convolutional network. This establishes the floor and fails catastrophically (4.8 dB PSNR), confirming that naive regression to the mean is insufficient.
 
-#### Model 2: Enhanced Architecture
-```python
-def residual_block(x, filters):
-    residual = x
-    x = Conv2D(filters, (3, 3), padding='same')(x)
-    x = LeakyReLU(alpha=0.2)(x)
-    x = channel_attention(x)
-    return Add()([x, residual])
-```
+2. **Residual model**: Eight residual blocks with channel attention. The network predicts the residual between bilinear upsampling and the ground truth. This alone raises PSNR to 33.7 dB, demonstrating that the residual formulation --- learning the correction rather than the image --- is the dominant factor.
 
-#### Model 3: Advanced DDPM-Inspired Architecture
-- Eight residual blocks with sophisticated channel attention
-- U-Net like skip connections
-- Perceptual loss using VGG19 features
-- Global residual learning
-- Data augmentation and exponential learning rate decay
+3. **DDPM-inspired model**: Adds U-Net-style skip connections and replaces pixel-wise MSE loss with a perceptual loss (VGG-19 feature matching) plus a small MSE term. The perceptual loss encourages the model to recover high-frequency texture rather than blurring. Final PSNR: 34.0 dB, SSIM: 0.927.
 
 ## Results
 
 | Model | PSNR | SSIM |
-|-------|------|------|
-| Bicubic Baseline | 32.29 | 0.904 |
-| Model 3 (Advanced) | 34.00 | 0.927 |
-| Model 2 | 33.71 | 0.924 |
-| Model 1 | 4.80 | 0.025 |
+|-------|:----:|:----:|
+| Bicubic interpolation | 32.29 | 0.904 |
+| Baseline (direct) | 4.80 | 0.025 |
+| Residual + attention | 33.71 | 0.924 |
+| DDPM-inspired (full) | 34.00 | 0.927 |
 
-## Citation
+## Takeaway
 
-```bibtex
-@article{DDPM_SuperRes_2024,
-    title={Denoising Diffusion Probabilistic Model Inspired Deep Learning for Single Image Super Resolution},
-    author={Cawley, Liam and Tesic, Sophia and Lavacek, Alexandra},
-    year={2024}
-}
-```
+The iterative refinement framing from diffusion models is useful even in a single-pass architecture. The two critical ingredients are (1) predicting residuals rather than pixels, and (2) perceptual loss to avoid regression-to-the-mean blurring. The gap between our best model and the bicubic baseline (+1.7 dB) is meaningful but modest; closing it further likely requires either the full iterative diffusion process or substantially more training data.

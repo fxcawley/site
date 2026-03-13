@@ -1,5 +1,5 @@
 ---
-title: "MetaRepICL"
+title: "MetaRepICL: In-Context Learning as Kernel Regression on Learned Representations"
 tags:
   - "in-context-learning"
   - "kernel-methods"
@@ -9,40 +9,41 @@ date: 2025-01-15
 venue: ""
 authors:
   - name: "Liam Cawley"
-excerpt: "Does a transformer performing in-context learning implement kernel ridge regression on learned hidden representations? We investigate the mechanistic relationship between ICL and KRR through the lens of learned feature maps."
+excerpt: "Investigating whether transformer in-context learning implements kernel ridge regression on learned hidden representations. We construct explicit linear-attention-to-conjugate-gradient mappings and study the softmax extension."
 selected: true
 priority: 2
 links:
   - name: "code"
-    url: "https://github.com/cawley/MetaRepICL"
+    url: "https://github.com/fxcawley/MetaRepICL"
 ---
 
-# MetaRepICL
+# MetaRepICL: In-Context Learning as Kernel Regression on Learned Representations
 
-## Motivation
+## Question
 
-In-context learning (ICL) allows transformers to adapt to new tasks at inference time without gradient updates. Recent theoretical work has drawn connections between ICL and kernel ridge regression (KRR), but these analyses typically assume linear attention or single-layer architectures.
+A transformer performing in-context learning (ICL) takes a sequence of $(x_i, y_i)$ pairs followed by a query $x_*$ and produces a prediction $\hat y_*$ --- all without updating its weights. Recent theory has shown that single-layer linear attention implements one step of gradient descent on a least-squares objective, and by extension, that a depth-$t$ linear-attention transformer implements $t$ steps of preconditioned gradient descent, which converges to the kernel ridge regression (KRR) solution.
 
-We ask: **does a trained transformer's ICL mechanism implement KRR on learned hidden representations?**
+We ask whether this connection extends to trained transformers with softmax attention operating on learned representations.
 
 ## Approach
 
-We study this question empirically by:
+The project has two aims:
 
-1. Training small transformers on synthetic regression tasks where the ground truth function class is known
-2. Extracting the hidden representations at each layer
-3. Comparing the transformer's predictions against KRR applied to those learned representations
-4. Measuring alignment between the implicit kernel induced by the transformer and standard kernels (RBF, polynomial, neural tangent)
+**Aim 1: Constructive mapping (linear attention).** We build an explicit transformer architecture whose layers exactly implement conjugate gradient (CG) iterations for solving the KRR normal equations $(\mathbf{K} + \lambda I)\alpha = \mathbf{y}$, where $\mathbf{K}$ is the kernel matrix over support representations. The construction uses:
+- Attention heads that compute kernel matrix-vector products $(K\mathbf{p})_j$ via query-key-value projections over support tokens
+- Aggregator tokens that compute global reductions (residual norms, step sizes)
+- MLP blocks that perform the per-token CG state updates ($\alpha, r, p$)
 
-## Key Observations
+This demonstrates that a linear-attention transformer of depth $t$ can represent $t$-step CG --- which converges at a rate determined by the condition number $\kappa$ of $\mathbf{K}$ --- and therefore approximates KRR to arbitrary precision given sufficient depth.
 
-The transformer's ICL behavior closely mirrors KRR when:
-- The representations are taken from intermediate layers (not the final layer)
-- The task distribution has low intrinsic dimensionality
-- The context length is sufficient relative to the task complexity
+**Aim 2: Softmax extension.** Softmax attention computes $\text{softmax}(QK^\top / \sqrt{d})V$, which induces an exponential kernel $k(x, x') \propto \exp(x^\top x' / \sqrt{d})$ rather than a linear one. We study whether the softmax-attention ICL prediction matches KRR under this exponential kernel, measuring operator-norm proximity $\lVert \tilde{K} - K_{\exp} \rVert_2$ on the support set.
 
-The alignment breaks down for out-of-distribution tasks, suggesting the learned kernel is specialized to the training distribution rather than implementing a universal regression algorithm.
+## Current findings
 
-## Implications
+- The constructive CG mapping works: a hand-wired linear-attention stack converges to the KRR solution at the expected CG rate on synthetic tasks.
+- Width matters: under a rank-$m$ random projection (simulating finite head dimension), prediction error approaches the oracle as $m$ increases, tracking the effective dimension $d_{\text{eff}}(\lambda)$.
+- The softmax-kernel alignment holds for in-distribution tasks but degrades on out-of-distribution prompts, suggesting the learned kernel specializes to the training distribution.
 
-This work connects two bodies of theory — meta-learning and kernel methods — through the concrete mechanism of learned representations. Understanding when and why ICL resembles KRR informs both interpretability (what is the model actually computing?) and capability evaluation (when should we expect ICL to succeed or fail?).
+## Takeaway
+
+The connection between ICL and kernel regression is not merely an analogy: for linear attention, it is an exact correspondence mediated by conjugate gradient. The softmax case introduces an exponential kernel that the transformer approximates but does not exactly implement. Understanding this gap --- when it is small and when it blows up --- is key to predicting where ICL will succeed and where it will fail silently.

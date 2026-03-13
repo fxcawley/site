@@ -1,5 +1,5 @@
 ---
-title: "StableGLM"
+title: "StableGLM: Rashomon Sets for Generalized Linear Models"
 tags:
   - "interpretability"
   - "rashomon-sets"
@@ -9,7 +9,7 @@ date: 2025-01-01
 venue: ""
 authors:
   - name: "Liam Cawley"
-excerpt: "ε-Rashomon sets, certificates, exact membership sampling, and set-level interpretability metrics for generalized linear models. Tools for reasoning about the multiplicity of near-optimal models."
+excerpt: "A toolkit for computing ε-Rashomon sets, membership certificates, and set-level interpretability metrics for GLMs. Addresses the question: when many models fit the data equally well, which explanations are stable?"
 selected: true
 priority: 2
 links:
@@ -17,31 +17,40 @@ links:
     url: "https://github.com/fxcawley/StableGLM"
 ---
 
-# StableGLM
+# StableGLM: Rashomon Sets for Generalized Linear Models
 
-## Overview
+## Problem
 
-When multiple models achieve near-optimal loss, which one should we trust? The **Rashomon effect** — the existence of many nearly-equally-good models — is ubiquitous in practice but underexplored in terms of concrete tools.
+Interpretability methods typically report properties of a single fitted model. But in practice, many parameter vectors achieve nearly the same loss --- the Rashomon effect. If a feature appears important under one near-optimal model but irrelevant under another, the explanation is an artifact of model selection, not a property of the data.
 
-StableGLM provides:
+StableGLM makes this concrete for generalized linear models by characterizing the full set of near-optimal models and computing interpretability metrics over that set.
 
-- **ε-Rashomon set characterization** for GLMs: exact geometric description of the set of parameter vectors within ε of the optimum
-- **Certificates**: efficiently verifiable proofs that a given model lies inside (or outside) the Rashomon set
-- **Exact membership sampling**: uniform sampling from the Rashomon set for downstream analysis
-- **Set-level interpretability metrics**: feature importance scores that account for model multiplicity
+## Setup
 
-## Why This Matters
+For a GLM with convex loss $L(\theta) = \frac{1}{n}\sum_i \ell(y_i, x_i^\top\theta) + \frac{\lambda}{2}\lVert\theta\rVert^2$, the ε-Rashomon set is
 
-Standard interpretability methods (SHAP, LIME, feature importance) report properties of a *single* model. But if many models fit the data equally well, these explanations may be artifacts of the particular model chosen rather than properties of the data.
+$$\mathcal{R}_\varepsilon = \{\theta : L(\theta) \leq L(\hat\theta) + \varepsilon\}.$$
 
-Set-level metrics answer a different question: *across all near-optimal models, how important is this feature?* This gives more robust and trustworthy explanations.
+This is a convex sublevel set. Near the optimum, the Hessian $H = \nabla^2 L(\hat\theta)$ provides a local ellipsoidal approximation:
 
-## Technical Approach
+$$\mathcal{E}_\varepsilon = \{\hat\theta + \Delta : \Delta^\top H \Delta \leq 2\varepsilon\}.$$
 
-For GLMs with convex loss, the Rashomon set $\mathcal{R}_\varepsilon = \{\theta : L(\theta) \leq L(\hat{\theta}) + \varepsilon\}$ is a convex sublevel set. We exploit this structure for:
+The ellipsoid is cheap to work with analytically. For arbitrary linear functionals $s^\top\theta$, the extrema over $\mathcal{E}_\varepsilon$ have closed forms involving $\lVert s \rVert_{H^{-1}}$. For exact (non-approximate) computations, we sample uniformly from $\mathcal{R}_\varepsilon$ using hit-and-run with a membership oracle.
 
-1. **Membership testing** via a single convex optimization
-2. **Sampling** via hit-and-run on the sublevel set
-3. **Variable importance** via projection of $\mathcal{R}_\varepsilon$ onto each coordinate axis
+## What the toolkit computes
 
-The framework extends to regularized GLMs and handles both $\ell_1$ and $\ell_2$ penalties.
+**Per-point prediction bands.** For each data point, the range of predictions $[p_i^{\min}, p_i^{\max}]$ across all models in $\mathcal{R}_\varepsilon$. Points with wide bands are *ambiguous*: the model's prediction depends on which near-optimal $\theta$ was chosen.
+
+**Variable Importance Clouds (VIC).** The range of each coefficient $\theta_j$ across the Rashomon set, and Shapley-weighted variants that account for feature correlations.
+
+**Model Class Reliance (MCR).** The range of permutation-based feature importance scores across the set, answering: could this feature be unimportant under some near-optimal model?
+
+**Predictive multiplicity metrics.** Ambiguity (fraction of points whose predicted label changes across $\mathcal{R}_\varepsilon$), discrepancy (maximum pairwise disagreement), and Rashomon capacity (effective volume of the set).
+
+## Calibrating ε
+
+The choice of $\varepsilon$ determines the size of the set. We support three calibration modes: (1) percent loss slack ($\varepsilon = \rho \cdot L(\hat\theta)$), (2) likelihood-ratio inversion ($2n\varepsilon \approx \chi^2_{d,1-\alpha}$), and (3) a high-dimensional correction for the $d/n \not\ll 1$ regime.
+
+## Takeaway
+
+For any GLM fit on correlated or noisy features, single-model explanations are likely unstable. The Rashomon set makes this instability visible and quantifiable. The practical message: before trusting a feature importance ranking, check whether it survives across near-optimal models. If it doesn't, the ranking reflects optimization noise, not signal.
