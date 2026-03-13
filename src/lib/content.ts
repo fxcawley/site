@@ -10,6 +10,9 @@ export interface PostFrontmatter {
   tags: string[];
   excerpt: string;
   cover?: string;
+  thread?: string;
+  threadTitle?: string;
+  threadOrder?: number;
 }
 
 export interface ResearchFrontmatter {
@@ -82,6 +85,49 @@ export function getAllPosts(): ContentItem<PostFrontmatter>[] {
 
 export function getPostBySlug(slug: string): ContentItem<PostFrontmatter> | undefined {
   return getAllPosts().find((p) => p.slug === slug);
+}
+
+export interface ThreadInfo {
+  id: string;
+  title: string;
+  posts: ContentItem<PostFrontmatter>[];
+}
+
+export function getThreads(): ThreadInfo[] {
+  const posts = getAllPosts();
+  const threadMap = new Map<string, ThreadInfo>();
+
+  for (const post of posts) {
+    const tid = post.frontmatter.thread;
+    if (!tid) continue;
+    if (!threadMap.has(tid)) {
+      threadMap.set(tid, {
+        id: tid,
+        title: post.frontmatter.threadTitle || tid,
+        posts: [],
+      });
+    }
+    threadMap.get(tid)!.posts.push(post);
+  }
+
+  const result = Array.from(threadMap.values());
+  for (const thread of result) {
+    thread.posts.sort(
+      (a, b) => (a.frontmatter.threadOrder ?? 0) - (b.frontmatter.threadOrder ?? 0)
+    );
+  }
+
+  return result;
+}
+
+export function getThreadForPost(slug: string): { thread: ThreadInfo; index: number } | null {
+  const post = getPostBySlug(slug);
+  if (!post?.frontmatter.thread) return null;
+  const threads = getThreads();
+  const thread = threads.find((t) => t.id === post.frontmatter.thread);
+  if (!thread) return null;
+  const index = thread.posts.findIndex((p) => p.slug === slug);
+  return { thread, index };
 }
 
 export function getAllResearch(): ContentItem<ResearchFrontmatter>[] {
