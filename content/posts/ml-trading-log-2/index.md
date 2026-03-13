@@ -2,19 +2,19 @@
 title: "First Model and Backtest"
 tags: ["ml", "trading", "xgboost", "backtesting"]
 date: 2025-03-10
-excerpt: XGBoost on the v0 feature set, and building a backtest that doesn't lie to you.
+excerpt: An XGBoost classifier on the initial feature set, a walk-forward backtest, and several data leakage mistakes caught along the way.
 thread: "ml-trading"
 threadTitle: "ML Trading Strategy"
 threadOrder: 2
 ---
 
-Got the first model running end-to-end. Posting results and the things I got wrong on the first attempt.
+This post covers the first complete model-and-backtest cycle. The results are not particularly encouraging, which is expected at this stage; the more useful output is a working evaluation framework and a catalog of mistakes made during the first pass.
 
 ## Model
 
-XGBoost classifier. Target: will the stock's 10-day forward return beat the median stock's 10-day forward return? Binary classification. I tried regression first (predict the actual return) but the signal-to-noise ratio is brutal and classification is more forgiving.
+The model is an XGBoost binary classifier. The target variable is whether a stock's 10-day forward return exceeds the cross-sectional median on that date. Classification was chosen over regression because the signal-to-noise ratio in individual return prediction is very low, and a relative-ranking formulation is somewhat more forgiving.
 
-Hyperparameters are nothing special yet:
+Hyperparameters for this iteration:
 
 ```python
 params = {
@@ -26,19 +26,17 @@ params = {
 }
 ```
 
-Training window: expanding, starting from 2 years of history. Retrained monthly.
+The training window is expanding, starting from 2 years of history, with monthly retraining.
 
-## Backtest framework
+## Backtest procedure
 
-Walk-forward: train on all data up to month $t$, predict month $t+1$, advance. No peeking.
+Walk-forward evaluation: train on all available data up to month $t$, generate predictions for month $t+1$, advance. Each day, stocks are ranked by predicted outperformance probability, and the top decile is held long with equal weighting. Rebalancing is daily, though in practice most positions carry over; average daily turnover is around 15%.
 
-Each day, rank stocks by predicted probability of outperformance. Go long the top decile, equal-weight. Rebalance daily (in practice most positions carry over, turnover is ~15%/day).
-
-Tracking:
-- Cumulative return vs SPY
-- Sharpe ratio (annualized, excess over risk-free)
-- Max drawdown
-- Average turnover and realized transaction costs
+Metrics tracked:
+- Cumulative return relative to SPY
+- Annualized Sharpe ratio (excess over risk-free rate)
+- Maximum drawdown
+- Realized transaction costs
 
 ## Results (2020-01-01 to 2024-12-31)
 
@@ -50,14 +48,16 @@ Tracking:
 | Avg daily turnover | 14.8% | — |
 | Return after costs | 12.9% | 12.8% |
 
-So: marginally positive before costs, basically flat after. The 5bps-per-side cost model eats most of the edge. Not surprised for a v0 with generic features, but it's a working baseline.
+Before transaction costs, the strategy shows a modest edge over the benchmark. After the 5 bps-per-side cost model is applied, the advantage is negligible. This is not surprising for a first iteration with generic features, but it establishes that the pipeline is functional and the evaluation is, to the extent I can verify, free of lookahead bias.
 
-## Things I got wrong
+## Errors encountered
 
-1. **Leaky features**: my first pass accidentally included the current day's close in the feature matrix. Caught it because the Sharpe was 2.3, which should be an immediate red flag.
-2. **Median target calculation**: initially computed the median across the full dataset, not per-date. Subtle lookahead.
-3. **Rebalance timing**: was using close-to-close returns but assuming I could trade at the close. Switched to next-open execution which is more realistic and shaved ~1% annually.
+Three mistakes were caught and corrected during development:
 
-## What's next
+1. **Feature leakage**: the initial feature matrix inadvertently included the current day's closing price as a predictor. This produced a Sharpe ratio of approximately 2.3, which prompted investigation.
+2. **Target leakage**: the median used to define the binary target was initially computed over the full dataset rather than per-date, introducing a subtle form of lookahead.
+3. **Execution timing**: returns were computed close-to-close, but the backtest assumed trades could be executed at the closing price. Switching to next-open execution reduced annualized return by roughly 1%.
 
-The feature set is the obvious lever. Next post will cover adding some less standard features (order flow proxies, sector momentum) and whether they move the needle.
+## Next
+
+The most straightforward path to improvement is the feature set. The next post will consider less standard features — order flow proxies, sector-relative momentum — and whether they produce a measurable change in out-of-sample performance.

@@ -2,47 +2,47 @@
 title: "Scope and Setup"
 tags: ["ml", "trading", "time-series"]
 date: 2025-03-01
-excerpt: Defining the project, the data pipeline, and what counts as a win.
+excerpt: Defining the project scope, data sources, and evaluation criteria for an ML-based equity trading strategy.
 thread: "ml-trading"
 threadTitle: "ML Trading Strategy"
 threadOrder: 1
 ---
 
-I've been wanting to test whether a simple ML pipeline can generate consistent alpha on daily equity data. Not HFT, not crypto, nothing exotic. Just: can a model trained on public features (price, volume, some fundamentals) beat a buy-and-hold baseline after transaction costs?
+The goal of this project is to determine whether a straightforward ML pipeline, trained on publicly available features, can outperform a passive equity benchmark after accounting for transaction costs. The setting is deliberately conventional — daily-frequency data on large-cap US equities — so that any signal (or lack thereof) is not attributable to exotic market structure or thin liquidity.
 
-This thread will track the project as it evolves. Each post is a checkpoint.
+This thread will serve as a running log. Each post corresponds to a stage of the project.
 
-## Ground rules
+## Constraints
 
-1. **Universe**: S&P 500 constituents. Survivorship bias handled by using point-in-time membership lists.
-2. **Horizon**: daily rebalance, target holding period 5-20 days.
-3. **Benchmark**: SPY buy-and-hold over the same period.
-4. **Cost model**: 5 bps per side, no market impact (position sizes are small).
-5. **No lookahead**: all features use strictly past data. Train/val/test split is temporal, not random.
+1. **Universe**: S&P 500 constituents, using point-in-time membership lists to avoid survivorship bias.
+2. **Horizon**: daily rebalancing, with a target holding period of 5–20 days.
+3. **Benchmark**: SPY buy-and-hold over the same evaluation window.
+4. **Cost model**: 5 basis points per side. No market impact modeling; position sizes are assumed small enough to justify this.
+5. **No lookahead**: all features are computed from strictly past data. The train/validation/test split is temporal.
 
-## Data pipeline
+## Data
 
-Pulling from a mix of free sources:
+The pipeline draws from three sources:
 
-- **Price/volume**: Yahoo Finance via `yfinance`. Adjusted closes.
-- **Fundamentals**: quarterly EPS, book value, etc. from SEC EDGAR bulk downloads.
-- **Macro**: Fed funds rate, VIX, yield curve slope from FRED.
+- **Price and volume**: adjusted closes from Yahoo Finance via `yfinance`.
+- **Fundamentals**: quarterly EPS, book value, and related items from SEC EDGAR bulk downloads.
+- **Macro indicators**: Fed funds rate, VIX, and the 10y–2y yield curve slope from FRED.
 
-Everything lands in a local DuckDB instance. One table per source, joined on `(ticker, date)` at query time. Nothing fancy, but it's fast enough for backtesting and the schema is easy to extend.
+These are stored in a local DuckDB instance, one table per source, joined on `(ticker, date)` at query time.
 
-## Feature set (v0)
+## Initial feature set
 
-Starting deliberately simple:
+The first iteration uses a deliberately minimal feature set:
 
-- Returns: 1d, 5d, 20d, 60d
-- Volatility: 20d rolling std of returns
-- Volume: 20d average, plus ratio of today's volume to that average
+- Returns over 1, 5, 20, and 60 trading days
+- 20-day rolling standard deviation of returns
+- 20-day average volume, and the ratio of current volume to that average
 - RSI(14)
-- 50d / 200d moving average cross (binary)
-- Earnings surprise: actual vs consensus for last quarter
+- A binary indicator for whether the 50-day moving average exceeds the 200-day
+- Most recent quarterly earnings surprise (actual minus consensus)
 
-That's ~12 features per ticker per day. The point isn't to be clever yet; it's to get the pipeline end-to-end and make sure the evaluation framework works before adding complexity.
+This gives roughly 12 features per ticker per day. The intent is to establish a working end-to-end pipeline and a credible evaluation framework before introducing more complex features.
 
-## What's next
+## Next
 
-The next post will cover the model (starting with gradient-boosted trees) and the backtesting framework.
+The following post covers the choice of model and the backtesting procedure.
