@@ -1,35 +1,27 @@
-import { Github, GraduationCap, FileText } from 'lucide-react';
 import { siteConfig } from '@/lib/data';
-
-const iconMap: Record<string, React.ComponentType<{ size?: number }>> = {
-  github: Github,
-  'graduation-cap': GraduationCap,
-  'file-text': FileText,
-};
 
 export default function Footer() {
   return (
-    <footer className="border-t border-[rgb(var(--border))] mt-20">
-      <div className="mx-auto max-w-5xl px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p className="text-sm text-[rgb(var(--muted-foreground))]">
-          &copy; {new Date().getFullYear()} {siteConfig.author}
-        </p>
-        <div className="flex items-center gap-4">
-          {siteConfig.social.map((link) => {
-            const Icon = iconMap[link.icon];
-            return (
+    <footer className="pb-8">
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="border-t pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style={{ borderColor: 'var(--border)' }}>
+          <div className="flex items-center gap-4 text-sm" style={{ color: 'var(--fg-muted)' }}>
+            {siteConfig.social.map((link, i) => (
               <a
-                key={link.url}
+                key={`${link.name}-${i}`}
                 href={link.url}
-                target={link.url.startsWith('/') ? undefined : '_blank'}
-                rel={link.url.startsWith('/') ? undefined : 'noopener noreferrer'}
-                className="text-[rgb(var(--muted-foreground))] hover:text-accent-600 transition-colors"
-                title={link.name}
+                target={link.url.startsWith('/') || link.url.startsWith('mailto:') ? undefined : '_blank'}
+                rel={link.url.startsWith('/') || link.url.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
+                className="hover:underline transition-colors"
+                style={{ color: 'var(--fg-muted)' }}
               >
-                {Icon ? <Icon size={18} /> : <span className="text-sm">{link.name}</span>}
+                {link.name}
               </a>
-            );
-          })}
+            ))}
+          </div>
+          <p className="text-xs" style={{ color: 'var(--fg-muted)' }}>
+            &copy; {new Date().getFullYear()} {siteConfig.author}
+          </p>
         </div>
       </div>
     </footer>

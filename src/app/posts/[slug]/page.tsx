@@ -1,9 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { ArrowLeft, Calendar } from 'lucide-react';
 import { getAllPosts, getPostBySlug } from '@/lib/content';
-import { serializeMdx } from '@/lib/mdx';
 import MdxContent from '@/components/MdxContent';
 
 interface Props {
@@ -27,44 +25,30 @@ export default async function PostDetailPage({ params }: Props) {
   const post = getPostBySlug(params.slug);
   if (!post) notFound();
 
-  const mdxSource = await serializeMdx(post.content);
-
   return (
-    <div className="mx-auto max-w-3xl px-6 py-16">
+    <div>
       <Link
         href="/posts"
-        className="inline-flex items-center gap-1.5 text-sm text-[rgb(var(--muted-foreground))] hover:text-accent-600 transition-colors mb-8"
+        className="text-sm hover:underline"
+        style={{ color: 'var(--accent)' }}
       >
-        <ArrowLeft size={14} /> Back to posts
+        &larr; Posts
       </Link>
 
-      <header className="mb-10">
-        <h1 className="text-3xl font-bold leading-tight mb-3">{post.frontmatter.title}</h1>
-        <div className="flex flex-wrap items-center gap-4 text-sm text-[rgb(var(--muted-foreground))]">
-          <span className="flex items-center gap-1">
-            <Calendar size={13} />
-            {new Date(post.frontmatter.date).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </span>
-        </div>
-        {post.frontmatter.tags && post.frontmatter.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-3">
-            {post.frontmatter.tags.map((tag) => (
-              <span
-                key={tag}
-                className="text-xs px-2 py-0.5 rounded-full bg-[rgb(var(--muted))] text-[rgb(var(--muted-foreground))]"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
+      <header className="mt-4 mb-8">
+        <h1 className="leading-tight mb-2">
+          {post.frontmatter.title}
+        </h1>
+        <span className="text-sm" style={{ color: 'var(--fg-muted)' }}>
+          {new Date(post.frontmatter.date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
+        </span>
       </header>
 
-      <MdxContent source={mdxSource} />
+      <MdxContent source={post.content} />
     </div>
   );
 }

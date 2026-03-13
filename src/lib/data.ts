@@ -3,21 +3,21 @@ export const siteConfig = {
   description: 'Personal Website of Liam Cawley',
   siteUrl: 'https://www.cawley.dev',
   author: 'Liam Cawley',
+  authorAlternative: '\u8FDE\u59C6\u00B7\u8003\u5229',
   email: 'cawleyl@umich.edu',
-  location: 'New York, NY',
   avatar: '/headshot.png',
   resumeUrl: '/LiamCawley__Resume.pdf',
+  location: 'New York, NY',
+  professions: ['Research Engineer', 'Student'],
   introduction: [
     'I am an undergraduate student at the University of Michigan. I am interested in pre-doctoral programs in machine learning.',
   ],
-  professions: ['Research Engineer', 'Student'],
   social: [
-    { name: 'GitHub (cawley)', url: 'https://github.com/cawley', icon: 'github' as const },
-    { name: 'GitHub (fxcawley)', url: 'https://github.com/fxcawley', icon: 'github' as const },
-    { name: 'Google Scholar', url: 'https://scholar.google.com/', icon: 'graduation-cap' as const },
-    { name: 'Resume', url: '/LiamCawley__Resume.pdf', icon: 'file-text' as const },
+    { name: 'CV', url: '/LiamCawley__Resume.pdf', icon: 'cv' },
+    { name: 'GitHub', url: 'https://github.com/cawley', icon: 'github' },
+    { name: 'GitHub', url: 'https://github.com/fxcawley', icon: 'github' },
+    { name: 'Scholar', url: 'https://scholar.google.com/', icon: 'scholar' },
   ],
-  googleAnalyticsId: 'G-ZK3P43DY6M',
 };
 
 export const education = [
@@ -25,24 +25,26 @@ export const education = [
     date: 'Sept 2021 - Present',
     title: 'B.S.E. in Computer Science',
     location: 'University of Michigan, College of Engineering',
+    icon: 'university',
   },
   {
     date: 'Sept 2017 - May 2021',
     title: 'High School',
     location: 'Bronx High School of Science',
+    icon: 'school',
   },
 ];
 
 export const interests = [
-  { title: 'Machine Learning', icon: 'brain' as const },
-  { title: 'Mechanistic Interpretability', icon: 'layers' as const },
-  { title: 'Open Source Community', icon: 'code' as const },
+  { title: 'Machine Learning', icon: 'cubes' },
+  { title: 'Mechanistic Interpretability', icon: 'layer-group' },
+  { title: 'Open Source Community', icon: 'linux' },
 ];
 
 export const experience = [
   {
-    category: 'Work',
-    items: [
+    title: 'Work',
+    data: [
       {
         date: 'May 2024 - August 2024',
         title: 'High Performance Computing Intern',
@@ -54,19 +56,28 @@ export const experience = [
         date: 'May 2023 - August 2023',
         title: 'Machine Learning Intern',
         location: 'EMAG Technologies, Ann Arbor, MI',
-        description: 'Developed novel calibration algorithms for phased array systems.',
+        description:
+          'Developed novel calibration algorithms for phased array systems.',
       },
       {
         date: 'May 2022 - August 2022',
         title: 'Software Engineering Intern',
         location: 'RTX Fintech & Research, New York, NY',
-        description: 'Built full-stack features for interest rate derivatives platform.',
+        description:
+          'Built full-stack features for interest rate derivatives platform.',
+      },
+      {
+        date: 'June 2022 - August 2022',
+        title: 'Line Cook/Handyman',
+        location: "Little Frankie's, Manhattan, NY",
+        description:
+          "Worked night shifts, built out shelving, painted and cooked for the late night extension of Little Frankies.",
       },
     ],
   },
   {
-    category: 'Teaching',
-    items: [
+    title: 'Teaching',
+    data: [
       {
         date: 'January 2022 - May 2022',
         title: 'Math Lab Tutor',
@@ -77,13 +88,14 @@ export const experience = [
     ],
   },
   {
-    category: 'Volunteer',
-    items: [
+    title: 'Volunteer',
+    data: [
       {
         date: 'December 2019 - August 2021',
         title: 'Meals on Wheels Volunteer',
         location: 'Harlem, NY',
-        description: 'Supported meal delivery service for seniors and disabled residents.',
+        description:
+          'Supported meal delivery service for seniors and disabled residents.',
       },
       {
         date: 'June 2023 - August 2023',
@@ -96,7 +108,8 @@ export const experience = [
         date: 'June 2022 - August 2022',
         title: 'Carnegie Hill Neighbors Volunteer',
         location: 'New York, NY',
-        description: 'Participated in community development and neighborhood improvement initiatives.',
+        description:
+          'Participated in community development and neighborhood improvement initiatives.',
       },
     ],
   },

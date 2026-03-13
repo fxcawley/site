@@ -2,38 +2,72 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 const navItems = [
-  { label: 'Home', href: '/' },
+  { label: 'About', href: '/' },
+  { label: 'Experience', href: '/experience' },
   { label: 'Research', href: '/research' },
   { label: 'Posts', href: '/posts' },
-  { label: 'Contact', href: '/contact' },
 ];
+
+function ThemeToggle() {
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = stored === 'dark' || (!stored && prefersDark);
+    setDark(isDark);
+    document.documentElement.classList.toggle('dark', isDark);
+  }, []);
+
+  const toggle = () => {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.classList.toggle('dark', next);
+    localStorage.setItem('theme', next ? 'dark' : 'light');
+  };
+
+  return (
+    <button
+      onClick={toggle}
+      className="px-3 py-1.5 text-sm rounded transition-colors"
+      style={{
+        color: 'var(--fg-secondary)',
+      }}
+      aria-label="Toggle theme"
+    >
+      {dark ? '☀' : '☽'}
+    </button>
+  );
+}
 
 export default function Header() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  return (
-    <header className="sticky top-0 z-50 border-b border-[rgb(var(--border))] bg-[rgb(var(--background))]/80 backdrop-blur-md">
-      <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-        <Link href="/" className="text-lg font-semibold tracking-tight hover:text-accent-600 transition-colors">
-          Liam Cawley
-        </Link>
+  const isActive = (href: string) =>
+    href === '/' ? pathname === '/' : pathname?.startsWith(href);
 
+  return (
+    <header className="sticky top-0 z-50" style={{ background: 'var(--bg)' }}>
+      <nav className="mx-auto max-w-6xl px-6 flex items-center justify-between h-14">
         {/* Desktop nav */}
-        <ul className="hidden md:flex items-center gap-8">
+        <ul className="hidden sm:flex items-center gap-1">
           {navItems.map((item) => (
             <li key={item.href}>
               <Link
                 href={item.href}
-                className={`text-sm font-medium transition-colors hover:text-accent-600 ${
-                  pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href))
-                    ? 'text-accent-600'
-                    : 'text-[rgb(var(--muted-foreground))]'
+                className={`px-4 py-2 text-sm rounded transition-colors ${
+                  isActive(item.href)
+                    ? 'font-semibold'
+                    : ''
                 }`}
+                style={{
+                  color: isActive(item.href) ? 'var(--bg)' : 'var(--fg)',
+                  background: isActive(item.href) ? 'var(--accent)' : 'transparent',
+                }}
               >
                 {item.label}
               </Link>
@@ -41,30 +75,36 @@ export default function Header() {
           ))}
         </ul>
 
-        {/* Mobile toggle */}
-        <button
-          className="md:hidden p-2 -mr-2"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Toggle menu"
-        >
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          {/* Mobile hamburger */}
+          <button
+            className="sm:hidden px-2 py-1 text-sm rounded"
+            style={{ color: 'var(--fg)' }}
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Menu"
+          >
+            {mobileOpen ? '\u2715' : '\u2630'}
+          </button>
+        </div>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile dropdown */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-[rgb(var(--border))] bg-[rgb(var(--background))]">
-          <ul className="flex flex-col px-6 py-4 gap-4">
+        <div className="sm:hidden mx-auto max-w-6xl px-6 pb-4">
+          <ul className="flex flex-col gap-1">
             {navItems.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`block text-sm font-medium transition-colors ${
-                    pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href))
-                      ? 'text-accent-600'
-                      : 'text-[rgb(var(--muted-foreground))]'
+                  className={`block px-4 py-2 text-sm rounded transition-colors ${
+                    isActive(item.href) ? 'font-semibold' : ''
                   }`}
+                  style={{
+                    color: isActive(item.href) ? 'var(--bg)' : 'var(--fg)',
+                    background: isActive(item.href) ? 'var(--accent)' : 'transparent',
+                  }}
                 >
                   {item.label}
                 </Link>

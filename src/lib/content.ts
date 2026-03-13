@@ -93,3 +93,22 @@ export function getAllResearch(): ContentItem<ResearchFrontmatter>[] {
 export function getResearchBySlug(slug: string): ContentItem<ResearchFrontmatter> | undefined {
   return getAllResearch().find((r) => r.slug === slug);
 }
+
+export interface CourseFrontmatter {
+  title: string;
+  code?: string;
+  term?: string;
+  date: string;
+  excerpt?: string;
+  topics?: string[];
+}
+
+export function getAllCourses(): ContentItem<CourseFrontmatter>[] {
+  return getContentFromDirectory<CourseFrontmatter>('courses').sort(
+    (a, b) => new Date(b.frontmatter.date).getTime() - new Date(a.frontmatter.date).getTime()
+  );
+}
+
+export function getCourseBySlug(slug: string): ContentItem<CourseFrontmatter> | undefined {
+  return getAllCourses().find((c) => c.slug === slug);
+}
