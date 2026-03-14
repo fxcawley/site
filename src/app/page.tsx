@@ -1,76 +1,34 @@
 import Link from 'next/link';
-import { siteConfig, education, interests, experience, awards } from '@/lib/data';
-import { getAllResearch } from '@/lib/content';
+import { siteConfig, education, interests } from '@/lib/data';
+import { getAllPosts, getThreads } from '@/lib/content';
 
-function ResearchCard({ item }: { item: ReturnType<typeof getAllResearch>[number] }) {
-  const authors = (item.frontmatter.authors || []).map((a) =>
-    typeof a === 'string' ? a : a.name
+function getLatestEntry() {
+  const allPosts = getAllPosts();
+  const threads = getThreads();
+
+  const threadEntries = threads.map((t) => ({
+    kind: 'thread' as const,
+    thread: t,
+    sortDate: Math.max(...t.posts.map((p) => new Date(p.frontmatter.date).getTime())),
+  }));
+
+  const standaloneEntries = allPosts
+    .filter((p) => !p.frontmatter.thread)
+    .map((p) => ({
+      kind: 'post' as const,
+      post: p,
+      sortDate: new Date(p.frontmatter.date).getTime(),
+    }));
+
+  const entries = [...threadEntries, ...standaloneEntries].sort(
+    (a, b) => b.sortDate - a.sortDate
   );
 
-  return (
-    <div className="panel">
-      <h5 className="text-base font-semibold mb-1" style={{ color: 'var(--fg-heading)' }}>
-        <Link
-          href={`/research/${item.slug}`}
-          className="hover:underline"
-          style={{ color: 'var(--fg-heading)' }}
-        >
-          {item.frontmatter.title}
-        </Link>
-      </h5>
-
-      {authors.length > 0 && (
-        <p className="text-sm mb-1" style={{ color: 'var(--fg-secondary)' }}>
-          {authors.join(', ')}
-        </p>
-      )}
-
-      <div className="flex flex-wrap items-center gap-2 text-sm mb-2" style={{ color: 'var(--fg-muted)' }}>
-        {item.frontmatter.date && (
-          <span>{new Date(item.frontmatter.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}</span>
-        )}
-        {item.frontmatter.venue && (
-          <>
-            <span className="text-[var(--border)]">|</span>
-            <span>{item.frontmatter.venue}</span>
-          </>
-        )}
-      </div>
-
-      {item.frontmatter.excerpt && (
-        <p className="text-sm leading-relaxed mt-2" style={{ color: 'var(--fg)' }}>
-          {item.frontmatter.excerpt.length > 200
-            ? item.frontmatter.excerpt.slice(0, 200) + '...'
-            : item.frontmatter.excerpt}
-        </p>
-      )}
-
-      {item.frontmatter.links && item.frontmatter.links.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-3">
-          {item.frontmatter.links.map((link) => (
-            <a
-              key={link.name}
-              href={link.url || link.file}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block text-xs px-3 py-1 rounded border transition-colors"
-              style={{
-                borderColor: 'var(--fg-muted)',
-                color: 'var(--fg-heading)',
-              }}
-            >
-              {link.name}
-            </a>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  return entries[0] ?? null;
 }
 
 export default function HomePage() {
-  const research = getAllResearch();
-  const selected = research.filter((r) => r.frontmatter.selected);
+  const latest = getLatestEntry();
 
   return (
     <div>
@@ -148,45 +106,85 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Awards */}
-      {awards.length > 0 && (
-        <section className="homepage-section">
-          <h2 className="mb-4">Awards &amp; Scholarships</h2>
-          <div>
-            {awards.map((item, i) => (
-              <div key={i} className="timeline-item">
-                <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
-                  <h6 className="text-sm font-semibold" style={{ color: 'var(--fg-heading)' }}>
-                    {item.title}
-                  </h6>
-                  <span className="text-xs" style={{ color: 'var(--fg-muted)' }}>
-                    {item.date}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Selected Research */}
-      {selected.length > 0 && (
+      {/* Latest */}
+      {latest && (
         <section className="homepage-section">
           <div className="flex items-baseline justify-between mb-4">
-            <h2 className="mb-0">Selected Research</h2>
+            <h2 className="mb-0">Latest</h2>
             <Link
-              href="/research"
+              href="/posts"
               className="text-sm hover:underline"
               style={{ color: 'var(--accent)' }}
             >
-              All research &rarr;
+              All posts &rarr;
             </Link>
           </div>
-          <div className="space-y-4">
-            {selected.map((item) => (
-              <ResearchCard key={item.slug} item={item} />
-            ))}
-          </div>
+          {latest.kind === 'thread' ? (
+            <article className="panel">
+              <div className="flex items-baseline gap-3 mb-2">
+                <span
+                  className="text-xs font-medium px-2 py-0.5 rounded-full shrink-0"
+                  style={{ background: 'var(--accent)', color: '#fff' }}
+                >
+                  thread
+                </span>
+                <span className="text-base font-semibold" style={{ color: 'var(--fg-heading)' }}>
+                  {latest.thread.title}
+                </span>
+                <span className="text-sm" style={{ color: 'var(--fg-muted)' }}>
+                  {latest.thread.posts.length} {latest.thread.posts.length === 1 ? 'post' : 'posts'}
+                </span>
+              </div>
+              <div className="space-y-2 ml-1">
+                {latest.thread.posts.map((post, i) => (
+                  <div key={post.slug} className="flex items-baseline gap-3">
+                    <span
+                      className="text-xs tabular-nums shrink-0"
+                      style={{ color: 'var(--fg-muted)', minWidth: '1.2rem' }}
+                    >
+                      {i + 1}.
+                    </span>
+                    <span className="text-sm shrink-0 tabular-nums" style={{ color: 'var(--fg-muted)' }}>
+                      {new Date(post.frontmatter.date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                      })}
+                    </span>
+                    <Link
+                      href={`/posts/${post.slug}`}
+                      className="text-sm hover:underline"
+                      style={{ color: 'var(--fg-heading)' }}
+                    >
+                      {post.frontmatter.title}
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </article>
+          ) : (
+            <article className="panel">
+              <div className="flex items-baseline gap-4">
+                <span className="text-sm shrink-0 tabular-nums" style={{ color: 'var(--fg-muted)' }}>
+                  {new Date(latest.post.frontmatter.date).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                  })}
+                </span>
+                <Link
+                  href={`/posts/${latest.post.slug}`}
+                  className="text-base font-semibold hover:underline"
+                  style={{ color: 'var(--fg-heading)' }}
+                >
+                  {latest.post.frontmatter.title}
+                </Link>
+              </div>
+              {latest.post.frontmatter.excerpt && (
+                <p className="text-sm leading-relaxed mt-1 line-clamp-2" style={{ color: 'var(--fg)' }}>
+                  {latest.post.frontmatter.excerpt}
+                </p>
+              )}
+            </article>
+          )}
         </section>
       )}
     </div>
