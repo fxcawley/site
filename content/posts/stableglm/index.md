@@ -3,8 +3,8 @@ title: "StableGLM: When Many Models Fit, Which Explanations Survive?"
 tags: ["interpretability", "rashomon-sets", "generalized-linear-models", "stability"]
 date: 2025-01-20
 excerpt: The Rashomon effect means many parameter vectors achieve nearly the same loss. StableGLM characterizes this set for GLMs and asks which feature importance claims are stable across it.
-thread: "self-models"
-threadTitle: "Self-Models"
+thread: "stableglm"
+threadTitle: "StableGLM"
 threadOrder: 1
 ---
 

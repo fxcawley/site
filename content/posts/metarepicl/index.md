@@ -3,9 +3,9 @@ title: "MetaRepICL: Is In-Context Learning Kernel Regression?"
 tags: ["in-context-learning", "kernel-methods", "transformers", "representation-learning"]
 date: 2025-02-01
 excerpt: Recent theory shows that linear-attention transformers doing in-context learning implement kernel ridge regression via gradient descent. MetaRepICL asks whether this characterization survives softmax attention, learned representations, and distribution shift.
-thread: "self-models"
-threadTitle: "Self-Models"
-threadOrder: 2
+thread: "metarepicl"
+threadTitle: "MetaRepICL"
+threadOrder: 1
 ---
 
 When a transformer performs in-context learning (receiving a sequence of $(x_i, y_i)$ pairs followed by a query $x_*$ and producing a prediction $\hat y_*$ without any weight updates) there is a natural question about what computation it is actually performing. The model's weights are fixed; only the context changes. So whatever function maps the context and query to the prediction is implicitly encoded in the architecture and the learned parameters. Understanding that function is a problem of building a self-model: a description of the system's own internal computation that is detailed enough to be predictive.
