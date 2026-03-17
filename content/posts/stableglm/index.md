@@ -12,6 +12,18 @@ Most interpretability work treats the fitted model as given and asks what it has
 
 The difficulty this creates for interpretability is straightforward: if a feature appears important under one near-optimal model but irrelevant under another, the importance ranking is an artifact of which particular optimum the solver happened to find. It is a property of the optimization trajectory, not of the data.
 
+## Why standard uncertainty quantification is not enough
+
+The usual response to uncertainty about a fitted model is to compute bootstrap confidence intervals: resample the data, refit the model, and report the variability of the estimates. But bootstrap CIs address a specific question, namely how much the result depends on the particular sample of data that was collected. They assume that the model structure is correct and that only sampling noise matters. The Rashomon set addresses a different question: how much the result depends on which model was selected from the pool of near-optimal candidates. These are distinct sources of uncertainty, and the second can dominate even when the first is small.
+
+Fisher, Rudin, and Dominici (2019) formalize this distinction through Model Class Reliance, showing that a variable's importance can range from strongly positive to strongly negative across models that all achieve nearly the same loss. A bootstrap interval around a single model's importance score will be tight if the sample is large, but it will not reveal that an equally good model assigns the opposite sign to the same feature. The Rashomon interval captures this model selection ambiguity that bootstrap intervals, by construction, cannot see.
+
+The practical consequences extend beyond academic interest. In domains where models inform consequential decisions (credit scoring, clinical risk stratification, recidivism prediction) the Rashomon set has a direct implication for algorithmic fairness. If the set is large, there may exist a near-optimal model that relies less on ethically problematic features than the one the solver returned. Rudin (2019) argues that in such settings, the existence of interpretable and fair alternatives within the Rashomon set means that deploying a black-box model is a choice, not a necessity. The set makes that choice visible: if a less biased model with comparable loss exists, the decision to use the biased one requires justification.
+
+There is also a subtlety about how these two kinds of uncertainty scale with data. Bootstrap CIs shrink as $n$ grows, because sampling noise decreases. Model multiplicity does not necessarily shrink, because it depends on the geometry of the loss surface rather than on the variance of the estimator. Semenova, Rudin, and Parr (2022) show that the Rashomon set can remain large even with abundant data if the underlying phenomenon is genuinely underspecified, that is, if the features and model class do not uniquely determine a mapping from inputs to outputs. In such cases, collecting more data resolves sampling uncertainty but leaves model selection ambiguity intact. A practitioner who monitors only bootstrap CIs will see increasing confidence in a result whose foundations remain arbitrary.
+
+## The toolkit
+
 StableGLM is a toolkit for making this problem concrete in the setting of generalized linear models. Rather than examining a single fitted $\hat\theta$, it characterizes the full $\varepsilon$-Rashomon set, the set of all parameter vectors whose loss is within $\varepsilon$ of optimal, and computes interpretability metrics over that set. The question shifts from "what did this model learn?" to "what do all near-optimal models agree on?"
 
 ## The geometry of near-optimality
