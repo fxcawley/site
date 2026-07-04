@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# Bucket 1 STRICT Test — NO COMPROMISES
+# Bucket 1 STRICT Test  NO COMPROMISES
 # =============================================================================
 # This script runs the full Bucket 1 E2E test with ZERO fallbacks.
 # Every assertion is strict. Every failure is captured.
@@ -39,7 +39,7 @@ pass() { log "  PASS: $1"; PASS_COUNT=$((PASS_COUNT + 1)); }
 fail() { log "  FAIL: $1"; FAIL_COUNT=$((FAIL_COUNT + 1)); FAILURES="${FAILURES}\n  - $1"; }
 
 log "================================================================="
-log "  BUCKET 1 STRICT TEST — NO COMPROMISES"
+log "  BUCKET 1 STRICT TEST  NO COMPROMISES"
 log "  Job:       $JOB_ID"
 log "  Timestamp: $TIMESTAMP"
 log "  Host:      $(hostname)"
@@ -47,7 +47,7 @@ log "================================================================="
 log ""
 
 # =============================================================================
-# PHASE 1: INFRASTRUCTURE HEALTH — ALL MUST PASS
+# PHASE 1: INFRASTRUCTURE HEALTH  ALL MUST PASS
 # =============================================================================
 log "=== PHASE 1: INFRASTRUCTURE HEALTH ==="
 
@@ -124,8 +124,8 @@ fi
 
 log ""
 if [ "$FAIL_COUNT" -gt 0 ]; then
-    log "*** PHASE 1 FAILED ($FAIL_COUNT failures) — Infrastructure unhealthy ***"
-    log "*** ABORTING — fix infrastructure before running strict tests ***"
+    log "*** PHASE 1 FAILED ($FAIL_COUNT failures)  Infrastructure unhealthy ***"
+    log "*** ABORTING  fix infrastructure before running strict tests ***"
     log ""
     log "FAILURES:$FAILURES"
     log ""
@@ -135,7 +135,7 @@ fi
 log "=== PHASE 1 PASSED: All infrastructure checks OK ==="
 
 # =============================================================================
-# PHASE 2: DATA PIPELINE — REAL DATA, NO STUBS
+# PHASE 2: DATA PIPELINE  REAL DATA, NO STUBS
 # =============================================================================
 log ""
 log "=== PHASE 2: DATA PIPELINE VALIDATION ==="
@@ -191,10 +191,10 @@ RECIPEINFO_CODE=$(curl -s -o /tmp/recipeinfo_${TIMESTAMP}.txt -w "%{http_code}" 
 RECIPEINFO_BODY=$(cat /tmp/recipeinfo_${TIMESTAMP}.txt 2>/dev/null || echo "NO_RESPONSE")
 log_raw "  recipeinfo HTTP $RECIPEINFO_CODE: $RECIPEINFO_BODY"
 if [ "$RECIPEINFO_CODE" = "200" ]; then
-    pass "recipeinfo returned HTTP 200 — BUG-002 may be FIXED"
+    pass "recipeinfo returned HTTP 200  BUG-002 may be FIXED"
     log "  ACTION REQUIRED: Update BUG_TRACKER.md to mark BUG-002 as Resolved"
 elif [ "$RECIPEINFO_CODE" = "500" ]; then
-    log "  KNOWN: recipeinfo HTTP 500 — BUG-002 still open (tracked in BUG_TRACKER.md)"
+    log "  KNOWN: recipeinfo HTTP 500  BUG-002 still open (tracked in BUG_TRACKER.md)"
     log "  This is an EXISTING known bug, not a new finding."
 else
     fail "recipeinfo unexpected HTTP $RECIPEINFO_CODE (not 200 or 500)"
@@ -232,7 +232,7 @@ DATASET_ID=$(echo "$LOAD_RESP" | python3 -c "import sys,json; d=json.load(sys.st
 if [ "$DATASET_ID" != "NONE" ] && [ "$DATASET_ID" != "PARSE_ERROR" ]; then
     pass "Dataset loaded (DatasetId=$DATASET_ID)"
 else
-    fail "Dataset load failed — no DatasetId (response: ${LOAD_RESP:0:200})"
+    fail "Dataset load failed  no DatasetId (response: ${LOAD_RESP:0:200})"
     DATASET_ID=""
 fi
 
@@ -266,7 +266,7 @@ log ""
 log "=== PHASE 3 COMPLETE ==="
 
 # =============================================================================
-# PHASE 4: DALSERVICE E2E PIPELINE — STRICT ASSERTIONS
+# PHASE 4: DALSERVICE E2E PIPELINE  STRICT ASSERTIONS
 # =============================================================================
 log ""
 log "=== PHASE 4: DALSERVICE E2E PIPELINE ==="
@@ -356,7 +356,7 @@ log "  Enhanced AUC:  $AUC_ENHANCED"
 log "  ROC Status:    $ROC_STATUS"
 
 if [ "$ROC_STATUS" = "fallback" ]; then
-    fail "ROC in FALLBACK mode — AUC=0 is NOT acceptable in strict mode"
+    fail "ROC in FALLBACK mode  AUC=0 is NOT acceptable in strict mode"
 fi
 python3 -c "
 b=float('${AUC_BASELINE}'); e=float('${AUC_ENHANCED}')
@@ -388,7 +388,7 @@ log "  ModelPath: $MODEL_PATH"
 if [ "$MODEL_PATH" != "NONE" ] && [ "$MODEL_PATH" != "null" ] && [ "$MODEL_PATH" != "None" ] && [ -n "$MODEL_PATH" ]; then
     pass "ModelPath set: $MODEL_PATH"
 else
-    fail "ModelPath is null/empty — persistence failed"
+    fail "ModelPath is null/empty  persistence failed"
 fi
 
 # =============================================================================
@@ -396,7 +396,7 @@ fi
 # =============================================================================
 log ""
 log "================================================================="
-log "  BUCKET 1 STRICT TEST — SUMMARY"
+log "  BUCKET 1 STRICT TEST  SUMMARY"
 log "================================================================="
 log "  Job:       $JOB_ID"
 log "  Timestamp: $TIMESTAMP"

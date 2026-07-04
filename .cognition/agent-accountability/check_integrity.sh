@@ -48,7 +48,7 @@ evidence = entry.get('evidence', {})
 verdict = entry.get('verdict', 'UNKNOWN')
 problems = []
 
-# FinalState check — DalEnums.cs: 3=Completed, 4=Failed
+# FinalState check  DalEnums.cs: 3=Completed, 4=Failed
 # FinalState=3 (Completed) does NOT mean success. Check output quality.
 fs = evidence.get('FinalState')
 if fs is not None and fs == 4 and verdict == 'PASS':

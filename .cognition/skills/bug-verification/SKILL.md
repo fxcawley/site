@@ -18,10 +18,10 @@ Invoke this skill whenever you:
 ### Step 1: Read the Bug Tracker
 
 Read `AutonomousDevelopment/DeploymentBugs/BUG_TRACKER.md` in its entirety. This file contains:
-- **Open Bugs** — currently known, validated bugs with severity, component, and reproduction steps
-- **Resolved Bugs** — previously fixed issues with root cause and fix description
-- **Debunked Claims** — observations that were investigated and found to NOT be bugs (PEBDAK, by-design, speculative)
-- **Root Cause Cascade** — shows how multiple symptoms can trace to a single root cause
+- **Open Bugs**  currently known, validated bugs with severity, component, and reproduction steps
+- **Resolved Bugs**  previously fixed issues with root cause and fix description
+- **Debunked Claims**  observations that were investigated and found to NOT be bugs (PEBDAK, by-design, speculative)
+- **Root Cause Cascade**  shows how multiple symptoms can trace to a single root cause
 
 ### Step 2: Cross-Reference Your Observation
 
@@ -38,11 +38,11 @@ Compare your observation against EVERY entry in BUG_TRACKER.md:
 
 If your finding is genuinely new (not in BUG_TRACKER.md), you must still validate:
 
-1. **Reproduce it** — Run the failing operation at least twice. One-off errors are not bugs.
-2. **Isolate the component** — Is the error from the service you think, or is it propagated from a dependency?
-3. **Check infrastructure** — Is this a transient network/mount/container issue? Check service health first.
-4. **Read the source code** — If possible, trace the code path to understand whether the behavior is intentional.
-5. **Check the Root Cause Cascade** — Many symptoms trace to a single infrastructure failure. Don't report 5 bugs when there's 1 root cause.
+1. **Reproduce it**  Run the failing operation at least twice. One-off errors are not bugs.
+2. **Isolate the component**  Is the error from the service you think, or is it propagated from a dependency?
+3. **Check infrastructure**  Is this a transient network/mount/container issue? Check service health first.
+4. **Read the source code**  If possible, trace the code path to understand whether the behavior is intentional.
+5. **Check the Root Cause Cascade**  Many symptoms trace to a single infrastructure failure. Don't report 5 bugs when there's 1 root cause.
 
 ### Step 4: Report with Maximum Verbosity
 
@@ -62,7 +62,7 @@ Report format:
 
 ## Symptom
 
-<What you observed — exact error messages, HTTP codes, unexpected values>
+<What you observed  exact error messages, HTTP codes, unexpected values>
 
 ## Raw Evidence
 
@@ -88,11 +88,11 @@ Report format:
 
 ### Anti-Patterns (DO NOT)
 
-- Do NOT report "BIDS NaN bug" — this has been debunked (see BUG_TRACKER.md Debunked Claims)
-- Do NOT report "ChildDHL always calls BIDS" — this is by-design (see BUG_TRACKER.md)
-- Do NOT report "NoMmsLotSourceAdapter fails" — this is a known stub, not production path
-- Do NOT report "ROC class scheme mismatch" as a bug — it is PEBDAK (see BUG-003)
-- Do NOT report AUC=0.0 as a bug when using fallback mode — this is expected behavior
+- Do NOT report "BIDS NaN bug"  this has been debunked (see BUG_TRACKER.md Debunked Claims)
+- Do NOT report "ChildDHL always calls BIDS"  this is by-design (see BUG_TRACKER.md)
+- Do NOT report "NoMmsLotSourceAdapter fails"  this is a known stub, not production path
+- Do NOT report "ROC class scheme mismatch" as a bug  it is PEBDAK (see BUG-003)
+- Do NOT report AUC=0.0 as a bug when using fallback mode  this is expected behavior
 - Do NOT confuse infrastructure issues (SMB down, container not running) with code bugs
 
 ### DalJobState Enum Reference (verified from DalEnums.cs source code)

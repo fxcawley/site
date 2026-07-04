@@ -57,14 +57,14 @@
   "skills": {
     "bug-verification": {
       "path": ".cognition/skills/bug-verification/SKILL.md",
-      "description": "Bug verification protocol — MUST be invoked before reporting any observation as a bug. Cross-references BUG_TRACKER.md to prevent duplicate reports and debunked claims."
+      "description": "Bug verification protocol  MUST be invoked before reporting any observation as a bug. Cross-references BUG_TRACKER.md to prevent duplicate reports and debunked claims."
     }
   },
   "workflows": {
     "bucket1-test": {
       "path": ".cognition/workflows/bucket1-test/WORKFLOW.md",
       "script": ".cognition/workflows/bucket1-test/run_bucket1_strict.sh",
-      "description": "Bucket 1 STRICT E2E test — no fallbacks, no exceptions, production best practices only. Validates full DalService pipeline end-to-end against DART Slot 9.",
+      "description": "Bucket 1 STRICT E2E test  no fallbacks, no exceptions, production best practices only. Validates full DalService pipeline end-to-end against DART Slot 9.",
       "schedule": "periodic",
       "bug_output": {
         "bucket1": "AutonomousDevelopment/DeploymentBugs/Bucket1/",

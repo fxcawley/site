@@ -26,7 +26,7 @@ Lecture notes and selected problem sets from the Winter 2025 offering.
 
 ## Notes
 
-These are personal lecture notes — not official course materials. They may contain errors or omissions. Use at your own risk.
+These are personal lecture notes  not official course materials. They may contain errors or omissions. Use at your own risk.
 
 ### Steiner Network Design
 

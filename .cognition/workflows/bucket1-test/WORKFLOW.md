@@ -1,4 +1,4 @@
-# Bucket 1 Test Workflow — NO COMPROMISES
+# Bucket 1 Test Workflow  NO COMPROMISES
 
 ## Overview
 
@@ -10,12 +10,12 @@ It enforces **production-grade standards** with **zero fallbacks**, **zero excep
 
 ## Design Principles
 
-1. **NO FALLBACKS** — If a service is down, the test FAILS. No stub data. No sample payloads. No "fallback mode."
-2. **NO EXCEPTIONS** — Every assertion is strict. No "expected failure" paths. No swallowing errors.
-3. **NO DEGRADED MODES** — AUC=0.0 is a FAILURE, not "expected in fallback." FinalState=4 (Failed) is a FAILURE. FinalState=3 is Completed (see enum reference below).
-4. **MAXIMUM VERBOSITY** — Every request/response is captured raw. Every failure includes full context.
-5. **BUG VERIFICATION** — Before reporting any failure as a bug, cross-reference `AutonomousDevelopment/DeploymentBugs/BUG_TRACKER.md`.
-6. **FILE TAGGING** — All output files MUST follow the Agent File-Tagging Protocol in the root `AGENTS.md`. Every file must have a tagged filename (`<name>_<timestamp>_<agentID>`) and a metadata footer.
+1. **NO FALLBACKS**  If a service is down, the test FAILS. No stub data. No sample payloads. No "fallback mode."
+2. **NO EXCEPTIONS**  Every assertion is strict. No "expected failure" paths. No swallowing errors.
+3. **NO DEGRADED MODES**  AUC=0.0 is a FAILURE, not "expected in fallback." FinalState=4 (Failed) is a FAILURE. FinalState=3 is Completed (see enum reference below).
+4. **MAXIMUM VERBOSITY**  Every request/response is captured raw. Every failure includes full context.
+5. **BUG VERIFICATION**  Before reporting any failure as a bug, cross-reference `AutonomousDevelopment/DeploymentBugs/BUG_TRACKER.md`.
+6. **FILE TAGGING**  All output files MUST follow the Agent File-Tagging Protocol in the root `AGENTS.md`. Every file must have a tagged filename (`<name>_<timestamp>_<agentID>`) and a metadata footer.
 
 ### DalJobState Enum (VERIFIED from DalEnums.cs source code)
 
@@ -43,7 +43,7 @@ Before running any tests, read `AutonomousDevelopment/DeploymentBugs/BUG_TRACKER
 
 This context is required for Phase 5 (bug classification).
 
-### Phase 1: Infrastructure Health (STRICT — all must pass)
+### Phase 1: Infrastructure Health (STRICT  all must pass)
 
 Run each health check. If ANY check fails, the entire workflow fails immediately.
 Do NOT proceed to Phase 2 if infrastructure is unhealthy.
@@ -55,7 +55,7 @@ set -euo pipefail
 TIMESTAMP=$(date -u +%Y%m%dT%H%M%SZ)
 REPORT_FILE="/tmp/bucket1_strict_${TIMESTAMP}.log"
 
-echo "=== BUCKET 1 STRICT TEST — ${TIMESTAMP} ===" | tee "$REPORT_FILE"
+echo "=== BUCKET 1 STRICT TEST  ${TIMESTAMP} ===" | tee "$REPORT_FILE"
 echo "" | tee -a "$REPORT_FILE"
 
 # --- Phase 1: Infrastructure Health ---
@@ -129,13 +129,13 @@ fi
 
 echo "" | tee -a "$REPORT_FILE"
 if [ "$PHASE1_PASS" != true ]; then
-    echo "*** PHASE 1 FAILED — ABORTING. Fix infrastructure before proceeding. ***" | tee -a "$REPORT_FILE"
+    echo "*** PHASE 1 FAILED  ABORTING. Fix infrastructure before proceeding. ***" | tee -a "$REPORT_FILE"
     exit 1
 fi
 echo "=== PHASE 1: ALL CHECKS PASSED ===" | tee -a "$REPORT_FILE"
 ```
 
-### Phase 2: Data Pipeline Validation (STRICT — real data only)
+### Phase 2: Data Pipeline Validation (STRICT  real data only)
 
 No sample data. No stubs. Real lot loading through BIDS.
 
@@ -145,7 +145,7 @@ echo "" | tee -a "$REPORT_FILE"
 echo "=== PHASE 2: DATA PIPELINE VALIDATION ===" | tee -a "$REPORT_FILE"
 PHASE2_PASS=true
 
-# 2a. BIDS lot catalog — verify lots are discoverable
+# 2a. BIDS lot catalog  verify lots are discoverable
 echo -n "[2a] BIDS lot catalog... " | tee -a "$REPORT_FILE"
 CATALOG_RESP=$(curl -s --max-time 30 "http://as-windows-1.ktpn:6959/mms/catalog/v1.0/lots?lotRoot=//172.16.1.31/sharedstorage/kla_user/manageddata/lots" 2>&1)
 CATALOG_COUNT=$(echo "$CATALOG_RESP" | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d) if isinstance(d,list) else 0)" 2>/dev/null || echo "0")
@@ -157,7 +157,7 @@ else
     echo "PASS ($CATALOG_COUNT lots)" | tee -a "$REPORT_FILE"
 fi
 
-# 2b. BIDS dbfromlot v2 — metadata for known lot
+# 2b. BIDS dbfromlot v2  metadata for known lot
 echo -n "[2b] BIDS dbfromlot v2 (M4CL_FocusCurve_HY01)... " | tee -a "$REPORT_FILE"
 DBFROMLOT_RESP=$(curl -s --max-time 60 -X POST "http://as-windows-1.ktpn:6959/mms/dhl/v2/dbfromlot" \
   -H "Content-Type: application/json" \
@@ -171,7 +171,7 @@ else
     echo "PASS (metadata returned)" | tee -a "$REPORT_FILE"
 fi
 
-# 2c. BIDS lotsummary v2 — verify defect counts
+# 2c. BIDS lotsummary v2  verify defect counts
 echo -n "[2c] BIDS lotsummary v2... " | tee -a "$REPORT_FILE"
 LOTSUMMARY_RESP=$(curl -s --max-time 60 -X PUT "http://as-windows-1.ktpn:6959/mms/dhl/v2/lotsummary" \
   -H "Content-Type: application/json" \
@@ -184,7 +184,7 @@ else
     PHASE2_PASS=false
 fi
 
-# 2d. BIDS recipeinfo v2 — KNOWN BUG-002, document current state
+# 2d. BIDS recipeinfo v2  KNOWN BUG-002, document current state
 echo -n "[2d] BIDS recipeinfo v2 (BUG-002 regression check)... " | tee -a "$REPORT_FILE"
 RECIPEINFO_RESP=$(curl -s --max-time 30 -X PUT "http://as-windows-1.ktpn:6959/mms/dhl/v2/recipeinfo" \
   -H "Content-Type: application/json" \
@@ -196,25 +196,25 @@ RECIPEINFO_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 -X PUT "h
   -d '{"InputFullPath":"//172.16.1.31/sharedstorage/kla_user/manageddata/lots/M4CL_FocusCurve_HY01","IsRecipePath":false,"InputTestIdList":"1"}' 2>/dev/null)
 echo "HTTP $RECIPEINFO_CODE | $RECIPEINFO_RESP" >> "$REPORT_FILE"
 if [ "$RECIPEINFO_CODE" = "500" ]; then
-    echo "CONFIRMED STILL BROKEN (HTTP 500) — BUG-002 remains open" | tee -a "$REPORT_FILE"
+    echo "CONFIRMED STILL BROKEN (HTTP 500)  BUG-002 remains open" | tee -a "$REPORT_FILE"
     # This is a KNOWN bug. Do not fail the workflow for it, but log it clearly.
     echo "  NOTE: BUG-002 is already tracked in BUG_TRACKER.md" | tee -a "$REPORT_FILE"
 elif [ "$RECIPEINFO_CODE" = "200" ]; then
-    echo "PASS (HTTP 200) — BUG-002 may be FIXED" | tee -a "$REPORT_FILE"
+    echo "PASS (HTTP 200)  BUG-002 may be FIXED" | tee -a "$REPORT_FILE"
     echo "  ACTION: Verify fix and update BUG_TRACKER.md to mark BUG-002 as Resolved" | tee -a "$REPORT_FILE"
 else
-    echo "UNEXPECTED HTTP $RECIPEINFO_CODE — investigate" | tee -a "$REPORT_FILE"
+    echo "UNEXPECTED HTTP $RECIPEINFO_CODE  investigate" | tee -a "$REPORT_FILE"
 fi
 
 echo "" | tee -a "$REPORT_FILE"
 if [ "$PHASE2_PASS" != true ]; then
-    echo "*** PHASE 2 FAILED — Data pipeline broken. ***" | tee -a "$REPORT_FILE"
+    echo "*** PHASE 2 FAILED  Data pipeline broken. ***" | tee -a "$REPORT_FILE"
     exit 1
 fi
 echo "=== PHASE 2: ALL CHECKS PASSED ===" | tee -a "$REPORT_FILE"
 ```
 
-### Phase 3: AnalysisService Real Lot Load (STRICT — no sample data)
+### Phase 3: AnalysisService Real Lot Load (STRICT  no sample data)
 
 Load a real lot through AS. No LoadClassifier.json fallback.
 
@@ -282,13 +282,13 @@ fi
 
 echo "" | tee -a "$REPORT_FILE"
 if [ "$PHASE3_PASS" != true ]; then
-    echo "*** PHASE 3 FAILED — Lot loading broken. ***" | tee -a "$REPORT_FILE"
+    echo "*** PHASE 3 FAILED  Lot loading broken. ***" | tee -a "$REPORT_FILE"
     exit 1
 fi
 echo "=== PHASE 3: ALL CHECKS PASSED ===" | tee -a "$REPORT_FILE"
 ```
 
-### Phase 4: DalService E2E Pipeline (STRICT — output quality validation)
+### Phase 4: DalService E2E Pipeline (STRICT  output quality validation)
 
 ```bash
 # --- Phase 4: DalService E2E Pipeline ---
@@ -381,7 +381,7 @@ if [ "$PHASE4_PASS" = true ] || [ "$FINAL_STATE" = "Failed" ]; then
     echo "(captured)" | tee -a "$REPORT_FILE"
 fi
 
-# 4d. STRICT ROC validation — AUC must be > 0
+# 4d. STRICT ROC validation  AUC must be > 0
 if [ "$PHASE4_PASS" = true ]; then
     echo -n "[4d] Validate ROC (AUC > 0 required)... " | tee -a "$REPORT_FILE"
     AUC_BASELINE=$(echo "$RESULT" | python3 -c "import sys,json; r=json.load(sys.stdin); print(r.get('RocComparison',{}).get('BaselinePerformance',{}).get('AucValue', -1))" 2>/dev/null || echo "-1")
@@ -423,14 +423,14 @@ if [ "$PHASE4_PASS" = true ]; then
     if [ "$MODEL_PATH" != "NONE" ] && [ "$MODEL_PATH" != "null" ] && [ "$MODEL_PATH" != "None" ]; then
         echo "PASS ($MODEL_PATH)" | tee -a "$REPORT_FILE"
     else
-        echo "FAIL: ModelPath is null — persistence failed" | tee -a "$REPORT_FILE"
+        echo "FAIL: ModelPath is null  persistence failed" | tee -a "$REPORT_FILE"
         PHASE4_PASS=false
     fi
 fi
 
 echo "" | tee -a "$REPORT_FILE"
 if [ "$PHASE4_PASS" != true ]; then
-    echo "*** PHASE 4 FAILED — DalService pipeline has defects. ***" | tee -a "$REPORT_FILE"
+    echo "*** PHASE 4 FAILED  DalService pipeline has defects. ***" | tee -a "$REPORT_FILE"
 fi
 ```
 
@@ -470,7 +470,7 @@ Every markdown file MUST include the metadata footer defined in AGENTS.md:
 
 ```markdown
 ---
-<!-- AGENT METADATA — DO NOT REMOVE -->
+<!-- AGENT METADATA  DO NOT REMOVE -->
 | Field | Value |
 |-------|-------|
 | Agent | <platform and session ID> |
@@ -532,8 +532,8 @@ These are the production-grade assertions. NONE of these may be relaxed:
 | Dataset load | DatasetId returned | BIDS→AS pipeline broken |
 | Defect count | > 0 | Lot empty or load failed silently |
 | Schema ClassCode_Manual | present | Wrong lot or attribute loading broken |
-| FinalState | 3 (Completed) — then validate output quality | 4 = pipeline crashed; anything else = still running/stuck |
-| AUC Baseline | > 0.0 | ROC computation failed or fallback mode — Completed with zero output |
+| FinalState | 3 (Completed)  then validate output quality | 4 = pipeline crashed; anything else = still running/stuck |
+| AUC Baseline | > 0.0 | ROC computation failed or fallback mode  Completed with zero output |
 | AUC Enhanced | > 0.0 | Design attributes not improving classification |
 | GeneratedAttributes | count > 0 | Algorithm produced no output |
 | ModelPath | non-null | Persistence to Postgres/disk failed |

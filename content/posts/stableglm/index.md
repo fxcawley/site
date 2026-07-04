@@ -58,6 +58,6 @@ The parameter $\varepsilon$ controls the size of the Rashomon set. Too small and
 
 ## Connection to the broader theme
 
-This project is part of a broader interest in what I have been calling self-models — understanding a model's own computations, behaviors, and limitations, rather than just its predictions. StableGLM addresses this from the perspective of *explanation multiplicity*: when the model class admits many near-optimal solutions, how much of what we claim to have learned from the model is actually determined by the data?
+This project is part of a broader interest in what I have been calling self-models  understanding a model's own computations, behaviors, and limitations, rather than just its predictions. StableGLM addresses this from the perspective of *explanation multiplicity*: when the model class admits many near-optimal solutions, how much of what we claim to have learned from the model is actually determined by the data?
 
 The companion post on [MetaRepICL](/posts/metarepicl) approaches a related question from the opposite direction: rather than asking whether explanations are stable across models, it asks whether our mechanistic understanding of what a model *computes* is stable across input distributions. Both projects share the premise that understanding a model requires understanding the boundaries of that understanding.

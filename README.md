@@ -1,6 +1,6 @@
 # cawley.dev
 
-Personal website for Liam Cawley — built with Next.js, Tailwind CSS, and MDX.
+Personal website for Liam Cawley  built with Next.js, Tailwind CSS, and MDX.
 
 ## Quick Start
 
@@ -93,10 +93,10 @@ Deploy the `out/` directory to Netlify, Vercel, or any static host.
 
 ## Tech Stack
 
-- **Next.js 14** — App Router, static export
-- **Tailwind CSS** — Utility-first styling
-- **MDX** — Markdown with LaTeX and code highlighting
-- **Lucide** — Icons
+- **Next.js 14**  App Router, static export
+- **Tailwind CSS**  Utility-first styling
+- **MDX**  Markdown with LaTeX and code highlighting
+- **Lucide**  Icons
 
 ## License
 
