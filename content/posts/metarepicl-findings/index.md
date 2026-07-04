@@ -2,7 +2,7 @@
 title: "Trained Models, Probing, and Silent Failures"
 tags: ["in-context-learning", "kernel-methods", "transformers", "probing", "silent-failure"]
 date: 2026-03-15
-excerpt: Training a 12-layer transformer and probing its internals. The model outperforms gradient descent by orders of magnitude but does not cleanly implement conjugate gradient either. Softmax ICL fails silently at high dimension.
+excerpt: Training transformers on in-context regression and testing them against six named iterative solvers. The model converges far faster than gradient descent, but conjugate gradients, preconditioned CG, and preconditioned GD are statistically indistinguishable as descriptions of it. Softmax ICL fails silently at high dimension.
 thread: "metarepicl"
 threadTitle: "MetaRepICL"
 threadOrder: 2
@@ -14,34 +14,52 @@ The [initial post](/posts/metarepicl) described two aims: a constructive mapping
 
 The model is a 12-layer GPT-style transformer (pre-norm, 256-dim, 4 heads, roughly 9.5M parameters) trained on synthetic in-context regression tasks for 50,000 steps. The training data is drawn from linear regression problems with controllable condition number $\kappa$ of the design matrix. The first set of experiments uses isotropic tasks ($\kappa \approx 1$); the second trains on a mixture of $\kappa \in \{1, 10, 50, 100, 500\}$. Training takes about 20 minutes on a single GPU.
 
-## Probing: GD-like representations, CG-like predictions
+## Which algorithm? Testing six candidates
 
-To identify what algorithm the trained model implements, I fit linear probes at each layer to predict the intermediate states of both gradient descent (GD) and conjugate gradient (CG) applied to the same in-context regression problem. The probe measures cosine similarity between the model's hidden states and the iterates of each reference algorithm.
+To ask what the trained model computes, I compared it against six named iterative solvers for the in-context least-squares problem: vanilla gradient descent (GD), conjugate gradients (CG), preconditioned GD (Jacobi), heavy ball, Chebyshev iteration, and preconditioned CG. Each solver runs in feature space for as many steps as the model has layers, and at each step I read off its prediction on the query. The comparison metric is the $R^2$ between the model's per-layer prediction and each solver's per-step prediction, computed across test problems and stratified by condition number $\kappa$, since well-conditioned problems are solved quickly by everything and only the ill-conditioned ones separate the candidates. All $R^2$ values carry bootstrap 95% confidence intervals (200 resamples).
 
-On isotropic training, the result is that the model's internal representations are more GD-like than CG-like. The mean CG probe similarity is 0.184; the mean GD probe similarity is 0.298. Both decline with depth, and at layer 12 neither probe explains much of the hidden state variance (CG: 0.032, GD: 0.156). Random baselines are near zero throughout.
+The $\kappa$-weighted results at the larger scale ($p = 20$, $24$ layers) are:
 
-This does not mean the model *is* doing gradient descent. On mixed-$\kappa$ training, the model's final-layer prediction error is 2--5$\times$ worse than feature-space CG across all condition numbers, but 3--1000$\times$ better than GD, with the gap growing as $\kappa$ increases. At $\kappa = 500$, GD produces an MSE of 54.2 while the model achieves 0.054. CG reaches 0.020. The model outperforms GD by three orders of magnitude in the ill-conditioned regime, which rules out GD as a description of the model's algorithm, even though the representations look more GD-like to the probes.
+| Algorithm | Weighted $R^2$ | 95% CI |
+|---|---|---|
+| Preconditioned CG | 0.922 | $\pm$ 0.008 |
+| CG | 0.918 | $\pm$ 0.009 |
+| Preconditioned GD | 0.910 | $\pm$ 0.011 |
+| Chebyshev | 0.780 | $\pm$ 0.042 |
+| GD | 0.721 | $\pm$ 0.060 |
+| Heavy Ball | 0.581 | $\pm$ 0.046 |
 
-## Algorithm identification
+Two things stand out. The first is a clear separation between the CG-class methods (CG, preconditioned CG, preconditioned GD, all above 0.90) and vanilla GD at 0.72. The 0.20 gap is stable across condition numbers and both model scales, and it is the same phenomenon Fu et al. (2023) report: the model converges at a rate GD cannot produce. That much I am fairly confident in.
 
-A more systematic comparison tests the trained model against six named algorithms: GD, CG, preconditioned GD, Heavy Ball, Chebyshev iteration, and preconditioned CG. The metric is the $R^2$ between the model's per-layer predictions and each algorithm's iterates, averaged across condition numbers and weighted by $\kappa$.
+The second is less convenient. The top three algorithms sit within 0.004 of one another, well inside their combined confidence interval of 0.017. Which one comes out on top depends on the condition number (CG at $\kappa = 1$ and $500$, preconditioned CG at $\kappa = 50$ and $100$) and on the choice of metric, since an MSE-profile distance disagrees with $R^2$ at several $\kappa$ values. At these scales the data does not distinguish them. Preconditioned GD, the algorithm Ahn et al. (2024) identify, is one member of this indistinguishable cluster; the observation here does not contradict their result so much as show that "CG" and "preconditioned CG" are equally consistent with the same behavior.
 
-At the smaller scale ($n = 20$ support points, $p = 10$ features), preconditioned CG achieves the highest weighted $R^2$ at 0.853 $(\pm 0.036)$, followed by vanilla CG at 0.826 $(\pm 0.035)$ and preconditioned GD at 0.814 $(\pm 0.033)$. GD and Heavy Ball trail at 0.513 and 0.323 respectively. At a larger scale ($n = 40$, $p = 20$), the same ranking holds with tighter confidence intervals: preconditioned CG at 0.922, CG at 0.918. The gap between preconditioned CG and vanilla CG is not statistically significant in either configuration, so the data does not distinguish between them.
+The reason appears to be structural rather than statistical. With $p = 20$ features and 24 layers, every CG-class method converges in at most $p$ steps, so the last several layers are past convergence and carry no discriminating signal: the converged solvers all approach the same ridge solution and their late-layer predictions agree by construction. Distinguishing them would require a regime where $p \gg L$, so that each algorithm is still mid-convergence at every layer. Until those experiments are run, the description I am willing to defend is a convergence class (CG-like, second-order) rather than a specific named algorithm.
 
-The practical summary is that the trained model's layer-wise predictions most closely track some variant of CG, even though its internal representations do not obviously correspond to CG iterates. This is a somewhat unsatisfying conclusion, but it is consistent with the possibility that the model has found an algorithm that achieves CG-like convergence rates through a different computational pathway.
+## Probing: a mismatch between representation and behavior
 
-## Silent failure of softmax ICL
+A separate question is whether the model's internal states, not just its predictions, resemble any of these algorithms. I fit linear probes from each layer's activations to the state variables of GD and CG (weight vectors, residuals, CG iterates) on the mixed-$\kappa$ model.
 
-The most practically relevant finding is about failure modes. When the input dimension $p$ grows, softmax attention's approximation of the kernel degrades in a way that is not visible in aggregate error metrics.
+The result runs opposite to the behavioral finding. GD probes achieve higher cosine similarity than CG probes at every condition number (means around 0.11 versus 0.06), even though the model's convergence rate matches CG rather than GD. Read at face value, this says the representations are GD-like while the behavior is CG-like.
 
-At $p = 64$, the rank correlation between the softmax ICL predictions and the oracle KRR solution drops to 0.18, which is close to random. However, the RMSE remains moderate because the softmax model's predictions cluster around the mean rather than producing large outliers. A practitioner monitoring only RMSE would see acceptable performance; a practitioner checking rank correlation would see that the model has lost the ability to distinguish which queries should receive high predictions from which should receive low ones. Linear-attention CG maintains rank correlation above 0.999 at the same dimension.
+I do not think the face-value reading is warranted yet. The absolute similarities are low throughout (roughly 0.06 to 0.14), which suggests neither algorithm's state is strongly encoded in a linearly accessible form, and linear ridge probes can only detect structure that happens to align with the chosen basis. A CG computation stored in a rotated or otherwise nonlinear representation would look GD-like, or like nothing in particular, to a probe of this kind. Nonlinear probes, basis controls, and distribution-shift tests would be needed before reading anything mechanistic into the mismatch. I include it because it is exactly the sort of result that is easy to over-interpret, and I would rather flag it as unresolved than present it as evidence for a mechanism.
 
-The failure also depends on the attention temperature $\tau$ and the conditioning of the kernel. The safe zone for $\tau$ (the range within which the softmax approximation is reasonable) narrows as $p$ increases. At $\kappa = 500$, the oracle itself becomes unstable, and the softmax model produces plausible-looking but essentially uncorrelated predictions (rank correlation 0.24).
+## Silent failure of softmax attention
 
-Context length partially mitigates the problem: at $n = 128$ support points, rank correlation recovers to 0.90 even at moderate $p$. But the general pattern is that softmax ICL can degrade in ways that standard evaluation metrics do not detect, and the degradation is worst in exactly the high-dimensional, ill-conditioned settings where the KRR characterization was supposed to be most useful.
+Independent of the algorithm-identification question, softmax attention can be viewed as an approximate exponential-kernel regressor: it predicts $\sum_i w_i y_i$ with weights $w_i \propto \exp(x_q^\top x_i / \tau)$, which is a Nadaraya--Watson estimator. Comparing it against the exact exponential-kernel KRR oracle turns up failure modes that aggregate error metrics do not reveal.
+
+| Regime | RMSE ratio | Rank corr. $\rho$ |
+|---|---|---|
+| Healthy ($\tau=1$, $p=8$) | 0.38$\times$ | 0.71 |
+| High dimension ($p=64$) | 1.19$\times$ | 0.22 |
+| Low temperature ($\tau=0.05$) | 0.89$\times$ | 0.72 |
+| Ill-conditioned ($\kappa=500$) | $\approx 0$ | 0.24 |
+
+The high-dimensional and ill-conditioned rows are the concerning ones. In both, the RMSE relative to the oracle is comparable or better, yet rank correlation collapses to around 0.22--0.24, close to random. The prediction ordering is destroyed while the average error looks fine, so a practitioner monitoring RMSE alone would not notice. Linear-attention CG keeps rank correlation above 0.999 at the same dimension.
+
+The mechanism in high dimensions is concentration: inner products between random features cluster near zero, so $\exp(x_q^\top x_i/\tau) \approx 1$ for all pairs, the softmax weights become nearly uniform, and the prediction collapses toward the label mean $\bar y$. That has low RMSE when the labels have low variance but no discriminative power. The safe range of $\tau$ narrows as $p$ grows, and longer context partially compensates (at $n = 128$ support points, rank correlation recovers to around 0.90 at moderate $p$). The general pattern is that softmax ICL can degrade in ways standard metrics miss, and the degradation is worst in exactly the high-dimensional, ill-conditioned settings where the kernel characterization was supposed to be most useful.
 
 ## Where this leaves the project
 
-The constructive result from the first post holds: for linear attention, the CG mapping is exact and convergence follows the predicted rate. The trained-model experiments add a more complicated picture. The model learns something CG-like in its input-output behavior but not in its internal representations, and the softmax extension introduces failure modes that are silent under standard metrics.
+The constructive result from the first post is unaffected: for linear attention the CG mapping is exact and converges at the predicted rate. The trained-model experiments add a more qualified picture. Behaviorally the model belongs to the CG convergence class and is clearly not vanilla GD, but the specific member of that class is not identifiable at scales where $p \le L$. The probe results point, tentatively and against the behavior, toward GD-like representations, and I do not yet trust that signal enough to build on it. The softmax extension introduces failure modes that are invisible under RMSE and worst in exactly the high-dimensional, ill-conditioned settings where the kernel characterization was supposed to help most.
 
-The next steps are probing pretrained language models (GPT-2, LLaMA) for similar optimization signatures, and extending the CG construction to nonlinear GLMs (logistic, Poisson). The formal proofs also have gaps that need to be closed before this is ready for a venue submission. Five proof stubs remain open, covering tight constants, formal preconditioner analysis, multi-output extension, numerical stability, and the interaction between causal masking and the CG iteration.
+The most informative next steps are the ones that bear directly on these open questions: pushing to $p \gg L$ to see whether the top three algorithms separate, replacing the linear probes with nonlinear ones and proper basis controls, and testing whether any of this transfers to pretrained language models (GPT-2, LLaMA). The formal side still has gaps; several proof stubs remain open, covering tight constants, preconditioner analysis, the multi-output extension, numerical stability, and the interaction between causal masking and the CG iteration. I would not present the identification results as settled until the larger-scale experiments are run.

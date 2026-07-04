@@ -60,7 +60,7 @@ export const experience = [
     data: [
       {
         date: 'May 2025 - Present',
-        title: 'ML Engineer, Broadband Plasma',
+        title: 'Machine Learning Engineer, Broadband Plasma',
         location: 'KLA Corporation, Ann Arbor, MI',
         description:
           'Machine learning systems for semiconductor wafer inspection.',
@@ -74,7 +74,7 @@ export const experience = [
       },
       {
         date: 'May 2023 - August 2023',
-        title: 'ML Intern',
+        title: 'Machine Learning Intern',
         location: 'EMAG Technologies, Ann Arbor, MI',
         description:
           'Calibration algorithms for phased array antenna systems.',
