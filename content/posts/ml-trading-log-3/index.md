@@ -1,7 +1,7 @@
 ---
 title: "Alternative Data and Prediction Markets"
 tags: ["alternative-data", "prediction-markets", "nlp", "kalshi", "anomaly-detection"]
-date: 2025-03-13
+date: 2026-04-13
 excerpt: Pushing beyond price data with SEC filing NLP, CFTC positioning, and Kalshi prediction market edge detection. Also, the beginning of an anomaly detection scaffolding.
 thread: "ml-trading"
 threadTitle: "World Modeling in Markets"

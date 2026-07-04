@@ -1,7 +1,7 @@
 ---
 title: "MetaRepICL: Is In-Context Learning Kernel Regression?"
 tags: ["in-context-learning", "kernel-methods", "transformers", "representation-learning"]
-date: 2025-02-01
+date: 2025-11-01
 excerpt: Recent theory shows that linear-attention transformers doing in-context learning implement kernel ridge regression via gradient descent. MetaRepICL asks whether this characterization survives softmax attention, learned representations, and distribution shift.
 thread: "metarepicl"
 threadTitle: "MetaRepICL"

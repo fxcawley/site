@@ -1,30 +1,6 @@
-/* Inline SVG figures for the MetaRepICL posts.
-   Colors use CSS variables so the figures follow the site's light/dark theme.
-   Fixed data colors (teal / red) are chosen to read on both card backgrounds. */
+/* Inline SVG figures for the MetaRepICL posts. */
 
-const TEAL = '#14b8a6';
-const RED = '#ef4444';
-
-const svgStyle: React.CSSProperties = {
-  width: '100%',
-  height: 'auto',
-  display: 'block',
-  margin: '1.75rem 0',
-};
-
-function figureCss(root: string) {
-  return `
-    .${root} .panel { fill: var(--bg-card); stroke: var(--border); }
-    .${root} .ttl { fill: var(--fg-heading); font-weight: 600; }
-    .${root} .sub { fill: var(--fg); opacity: 0.72; }
-    .${root} .lbl { fill: var(--fg); }
-    .${root} .mut { fill: var(--fg-muted); }
-    .${root} .track { fill: var(--surface); }
-    .${root} .edge { stroke: var(--border); fill: none; }
-    .${root} .flow { stroke: var(--fg-muted); fill: none; }
-    .${root} text { font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }
-  `;
-}
+import { TEAL, RED, svgStyle, figureCss } from './common';
 
 export function IclMechanism() {
   const root = 'fig-icl';

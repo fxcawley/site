@@ -1,7 +1,7 @@
 ---
 title: "Why Markets"
 tags: ["anomaly-detection", "world-modeling", "markets"]
-date: 2025-03-01
+date: 2026-02-01
 excerpt: Using financial markets as a testbed for world modeling and anomaly detection, and why this domain is worth the trouble.
 thread: "ml-trading"
 threadTitle: "World Modeling in Markets"
