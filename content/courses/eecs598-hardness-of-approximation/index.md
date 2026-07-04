@@ -30,9 +30,9 @@ These are personal lecture notes  not official course materials. They may contai
 
 ### Steiner Network Design
 
-See the [companion blog post](/posts/steiner-network-formal) for a self-contained introduction to the LP formulation and key structural results (submodularity, uncrossing, laminar families).
+See the [companion blog post](/posts/steiner-network-formal) for a self-contained introduction to the LP formulation and salient structural results (submodularity, uncrossing, laminar families).
 
-The key insight: for crossing violating cuts $S, T$, we can replace them with $S \cap T$ and $S \cup T$ while maintaining feasibility. This **uncrossing lemma** is the engine that reduces exponentially many constraints to a polynomial-sized laminar family.
+What you need to know: for crossing violating cuts $S, T$, we can replace them with $S \cap T$ and $S \cup T$ while maintaining feasibility. This **uncrossing lemma** is the engine that reduces exponentially many constraints to a polynomial-sized laminar family.
 
 ### From MST to General Steiner
 

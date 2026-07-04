@@ -21,6 +21,8 @@ The first version had at least four bugs, none of which were obvious from the co
 
 Every strategy showed "statistically significant alpha" under this setup. The p-values were all below 0.05. This was fake.
 
+<FakeAlpha />
+
 ## Iteration 2: honest infrastructure
 
 The engine was rewritten with share-count-based position tracking (positions drift with prices between rebalances), proportional transaction costs (10 bps per trade on dollar value), and a point-in-time analyst consensus reconstruction from upgrade/downgrade events. The universe was expanded to a 100-stock random sample from the S&P 500.
@@ -30,6 +32,8 @@ With these corrections, no strategy showed significant alpha, and the buy-and-ho
 ## Iteration 3: more strategies, same result
 
 I implemented mean reversion (z-score oversold), breakout (Donchian channel + volume), pullback (buy dips in uptrends), swing (stochastic/MACD crossovers), and several composites and regime-routing ensembles. All underperformed SPY after costs. Transaction costs at weekly frequency on individual stocks were between $20K and $93K annually on a $100K account, which is obviously untenable.
+
+<CostByFrequency />
 
 A separate issue surfaced here: the `generate_signals` interface returns `None` to mean "keep existing positions" and `{}` to mean "go to cash." Strategies that were only intermittently active would whipsaw between fully invested and 100% cash, destroying performance. This is the kind of API semantics problem that doesn't show up in unit tests.
 
@@ -53,7 +57,11 @@ A 50/50 static blend of these two:
 
 The blend underperforms SPY in both bull-market periods because it allocates to bonds and gold via the trend component. It outperforms during the 2008 crash because trend following exits equities before the worst of the drawdown. The Sharpe spread across the three periods is 0.15 (0.69 to 0.84), which I consider acceptably tight for a strategy that has not been optimized to any particular period.
 
+<RegimeEquity />
+
 ## What this means
+
+<IterationLadder />
 
 The finding is that there are no alpha-generating price signals in this universe and at this frequency that survive honest out-of-sample testing. The surviving strategies capture well-known risk premia (momentum, trend) that have been documented in the academic literature for decades. The Sharpe ratios of 0.60–0.84 are consistent with diversified factor exposure, not with genuine edge.
 

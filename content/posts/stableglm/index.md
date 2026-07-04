@@ -8,6 +8,16 @@ threadTitle: "StableGLM"
 threadOrder: 1
 ---
 
+## The short version
+
+Interpreting a fitted model usually begins by treating it as *the* model: the one the data singled out, whose coefficients therefore say something about the world. For many problems that premise is shakier than it looks. When features are correlated or the signal is weak, a whole population of different models fit the data almost equally well, and they can disagree about which features matter. Which one you end up examining is then partly an accident of where the solver happened to stop.
+
+<RashomonSet />
+
+This is the Rashomon effect, named by Breiman (2001) after the Kurosawa film of contradictory eyewitness accounts. StableGLM is a toolkit for taking it seriously in generalized linear models: rather than interpreting a single fitted model, it characterizes the whole set of near-optimal models and asks which conclusions hold across all of them. The rest of this post develops that idea.
+
+## The problem, more carefully
+
 Most interpretability work treats the fitted model as given and asks what it has learned. The implicit assumption is that the model is, in some meaningful sense, *the* model, the one that best explains the data, and whose internal structure therefore reflects the data's structure. But for many practical problems, especially those involving correlated or noisy features, many parameter vectors achieve nearly the same loss. This is the Rashomon effect, named by Breiman (2001) after the Kurosawa film in which several witnesses give contradictory but internally consistent accounts of the same event.
 
 The difficulty this creates for interpretability is straightforward: if a feature appears important under one near-optimal model but irrelevant under another, the importance ranking is an artifact of which particular optimum the solver happened to find. It is a property of the optimization trajectory, not of the data.
@@ -15,6 +25,8 @@ The difficulty this creates for interpretability is straightforward: if a featur
 ## Why standard uncertainty quantification is not enough
 
 The usual response to uncertainty about a fitted model is to compute bootstrap confidence intervals: resample the data, refit the model, and report the variability of the estimates. But bootstrap CIs address a specific question, namely how much the result depends on the particular sample of data that was collected. They assume that the model structure is correct and that only sampling noise matters. The Rashomon set addresses a different question: how much the result depends on which model was selected from the pool of near-optimal candidates. These are distinct sources of uncertainty, and the second can dominate even when the first is small.
+
+<TwoUncertainties />
 
 Fisher, Rudin, and Dominici (2019) formalize this distinction through Model Class Reliance, showing that a variable's importance can range from strongly positive to strongly negative across models that all achieve nearly the same loss. A bootstrap interval around a single model's importance score will be tight if the sample is large, but it will not reveal that an equally good model assigns the opposite sign to the same feature. The Rashomon interval captures this model selection ambiguity that bootstrap intervals, by construction, cannot see.
 
@@ -40,6 +52,8 @@ The ellipsoid is analytically tractable. For any linear functional $s^\top\theta
 
 The shape of the ellipsoid is informative in itself. Directions in parameter space along which the Hessian has small eigenvalues correspond to "flat" directions of the loss landscape, directions in which the model can change substantially without incurring much additional loss. These are the directions along which explanations are least stable.
 
+<FlatDirection />
+
 ## What gets computed
 
 The toolkit produces several quantities, each measuring a different aspect of explanation stability:
@@ -47,6 +61,8 @@ The toolkit produces several quantities, each measuring a different aspect of ex
 **Prediction bands.** For each data point, the range of predictions $[p_i^{\min}, p_i^{\max}]$ across all models in $\mathcal{R}_\varepsilon$. Points with wide bands are ambiguous in a precise sense: the model's output depends on which near-optimal parameter vector was selected.
 
 **Variable Importance Clouds.** The range of each coefficient $\theta_j$ across the Rashomon set. A feature whose coefficient changes sign within $\mathcal{R}_\varepsilon$ has unstable importance: it could plausibly be either helpful or harmful, depending on the model.
+
+<SignFlipCloud />
 
 **Model Class Reliance.** The range of permutation-based feature importance scores across the set. This addresses a slightly different question: not whether the coefficient is stable, but whether the feature's contribution to predictive accuracy is stable.
 

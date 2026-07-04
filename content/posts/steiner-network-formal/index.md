@@ -7,6 +7,8 @@ excerpt: Notes on what happens to LP relaxations when connectivity requirements 
 
 The Steiner Network Design problem asks for the cheapest subgraph of a given graph that meets prescribed edge-connectivity requirements between specified pairs of vertices. When those requirements are all equal to 1 and every vertex participates, this reduces to the minimum spanning tree, which is solvable in polynomial time. When the requirements are allowed to vary, the problem becomes NP-hard, and the natural LP relaxation is no longer integral.
 
+<MstToSteiner />
+
 What makes the problem worth studying in some detail, at least in the context of this course, is that the transition from MST to general Steiner networks is unusually clean. The structural properties that make MST tractable (submodularity of cut functions, total unimodularity of the constraint matrix) do not vanish entirely; they degrade in a way that can be precisely characterized, and the 2-approximation algorithm due to Jain (2001) exploits exactly what remains.
 
 These are reworked notes from EECS 598-001 (Hardness of Approximation) with Euiwoong Lee, organized around that transition.
@@ -39,6 +41,8 @@ When all non-zero requirements equal 1 and only a subset of vertices need to be 
 
 The practical motivation for higher connectivity requirements comes from Menger's theorem: requiring $r(u,v) = k$ edge-disjoint paths is equivalent to requiring that $u$ and $v$ remain connected after the removal of any $k-1$ edges. This is the standard formalization of fault tolerance in network design.
 
+<FaultTolerance />
+
 ## The LP relaxation and the integrality gap
 
 The integer program follows the same pattern as MST. Define the **cut demand** for a vertex set $S$ as the maximum requirement crossing the cut:
@@ -58,6 +62,8 @@ $$
 Relaxing to $x_e \geq 0$ gives exponentially many constraints, but the ellipsoid method with a min-cut separation oracle solves the LP in polynomial time.
 
 The LP optimum $\text{OPT}_{\text{LP}}$ lower-bounds the integer optimum $\text{OPT}_{\text{IP}}$. The ratio $\text{OPT}_{\text{IP}} / \text{OPT}_{\text{LP}}$, the integrality gap, measures how much is lost by relaxing integrality. For MST it is 1. For Steiner Tree it is conjectured to be near $\ln 4 / \ln 3 \approx 1.10$. For general Steiner Network, the best known bound is 2, due to Jain (2001). Whether the true gap is smaller remains open.
+
+<IntegralityGapLadder />
 
 ## Submodularity and uncrossing
 
@@ -84,6 +90,8 @@ $$r(S \cap T) + r(S \cup T) \geq r(S) + r(T)$$
 $$|\delta(S \cap T)| + |\delta(S \cup T)| \leq |\delta(S)| + |\delta(T)|$$
 
 Iterating this procedure yields a laminar family of tight constraints, a reduction from exponentially many constraints to at most $2|V| - 1$. This is the structural result that makes the rounding argument possible.
+
+<Uncrossing />
 
 ## Jain's iterative rounding
 
