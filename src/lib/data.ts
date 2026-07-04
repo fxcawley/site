@@ -59,30 +59,37 @@ export const experience = [
     title: 'Work',
     data: [
       {
-        date: 'May 2024 - Present',
-        title: 'ML Engineer, Plasma Group',
-        location: 'KLA Corporation',
+        date: 'May 2025 - Present',
+        title: 'ML Engineer, Broadband Plasma',
+        location: 'KLA Corporation, Ann Arbor, MI',
         description:
           'Machine learning systems for semiconductor wafer inspection.',
       },
       {
+        date: 'May 2024 - August 2024',
+        title: 'High Performance Computing Intern',
+        location: 'KLA Corporation, San Jose, CA',
+        description:
+          'Optimized machine learning inference on GPU clusters for semiconductor inspection.',
+      },
+      {
         date: 'May 2023 - August 2023',
         title: 'ML Intern',
-        location: 'EMAG Technologies',
+        location: 'EMAG Technologies, Ann Arbor, MI',
         description:
           'Calibration algorithms for phased array antenna systems.',
       },
       {
         date: 'May 2022 - August 2022',
         title: 'Software Engineer Intern',
-        location: 'RTX Fintech & Research',
+        location: 'RTX Fintech & Research, New York, NY',
         description:
           'Interest rate derivatives platform.',
       },
       {
         date: 'June 2022 - August 2022',
         title: 'Line Cook/Handyman',
-        location: "Little Frankie's, Manhattan, NY",
+        location: "Little Frankie's, New York, NY",
         description:
           "Worked night shifts, built out shelving, painted and cooked for the late night extension of Little Frankies.",
       },
