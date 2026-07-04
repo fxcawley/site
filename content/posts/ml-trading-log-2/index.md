@@ -1,7 +1,7 @@
 ---
 title: "Twenty Strategies, No Alpha"
 tags: ["backtesting", "factor-investing", "transaction-costs", "time-series"]
-date: 2025-03-10
+date: 2026-03-10
 excerpt: Testing ~20 strategy variants across 20 years of ETF and equity data. Four iterations of bug-fixing. The finding is that there are robust risk premia but no alpha.
 thread: "ml-trading"
 threadTitle: "World Modeling in Markets"
