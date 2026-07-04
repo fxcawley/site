@@ -1,7 +1,7 @@
 ---
 title: "Hello World - My first blog"
 tags: ["gatsby", "blog"]
-date: 2022-09-01
+date: 2024-09-01
 excerpt: I started to build this personal website yesterday.
 ---
 
@@ -20,16 +20,3 @@ Apart from all these, since I use $\LaTeX$ a **LOT**, and the only way I know ho
 $$ \frac{1}{m(B(x, r))}\int_{B(x, r)}\left\vert f(y) - f(x) \right\vert\,\mathrm{d}y = 0 \text{ for a.e. } x $$
 
 for $f\in L^1$, which is the statement of [Lebesgue Differentiation Theorem](https://en.wikipedia.org/wiki/Lebesgue_differentiation_theorem).
-
-## Code Support
-
-```json
-{
-  "openapi": "3.0.2",
-  "info": {
-    "title": "test",
-    "description": "test",
-    "version": "0.1.0"
-  }
-}
-```
