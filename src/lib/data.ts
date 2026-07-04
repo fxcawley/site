@@ -24,7 +24,7 @@ export const siteConfig = {
     },
   ],
   aside: 'In my spare time, I read, write and exercise.',
-  reading: 'Annie Ernaux, Georg Trakl, EE Cummings, Jennifer Egan, Mahmoud Darwish.',
+  reading: 'Seamus Heaney, Annie Ernaux, EE Cummings, Jennifer Egan, Mahmoud Darwish.',
   social: [
     { name: 'CV', url: '/LiamCawley__Resume.pdf', icon: 'cv' },
     { name: 'GitHub', url: 'https://github.com/cawley', icon: 'github' },
