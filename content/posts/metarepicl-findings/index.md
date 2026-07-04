@@ -29,6 +29,10 @@ The $\kappa$-weighted results at the larger scale ($p = 20$, $24$ layers) are:
 | GD | 0.721 | $\pm$ 0.060 |
 | Heavy Ball | 0.581 | $\pm$ 0.046 |
 
+![Algorithm identification summary](/research/metarepicl/algo_id_summary.png)
+
+![Algorithm identification R² heatmap by condition number](/research/metarepicl/algo_id_r2_heatmap.png)
+
 Two things stand out. The first is a clear separation between the CG-class methods (CG, preconditioned CG, preconditioned GD, all above 0.90) and vanilla GD at 0.72. The 0.20 gap is stable across condition numbers and both model scales, and it is the same phenomenon Fu et al. (2023) report: the model converges at a rate GD cannot produce. That much I am fairly confident in.
 
 The second is less convenient. The top three algorithms sit within 0.004 of one another, well inside their combined confidence interval of 0.017. Which one comes out on top depends on the condition number (CG at $\kappa = 1$ and $500$, preconditioned CG at $\kappa = 50$ and $100$) and on the choice of metric, since an MSE-profile distance disagrees with $R^2$ at several $\kappa$ values. At these scales the data does not distinguish them. Preconditioned GD, the algorithm Ahn et al. (2024) identify, is one member of this indistinguishable cluster; the observation here does not contradict their result so much as show that "CG" and "preconditioned CG" are equally consistent with the same behavior.
@@ -39,6 +43,8 @@ The reason appears to be structural rather than statistical. With $p = 20$ featu
 
 A separate question is whether the model's internal states, not just its predictions, resemble any of these algorithms. I fit linear probes from each layer's activations to the state variables of GD and CG (weight vectors, residuals, CG iterates) on the mixed-$\kappa$ model.
 
+![Probe cosine similarity by condition number](/research/metarepicl/probe_by_kappa.png)
+
 The result runs opposite to the behavioral finding. GD probes achieve higher cosine similarity than CG probes at every condition number (means around 0.11 versus 0.06), even though the model's convergence rate matches CG rather than GD. Read at face value, this says the representations are GD-like while the behavior is CG-like.
 
 I do not think the face-value reading is warranted yet. The absolute similarities are low throughout (roughly 0.06 to 0.14), which suggests neither algorithm's state is strongly encoded in a linearly accessible form, and linear ridge probes can only detect structure that happens to align with the chosen basis. A CG computation stored in a rotated or otherwise nonlinear representation would look GD-like, or like nothing in particular, to a probe of this kind. Nonlinear probes, basis controls, and distribution-shift tests would be needed before reading anything mechanistic into the mismatch. I include it because it is exactly the sort of result that is easy to over-interpret, and I would rather flag it as unresolved than present it as evidence for a mechanism.
@@ -46,6 +52,10 @@ I do not think the face-value reading is warranted yet. The absolute similaritie
 ## Silent failure of softmax attention
 
 Independent of the algorithm-identification question, softmax attention can be viewed as an approximate exponential-kernel regressor: it predicts $\sum_i w_i y_i$ with weights $w_i \propto \exp(x_q^\top x_i / \tau)$, which is a Nadaraya--Watson estimator. Comparing it against the exact exponential-kernel KRR oracle turns up failure modes that aggregate error metrics do not reveal.
+
+![Silent failure demo](/research/metarepicl/silent_failure_demo.png)
+
+![Rank correlation vs dimension](/research/metarepicl/sweep_dimension.png)
 
 | Regime | RMSE ratio | Rank corr. $\rho$ |
 |---|---|---|

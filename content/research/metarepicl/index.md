@@ -40,9 +40,13 @@ This demonstrates that a linear-attention transformer of depth $t$ can represent
 
 ## Current findings
 
+![Algorithm identification summary](/research/metarepicl/algo_id_summary.png)
+
 - The constructive CG mapping works: a hand-wired linear-attention stack converges to the KRR solution at the expected CG rate on synthetic tasks.
 - Width matters: under a rank-$m$ random projection (simulating finite head dimension), prediction error approaches the oracle as $m$ increases, tracking the effective dimension $d_{\text{eff}}(\lambda)$.
 - The softmax-kernel alignment holds for in-distribution tasks but degrades on out-of-distribution prompts, suggesting the learned kernel specializes to the training distribution.
+
+![Convergence by condition number](/research/metarepicl/convergence_by_kappa.png)
 
 Moving from hand-wired constructions to *trained* transformers complicates the identification story. Comparing a trained model's per-layer predictions against six named iterative solvers (GD, CG, preconditioned GD, heavy ball, Chebyshev, preconditioned CG) with bootstrap confidence intervals, the model separates cleanly from vanilla GD (a stable $R^2$ gap of about 0.20, consistent with second-order convergence) but does not separate within the CG class: CG, preconditioned CG, and preconditioned GD sit within 0.004 of one another, well inside their combined 95% CI of 0.017. The reason is structural with features $p \le$ depth $L$, every CG-class method converges within the available layers, so late layers carry no discriminating signal. At these scales the honest description is a convergence class (CG-like, second-order) rather than a specific named algorithm, and observational comparison alone would require a regime with $p \gg L$ to do better. Linear probes further complicate the picture: they recover GD-like state variables more readily than CG-like ones despite the CG-like convergence, though the absolute similarities are low enough that I read this as unresolved rather than as evidence of a mechanism.
 
