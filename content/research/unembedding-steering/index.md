@@ -9,7 +9,7 @@ date: 2024-11-01
 venue: ""
 authors:
   - name: "Hugh van Deventer"
-  - name: "Liam Cawley"
+  - name: "awley"
 excerpt: "A benchmark for evaluating steering methods that operate through a language model's unembedding matrix. Provides standardized comparisons across extraction methods, models, and tasks."
 selected: false
 priority: 7

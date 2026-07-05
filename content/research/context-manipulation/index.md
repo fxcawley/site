@@ -25,13 +25,13 @@ This is an undergraduate project. I am adding this note in retrospect because th
 
 ## Problem
 
-Language models treat their entire context window as trusted input. In a multi-turn conversation, the model has no cryptographic or stateful mechanism to distinguish its own prior responses from fabricated ones. An attacker who controls the conversation history can inject false assistant turns --- making it appear that the model has already provided harmful advice or contradicted its safety training --- and use this fabricated context to steer subsequent generations.
+Language models treat their entire context window as trusted input. In a multi-turn conversation, the model has no cryptographic or stateful mechanism to distinguish its own prior responses from fabricated ones. An attacker who controls the conversation history can inject false assistant turns making it appear that the model has already provided harmful advice or contradicted its safety training and use this fabricated context to steer subsequent generations.
 
 This is distinct from prompt injection, which targets instruction-following; context manipulation targets the model's implicit trust in its own conversational history.
 
 ## Attack Variants
 
-**False conversation injection.** Insert fabricated assistant responses into the conversation history --- for example, a false turn in which the model endorses a harmful action, followed by a user turn asking it to elaborate. In the models tested, the presence of "its own" prior endorsement raised the rate of compliance relative to a clean context, though the effect size varied by model and prompt.
+**False conversation injection.** Insert fabricated assistant responses into the conversation history for example, a false turn in which the model endorses a harmful action, followed by a user turn asking it to elaborate. In the models tested, the presence of "its own" prior endorsement raised the rate of compliance relative to a clean context, though the effect size varied by model and prompt.
 
 **Gaslighting.** Repeatedly contradict the model's actual outputs with false context claiming it said something different. Over multiple turns this sometimes destabilized generation, producing semantic drift and, in the more extreme cases, degenerate output. The behavior was not consistent across runs.
 
