@@ -17,7 +17,7 @@ export function AnomalyLoop() {
       </defs>
       <rect className="panel" x="1" y="1" width="758" height="318" rx="14" />
       <text className="ttl" x="28" y="40" fontSize="18">The hard part is modeling &ldquo;normal&rdquo;</text>
-      <text className="sub" x="28" y="64" fontSize="13">Flagging deviations is easy once you know what normal looks like. Building that model is the work.</text>
+      <text className="sub" x="28" y="64" fontSize="13">Knowing what normal looks like and articulating it in a reproducible process across all cases are not the same thing. </text>
 
       <rect x="60" y="160" width="210" height="64" rx="10" fill={TEAL} fillOpacity="0.16" stroke={TEAL} />
       <text className="lbl" x="165" y="188" fontSize="13" textAnchor="middle" fontWeight="600">model what</text>
@@ -57,8 +57,8 @@ export function BeliefToReturns() {
         </marker>
       </defs>
       <rect className="panel" x="1" y="1" width="758" height="378" rx="14" />
-      <text className="ttl" x="28" y="40" fontSize="18">Many things must hold before a pattern becomes a return</text>
-      <text className="sub" x="28" y="64" fontSize="13">Each stage removes candidates. What reaches the bottom is risk-adjusted, tradeable edge.</text>
+      <text className="ttl" x="28" y="40" fontSize="18">You found a pattern... but is it worth anything?.</text>
+      <text className="sub" x="28" y="64" fontSize="13">Each stage removes candidates, so, in theory, what reaches the bottom is risk-adjusted, tradeable edge.</text>
 
       {stages.map((s, i) => {
         const y = 96 + i * 52;
@@ -86,7 +86,7 @@ export function BeliefToReturns() {
 export function WhyMarkets() {
   const root = 'fig-why';
   const cols = [
-    { x: 130, t: 'abundant free data', a: 'Yahoo, EDGAR, FRED,', b: 'CFTC — all public', c: TEAL },
+    { x: 130, t: 'abundant free data', a: 'Yahoo, EDGAR, FRED,', b: 'CFTC  all public', c: TEAL },
     { x: 380, t: 'built-in evaluation', a: 'backtest a portfolio,', b: 'measure vs a benchmark', c: AMBER },
     { x: 630, t: 'adversarial', a: 'others exploit the', b: 'same patterns', c: RED },
   ];
@@ -96,7 +96,7 @@ export function WhyMarkets() {
       <style>{figureCss(root)}</style>
       <rect className="panel" x="1" y="1" width="758" height="298" rx="14" />
       <text className="ttl" x="28" y="40" fontSize="18">Why markets make a demanding testbed</text>
-      <text className="sub" x="28" y="64" fontSize="13">Not the only setting for anomaly detection, but one where the feedback loop is unusually tight.</text>
+      <text className="sub" x="28" y="64" fontSize="13">Your mistakes cost you dearly. For an example, see the <a href="https://en.wikipedia.org/wiki/Naked_short_selling" target="_blank" rel="noopener noreferrer">naked short </a> case.</text>
 
       {cols.map((c) => (
         <g key={c.t}>
@@ -123,7 +123,7 @@ export function FakeAlpha() {
   ];
   return (
     <svg viewBox="0 0 760 340" style={svgStyle} className={root} role="img"
-      aria-label="Four bugs — implicit rebalancing, a biased baseline, lookahead, and survivorship — combined to produce fake statistically significant alpha.">
+      aria-label="Four bugs  implicit rebalancing, a biased baseline, lookahead, and survivorship  combined to produce fake statistically significant alpha.">
       <style>{figureCss(root)}</style>
       <defs>
         <marker id="fake-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -132,7 +132,7 @@ export function FakeAlpha() {
       </defs>
       <rect className="panel" x="1" y="1" width="758" height="338" rx="14" />
       <text className="ttl" x="28" y="40" fontSize="18">Four bugs that manufactured alpha</text>
-      <text className="sub" x="28" y="64" fontSize="13">In the first backtest engine every strategy showed p &lt; 0.05. None of it was real.</text>
+      <text className="sub" x="28" y="64" fontSize="13">In the first backtest engine every strategy showed p &lt; 0.05. This was a mistake on my part called seeing what I wanted to see.</text>
 
       {bugs.map((b, i) => {
         const y = 100 + i * 50;
@@ -147,7 +147,7 @@ export function FakeAlpha() {
 
       <rect x="454" y="128" width="266" height="86" rx="12" fill={RED} fillOpacity="0.2" stroke={RED} />
       <text className="lbl" x="587" y="162" fontSize="15" textAnchor="middle" fontWeight="700">&ldquo;significant alpha&rdquo;</text>
-      <text className="mut" x="587" y="186" fontSize="12" textAnchor="middle">p &lt; 0.05 everywhere — an artifact</text>
+      <text className="mut" x="587" y="186" fontSize="12" textAnchor="middle">p &lt; 0.05 everywhere  an artifact</text>
     </svg>
   );
 }
@@ -168,7 +168,7 @@ export function IterationLadder() {
       <style>{figureCss(root)}</style>
       <rect className="panel" x="1" y="1" width="758" height="338" rx="14" />
       <text className="ttl" x="28" y="40" fontSize="18">Each fix removed the illusion of alpha</text>
-      <text className="sub" x="28" y="64" fontSize="13">What survives honest infrastructure is well-known risk premia, not edge.</text>
+      <text className="sub" x="28" y="64" fontSize="13">What survives my honest infrastructure is well-known risk premia, not edge.</text>
 
       <line className="edge" x1="100" y1="290" x2="700" y2="290" strokeWidth="1.5" />
       <text className="mut" x="92" y={py(0) + 4} fontSize="11" textAnchor="end">none</text>
@@ -244,7 +244,7 @@ export function CostByFrequency() {
       ))}
 
       {/* weekly stocks: range 20k-93k */}
-      <rect x="230" y={pxY(93000)} width="120" height={pxY(20000) - pxY(93000)} rx="6" fill={RED} fillOpacity="0.3" stroke={RED} />
+      <rect x="230" y={pxY(93000)} width="120" height={300 - pxY(93000)} rx="6" fill={RED} fillOpacity="0.3" stroke={RED} />
       <text className="lbl" x="290" y={pxY(93000) - 26} fontSize="13" textAnchor="middle" fontWeight="700">$20K–$93K</text>
       <text className="lbl" x="290" y="322" fontSize="12.5" textAnchor="middle">weekly, single stocks</text>
 

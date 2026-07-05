@@ -14,7 +14,7 @@ export function MstToSteiner() {
 
       {/* left: MST */}
       <text className="lbl" x="190" y="104" fontSize="13" textAnchor="middle" fontWeight="600">uniform (r = 1)</text>
-      <text className="mut" x="190" y="122" fontSize="12" textAnchor="middle">minimum spanning tree — poly-time</text>
+      <text className="mut" x="190" y="122" fontSize="12" textAnchor="middle">minimum spanning tree  poly-time</text>
       <g stroke={TEAL} strokeWidth="2.5">
         <line x1="110" y1="180" x2="200" y2="160" />
         <line x1="200" y1="160" x2="280" y2="200" />
@@ -30,7 +30,7 @@ export function MstToSteiner() {
 
       {/* right: general Steiner */}
       <text className="lbl" x="570" y="104" fontSize="13" textAnchor="middle" fontWeight="600">non-uniform (r varies)</text>
-      <text className="mut" x="570" y="122" fontSize="12" textAnchor="middle">general Steiner network — NP-hard</text>
+      <text className="mut" x="570" y="122" fontSize="12" textAnchor="middle">general Steiner network  NP-hard</text>
       <g stroke={AMBER} strokeWidth="2.5">
         <line x1="490" y1="180" x2="580" y2="160" />
         <line x1="580" y1="160" x2="660" y2="200" />
