@@ -5,7 +5,7 @@ tags:
   - "computer-vision"
   - "super-resolution"
   - "diffusion-models"
-date: 2024-04-30
+date: 2024-02-30
 venue: "Course project, University of Michigan"
 authors:
   - name: "Liam Cawley"

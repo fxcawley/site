@@ -6,7 +6,7 @@ tags:
   - "language-models"
   - "optimization"
 date: 2024-11-01
-venue: ICLR Workshop 2025
+venue: ICLR Workshop 2024
 authors:
   - name: "Liam Cawley"
     url: "https://cawley.dev"

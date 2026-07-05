@@ -5,7 +5,7 @@ tags:
   - "infrastructure"
   - "nanoGPT"
   - "kubernetes"
-date: 2025-02-01
+date: 2025-10-01
 venue: ""
 authors:
   - name: "Liam Cawley"

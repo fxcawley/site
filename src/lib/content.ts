@@ -132,7 +132,7 @@ export function getThreadForPost(slug: string): { thread: ThreadInfo; index: num
 
 export function getAllResearch(): ContentItem<ResearchFrontmatter>[] {
   return getContentFromDirectory<ResearchFrontmatter>('research').sort(
-    (a, b) => (a.frontmatter.priority ?? 99) - (b.frontmatter.priority ?? 99)
+    (a, b) => new Date(b.frontmatter.date).getTime() - new Date(a.frontmatter.date).getTime()
   );
 }
 
