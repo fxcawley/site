@@ -2,6 +2,54 @@
 
 import { TEAL, RED, AMBER, svgStyle, figureCss } from './common';
 
+export function NetworkRedundancy() {
+  const root = 'fig-redund';
+  return (
+    <svg viewBox="0 0 760 360" style={svgStyle} className={root} role="img"
+      aria-label="A power source feeding three sites: a hospital reached by three independent lines (one failed, two intact), a substation by two lines, and a depot by one. Critical sites keep more redundancy.">
+      <style>{figureCss(root)}</style>
+      <rect className="panel" x="1" y="1" width="758" height="358" rx="14" />
+      <text className="ttl" x="28" y="40" fontSize="18">Critical sites need more redundancy than ordinary ones</text>
+      <text className="sub" x="28" y="64" fontSize="13">The goal is the cheapest network that keeps every site connected, even when lines fail.</text>
+
+      {/* hospital: 3 paths, lowest one failed */}
+      <path d="M120 210 C 270 120, 460 90, 590 110" className="edge" fill="none" stroke={TEAL} strokeWidth="2.5" />
+      <path d="M120 210 C 290 165, 470 130, 590 110" className="edge" fill="none" stroke={TEAL} strokeWidth="2.5" />
+      <path d="M120 210 C 300 220, 470 160, 590 110" fill="none" stroke={RED} strokeWidth="2.5" strokeDasharray="7 5" opacity="0.8" />
+      <g stroke={RED} strokeWidth="3">
+        <line x1="352" y1="176" x2="372" y2="196" />
+        <line x1="372" y1="176" x2="352" y2="196" />
+      </g>
+      <text x="362" y="214" fontSize="11" textAnchor="middle" style={{ fill: RED }}>line down</text>
+
+      {/* substation: 2 paths */}
+      <path d="M120 210 C 300 245, 470 220, 590 218" fill="none" stroke={TEAL} strokeWidth="2.5" />
+      <path d="M120 210 C 300 285, 470 250, 590 218" fill="none" stroke={TEAL} strokeWidth="2.5" />
+
+      {/* depot: 1 path */}
+      <path d="M120 210 C 300 320, 470 320, 590 306" fill="none" stroke={TEAL} strokeWidth="2.5" />
+
+      {/* source */}
+      <circle cx="120" cy="210" r="15" fill="var(--accent)" />
+      <text x="120" y="215" fontSize="12" textAnchor="middle" style={{ fill: '#fff', fontWeight: 700 }}>src</text>
+      <text className="mut" x="120" y="248" fontSize="12" textAnchor="middle">power source</text>
+
+      {/* destinations */}
+      <circle cx="590" cy="110" r="14" fill="var(--accent)" />
+      <text className="lbl" x="616" y="106" fontSize="13" fontWeight="600">hospital</text>
+      <text className="mut" x="616" y="124" fontSize="11.5">needs 3 lines</text>
+
+      <circle cx="590" cy="218" r="14" fill="var(--accent)" />
+      <text className="lbl" x="616" y="214" fontSize="13" fontWeight="600">substation</text>
+      <text className="mut" x="616" y="232" fontSize="11.5">needs 2 lines</text>
+
+      <circle cx="590" cy="306" r="14" fill="var(--accent)" />
+      <text className="lbl" x="616" y="302" fontSize="13" fontWeight="600">depot</text>
+      <text className="mut" x="616" y="320" fontSize="11.5">needs 1 line</text>
+    </svg>
+  );
+}
+
 export function MstToSteiner() {
   const root = 'fig-mst';
   return (
@@ -83,18 +131,18 @@ export function IntegralityGapLadder() {
   const base = 290;
   const py = (g: number) => base - (g / 2) * 180;
   const bars = [
-    { n: 'MST', g: 1.0, note: 'LP is exact', c: TEAL },
-    { n: 'Steiner Tree', g: 1.10, note: 'conj. ln4/ln3', c: AMBER },
+    { n: 'MST', g: 1.0, note: 'solved exactly', c: TEAL },
+    { n: 'Steiner Tree', g: 1.39, note: '≈ ln 4, Byrka et al.', c: AMBER },
     { n: 'general Steiner', g: 2.0, note: 'Jain 2001', c: RED },
   ];
   const xs = [190, 380, 570];
   return (
     <svg viewBox="0 0 760 340" style={svgStyle} className={root} role="img"
-      aria-label="Integrality gap: 1 for MST, about 1.1 for Steiner Tree, 2 for general Steiner network.">
+      aria-label="Best known polynomial-time approximation ratios: 1 for MST, about 1.39 for Steiner Tree, 2 for general Steiner network.">
       <style>{figureCss(root)}</style>
       <rect className="panel" x="1" y="1" width="758" height="338" rx="14" />
-      <text className="ttl" x="28" y="40" fontSize="18">What losing LP integrality costs</text>
-      <text className="sub" x="28" y="64" fontSize="13">Integrality gap = integer optimum ÷ LP optimum. A gap of 1 means the relaxation is exact.</text>
+      <text className="ttl" x="28" y="40" fontSize="18">How hard each problem is to approximate</text>
+      <text className="sub" x="28" y="64" fontSize="13">Best ratio achievable in polynomial time. A ratio of 1 means the problem is solved exactly.</text>
 
       {[1, 2].map((g) => (
         <g key={g}>

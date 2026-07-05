@@ -12,7 +12,7 @@ import {
   FakeAlpha, IterationLadder, RegimeEquity, CostByFrequency,
   AltPipelines, ValidationGates, KalshiCalibration, CostEatsAlpha,
 } from '@/components/figures/ml-trading';
-import { MstToSteiner, FaultTolerance, IntegralityGapLadder, Uncrossing } from '@/components/figures/steiner';
+import { NetworkRedundancy, MstToSteiner, FaultTolerance, IntegralityGapLadder, Uncrossing } from '@/components/figures/steiner';
 
 const components = {
   IclMechanism,
@@ -38,6 +38,7 @@ const components = {
   ValidationGates,
   KalshiCalibration,
   CostEatsAlpha,
+  NetworkRedundancy,
   MstToSteiner,
   FaultTolerance,
   IntegralityGapLadder,
