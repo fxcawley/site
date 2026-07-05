@@ -10,7 +10,7 @@ venue: ICLR Workshop 2024
 authors:
   - name: "Liam Cawley"
     url: "https://cawley.dev"
-excerpt: "An undergraduate project (Nov 2024) framing LoRA rank allocation as a budgeted resource-allocation problem, with offline curvature-aware and online greedy algorithms. Added in retrospect with notes on where the original claims outrun the evidence."
+excerpt: "An undergraduate project (Jun 2024) framing LoRA rank allocation as a budgeted resource-allocation problem, with offline curvature-aware and online greedy algorithms. Added in retrospect with notes on where the original claims outrun the evidence."
 selected: true
 priority: 1
 links:
@@ -24,7 +24,7 @@ links:
 
 ## Context
 
-This is an undergraduate project, written in November 2024 and later submitted to an ICLR workshop. I am adding this note in retrospect because the original framing claimed more than the results support: the "near-optimality guarantees" hold only under assumptions that the experiments do not verify, and several of the reported improvements are within the range one might attribute to run-to-run variance. I have left the original numbers unchanged and flagged where the claims outrun the evidence.
+This is an undergraduate project, written in June 2024 and later submitted to an ICLR workshop. I am adding this note in retrospect because the original framing claimed more than the results support: the "near-optimality guarantees" hold only under assumptions that the experiments do not verify, and several of the reported improvements are within the range one might attribute to run-to-run variance. I have left the original numbers unchanged and flagged where the claims outrun the evidence.
 
 LoRA (low-rank adaptation) is a method for fine-tuning large models cheaply. Instead of updating every weight, it adds a small trainable low-rank correction to each layer and freezes everything else, which reduces both the memory and the number of parameters that have to be stored per fine-tuned task. The question this project takes up is a narrow one: LoRA normally gives every layer the same amount of low-rank capacity, and it is not obvious that a uniform split is the best use of a fixed budget.
 
