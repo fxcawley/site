@@ -44,7 +44,7 @@ This is not surprising. The ellipsoidal approximation becomes less accurate as t
 
 ## Variable importance stability
 
-The Variable Importance Cloud (VIC) analysis on the Breast Cancer tutorial case study produces a finding that I consider the most important practical result so far: every single feature has $\text{MCR}^- < 0$. Model Class Reliance measures the range of permutation-based importance scores across the Rashomon set. An $\text{MCR}^-$ below zero means that there exists a near-optimal model under which that feature's contribution to accuracy is negative; it is not merely unimportant, but actively harmful according to at least one model in the set.
+The Variable Importance Cloud (VIC) analysis on the Breast Cancer tutorial case study produces a finding that I consider the most important practical result so far: every single feature has $\text{MCR}^- < 0$. Model Class Reliance measures the range of permutation-based importance scores across the Rashomon set. An $\text{MCR}^-$ below zero means that there exists a near-optimal model under which that feature's contribution to accuracy is negative. In other words, that feature is actively harmful according to at least one model in the set.
 
 <McrBars />
 

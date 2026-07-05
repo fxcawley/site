@@ -5,7 +5,7 @@ tags:
   - "regularization"
   - "resnet"
   - "computer-vision"
-date: 2023-12-01
+date: 2023-05-01
 venue: "Course project, University of Michigan (Qing Qu)"
 authors:
   - name: "Liam Cawley"
@@ -23,7 +23,7 @@ links:
 
 Standard empirical risk minimization (ERM) on finite training sets overfits. Regularization methods address this, but the landscape of non-ERM techniques for deep networks is fragmented: dropout operates on activations, weight decay on parameters, and data augmentation on inputs. A newer family of methods --- Shake-Shake, Mixup, Cutout --- intervenes at different points in the forward pass and has distinct inductive biases.
 
-This project compares these methods on CIFAR-10, not merely in terms of final accuracy, but to understand the mechanism by which each improves generalization.
+This project compares these methods on CIFAR-10 to understand the mechanism by which each improves generalization.
 
 ## Methods
 

@@ -22,7 +22,7 @@ A good place to start is one of the older ideas in statistics: to predict the an
 
 <WeightedVote />
 
-The reason this is relevant is a line of recent theory showing that a simplified transformer, doing in-context learning, computes something close to kernel regression over its examples. Under the right simplifications the two computations coincide exactly, not merely approximately. That is a strong claim, and much of this project is about how much of it survives once the simplifications are removed.
+The reason this is relevant is a line of recent theory showing that a simplified transformer, doing in-context learning, computes something close to kernel regression over its examples. Under the right simplifications the two computations coincide exactly. That is a strong claim, and much of this project is about how much of it survives once the simplifications are removed.
 
 ## Faster than the obvious method
 
@@ -36,7 +36,7 @@ Identifying exactly which of these faster methods best describes a trained model
 
 When a transformer performs in-context learning (receiving a sequence of $(x_i, y_i)$ pairs followed by a query $x_*$ and producing a prediction $\hat y_*$ without any weight updates) there is a natural question about what computation it is actually performing. The model's weights are fixed; only the context changes. So whatever function maps the context and query to the prediction is implicitly encoded in the architecture and the learned parameters. Understanding that function is a problem of building a self-model: a description of the system's own internal computation that is detailed enough to be predictive.
 
-Recent theoretical work, beginning with von Oswald et al. (2023) and Akyürek et al. (2023), has established that for single-layer linear attention, in-context learning implements one step of gradient descent on a least-squares objective defined by the in-context examples. By extension, a depth-$t$ linear-attention transformer implements $t$ steps of preconditioned gradient descent, which converges to the kernel ridge regression (KRR) solution. This is a surprisingly clean correspondence  the transformer is not merely *similar to* a kernel method; under linear attention, it *is* one.
+Recent theoretical work, beginning with von Oswald et al. (2023) and Akyürek et al. (2023), has established that for single-layer linear attention, in-context learning implements one step of gradient descent on a least-squares objective defined by the in-context examples. By extension, a depth-$t$ linear-attention transformer implements $t$ steps of preconditioned gradient descent, which converges to the kernel ridge regression (KRR) solution. This is a surprisingly clean correspondence that the transformer is a kernel method under linear attention.
 
 MetaRepICL asks how far this correspondence extends once the simplifying assumptions are relaxed: softmax attention instead of linear, learned representations instead of raw inputs, and distribution shift between training and evaluation.
 
