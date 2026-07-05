@@ -10,7 +10,7 @@ export function MstToSteiner() {
       <style>{figureCss(root)}</style>
       <rect className="panel" x="1" y="1" width="758" height="338" rx="14" />
       <text className="ttl" x="28" y="40" fontSize="18">From spanning tree to fault-tolerant network</text>
-      <text className="sub" x="28" y="64" fontSize="13">When every pair needs one path, the answer is a minimum spanning tree. Varying requirements break that.</text>
+      <text className="sub" x="28" y="64" fontSize="13">When every pair needs one path, the answer is a minimum spanning tree. Non-uniform requirements make the problem NP-hard.</text>
 
       {/* left: MST */}
       <text className="lbl" x="190" y="104" fontSize="13" textAnchor="middle" fontWeight="600">uniform (r = 1)</text>
