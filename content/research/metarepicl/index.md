@@ -5,7 +5,7 @@ tags:
   - "kernel-methods"
   - "transformers"
   - "representation-learning"
-date: 2025-01-15
+date: 2026-01-15
 venue: ""
 authors:
   - name: "Liam Cawley"
