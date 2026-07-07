@@ -80,6 +80,6 @@ The third finding is, I think, the most interesting, and also the most prelimina
 
 ## Connection to the broader theme
 
-The companion post on [StableGLM](/posts/stableglm) asks whether model explanations are stable across the set of near-optimal models. This post asks a related question: whether our mechanistic understanding of what a model *computes* is stable across input distributions. In both cases, the answer is conditional  explanations and mechanistic descriptions hold within certain regions of parameter space or input space, and break down outside them.
+The companion post on [StableGLM](/posts/stableglm) asks whether model explanations are stable across the set of near-optimal models. This post asks a related question: whether our mechanistic understanding of what a model *computes* is stable across input distributions. In both cases, the answer is conditional: explanations and mechanistic descriptions hold within certain regions of parameter space or input space, and break down outside them.
 
 There is a continuum between "we have a complete mechanistic account" and "we have no idea what it is doing," and the useful work is in characterizing where on that continuum a given description sits, and what causes it to degrade.
