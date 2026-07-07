@@ -58,7 +58,7 @@ The choice of $\varepsilon$ determines how much of the parameter space is explor
 
 <EpsilonSweep />
 
-A diagnostic sweep on German Credit with varying regularization strength illustrates the interaction between $\varepsilon$ and the model class. At $C = 0.1$ (strong regularization), the null model is inside the Rashomon set and ambiguity is 100% (a degenerate case: the set includes models that predict uniformly). At $C = 1.0$, the null model is excluded and ambiguity is 85.4%, reflecting genuine predictive multiplicity in the data. At $C = 5.0$, ambiguity drops slightly to 80.2%. The fact that it remains above 80% across a wide range of regularization strengths suggests that the multiplicity in German Credit is a property of the data and the model class, not an artifact of a particular regularization choice.
+A diagnostic sweep on German Credit with varying regularization strength illustrates the interaction between $\varepsilon$ and the model class. At $C = 0.1$ (strong regularization), the null model is inside the Rashomon set and ambiguity is 100% (a degenerate case: the set includes models that predict uniformly). At $C = 1.0$, the null model is excluded and ambiguity is 85.4%, reflecting predictive multiplicity in the data. At $C = 5.0$, ambiguity drops slightly to 80.2%. The fact that it remains above 80% across a wide range of regularization strengths suggests that the multiplicity in German Credit is a property of the data and the model class, not an artifact of a particular regularization choice.
 
 ## Scaling
 

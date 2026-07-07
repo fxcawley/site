@@ -63,6 +63,6 @@ The blend underperforms SPY in both bull-market periods because it allocates to 
 
 <IterationLadder />
 
-The finding is that there are no alpha-generating price signals in this universe and at this frequency that survive honest out-of-sample testing. The surviving strategies capture well-known risk premia (momentum, trend) that have been documented in the academic literature for decades. The Sharpe ratios of 0.60–0.84 are consistent with diversified factor exposure, not with genuine edge.
+The finding is that there are no alpha-generating price signals in this universe and at this frequency that survive honest out-of-sample testing. The surviving strategies capture well-known risk premia (momentum, trend) that have been documented in the academic literature for decades. The Sharpe ratios of 0.60–0.84 are consistent with diversified factor exposure, not with edge.
 
 This is a useful null result for the broader project. It establishes a baseline (XS Momentum + Trend Following at 0.69–0.84 Sharpe) against which any future signal must be evaluated, and it provides a backtesting engine with share-count tracking, realistic cost modeling, and a rebalance-threshold filter that I trust enough to use for subsequent work.
