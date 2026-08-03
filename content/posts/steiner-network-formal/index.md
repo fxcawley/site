@@ -9,7 +9,7 @@ Well designed infrastructure is often taken for granted. What does it take to de
 
 When a hospital loses grid power, the margin for error is measured in minutes. Operating rooms, ventilators, and the refrigerators holding blood and vaccines all depend on the supply "staying up." The same is true of emergency dispatch centers, water treatment plants, and the networks that carry financial transactions. Utilities and network operators guard against this by building in the ability to "stay up" when their main transmission channels are disrupted. Here, this means enforcing redundancy constraints such that no singular failed line, severed cable, or fallen tree can isolate a critical site. 
 
-Of course, there is a price to required redundancy, and as we will see, its price is non-uniform across sites. A hospital might have to survive several simultaneous failures, an ordinary substation only one, and a storage yard none at all. Designing the least-cost network that still meets every site's reliability requirement is, abstractly, the Steiner Network Design problem, and the step from connecting everything to connecting everything with varying degrees of redundancy marks a sharp jump in computational difficulty.
+Of course, there is a price to required redundancy, and as we will see, its price is non-uniform across sites. A hospital might have to survive several simultaneous failures, an ordinary substation only one, and a storage yard none at all. Designing the least-cost network that still meets every site's reliability requirement is, abstractly, the Steiner Network Design problem, and the step from connecting everything to connecting everything with varying degrees of redundancy marks a sharp jump in computational difficulty. 
 
 <NetworkRedundancy />
 
