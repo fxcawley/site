@@ -8,7 +8,7 @@ threadTitle: "World Modeling in Markets"
 threadOrder: 1
 ---
 
-I work in anomaly detection. The specifics of what I do at my day job are not something I can discuss here, but the general shape of the problem is: build a model of what "normal" looks like, then flag deviations from that model and decide which deviations matter. The interesting part is rarely the detection itself; it is the modeling of normal, which requires understanding the system well enough that anomalies stand out from noise.
+I work in anomaly detection. While specifics vary, the general shape of the problem is: build a model of what "normal" looks like, then flag deviations from that model and decide which deviations matter. The interesting part is rarely the detection itself; it is the modeling of normal, which requires understanding the system well enough that anomalies stand out from noise.
 
 <AnomalyLoop />
 
