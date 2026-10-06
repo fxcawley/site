@@ -30,3 +30,7 @@ Posts can be grouped into threads via frontmatter:
 
 - `npm run build`  full static build (Next.js 14, static export)
 - Site deploys from `master` branch
+
+## Git
+
+- Do not add "Generated with" or "Co-Authored-By" trailers to commit messages. Use a plain one-line message.
