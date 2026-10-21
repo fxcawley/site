@@ -33,6 +33,19 @@ excerpt: A short description.
 ---
 ```
 
+Keep `date` as the post or project's inception date. The site derives `updatedAt`
+from the latest Git commit touching the post's Markdown file at build time; no
+manual update field is needed. Commit an edit and rebuild to refresh the date.
+Without Git history, including for a new uncommitted post, the listed date is used.
+
+The homepage's **Latest** section and the posts index both sort by this update
+date. Threads move forward when any of their posts changes, retain `threadOrder`
+within the thread, and use the earliest listed post date as inception. Each post
+shows its timeline above the article.
+
+Builds need full Git history for these dates. The GitHub Pages workflow checks out
+with `fetch-depth: 0`; use an equivalent checkout setting on other hosts.
+
 ### New Research Item
 
 Create a folder in `content/research/` with an `index.md`:

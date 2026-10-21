@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getAllPosts, getPostBySlug, getThreadForPost } from '@/lib/content';
 import MdxContent from '@/components/MdxContent';
+import PostTimeline from '@/components/PostTimeline';
 
 interface Props {
   params: { slug: string };
@@ -58,13 +59,11 @@ export default async function PostDetailPage({ params }: Props) {
         <h1 className="leading-tight mb-2">
           {post.frontmatter.title}
         </h1>
-        <span className="text-sm" style={{ color: 'var(--fg-muted)' }}>
-          {new Date(post.frontmatter.date).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </span>
+        <PostTimeline
+          startedAt={threadInfo?.thread.startedAt ?? post.frontmatter.date}
+          publishedAt={post.frontmatter.date}
+          updatedAt={post.frontmatter.updatedAt}
+        />
       </header>
 
       <MdxContent source={post.content} />

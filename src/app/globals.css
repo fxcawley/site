@@ -212,6 +212,31 @@
 }
 
 /* Section spacing on homepage */
+.post-timeline {
+  display: grid;
+  margin: 1.25rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.post-timeline > li {
+  position: relative;
+  min-width: 0;
+  padding: 0.85rem 0.75rem 0 0;
+  border-top: 1px solid var(--border);
+}
+
+.post-timeline > li::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
 .homepage-section {
   margin-bottom: 2rem;
 }

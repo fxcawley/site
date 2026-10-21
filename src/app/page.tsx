@@ -1,34 +1,10 @@
 import Link from 'next/link';
 import { siteConfig, education, interests } from '@/lib/data';
-import { getAllPosts, getThreads } from '@/lib/content';
-
-function getLatestEntry() {
-  const allPosts = getAllPosts();
-  const threads = getThreads();
-
-  const threadEntries = threads.map((t) => ({
-    kind: 'thread' as const,
-    thread: t,
-    sortDate: Math.max(...t.posts.map((p) => new Date(p.frontmatter.date).getTime())),
-  }));
-
-  const standaloneEntries = allPosts
-    .filter((p) => !p.frontmatter.thread)
-    .map((p) => ({
-      kind: 'post' as const,
-      post: p,
-      sortDate: new Date(p.frontmatter.date).getTime(),
-    }));
-
-  const entries = [...threadEntries, ...standaloneEntries].sort(
-    (a, b) => b.sortDate - a.sortDate
-  );
-
-  return entries[0] ?? null;
-}
+import { getPostEntries } from '@/lib/content';
+import PostCard from '@/components/PostCard';
 
 export default function HomePage() {
-  const latest = getLatestEntry();
+  const latest = getPostEntries()[0];
 
   return (
     <div>
@@ -119,72 +95,7 @@ export default function HomePage() {
               All posts &rarr;
             </Link>
           </div>
-          {latest.kind === 'thread' ? (
-            <article className="panel">
-              <div className="flex items-baseline gap-3 mb-2">
-                <span
-                  className="text-xs font-medium px-2 py-0.5 rounded-full shrink-0"
-                  style={{ background: 'var(--accent)', color: '#fff' }}
-                >
-                  thread
-                </span>
-                <span className="text-base font-semibold" style={{ color: 'var(--fg-heading)' }}>
-                  {latest.thread.title}
-                </span>
-                <span className="text-sm" style={{ color: 'var(--fg-muted)' }}>
-                  {latest.thread.posts.length} {latest.thread.posts.length === 1 ? 'post' : 'posts'}
-                </span>
-              </div>
-              <div className="space-y-2 ml-1">
-                {latest.thread.posts.map((post, i) => (
-                  <div key={post.slug} className="flex items-baseline gap-3">
-                    <span
-                      className="text-xs tabular-nums shrink-0"
-                      style={{ color: 'var(--fg-muted)', minWidth: '1.2rem' }}
-                    >
-                      {i + 1}.
-                    </span>
-                    <span className="text-sm shrink-0 tabular-nums" style={{ color: 'var(--fg-muted)' }}>
-                      {new Date(post.frontmatter.date).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                      })}
-                    </span>
-                    <Link
-                      href={`/posts/${post.slug}`}
-                      className="text-sm hover:underline"
-                      style={{ color: 'var(--fg-heading)' }}
-                    >
-                      {post.frontmatter.title}
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            </article>
-          ) : (
-            <article className="panel">
-              <div className="flex items-baseline gap-4">
-                <span className="text-sm shrink-0 tabular-nums" style={{ color: 'var(--fg-muted)' }}>
-                  {new Date(latest.post.frontmatter.date).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                  })}
-                </span>
-                <Link
-                  href={`/posts/${latest.post.slug}`}
-                  className="text-base font-semibold hover:underline"
-                  style={{ color: 'var(--fg-heading)' }}
-                >
-                  {latest.post.frontmatter.title}
-                </Link>
-              </div>
-              {latest.post.frontmatter.excerpt && (
-                <p className="text-sm leading-relaxed mt-1 line-clamp-2" style={{ color: 'var(--fg)' }}>
-                  {latest.post.frontmatter.excerpt}
-                </p>
-              )}
-            </article>
-          )}
+          <PostCard entry={latest} />
         </section>
       )}
     </div>
