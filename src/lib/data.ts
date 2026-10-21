@@ -11,7 +11,7 @@ export const siteConfig = {
   professions: ['Machine Learning Engineer'],
   introduction: [
     'I work in the plasma group at KLA where I develop machine learning systems to examine semiconductor wafers.',
-    'I am broadly interested in building robust, performant and interpretable models. I deal with two main types of models, to paraphrase Belinda Li.',
+    'I am broadly interested in building robust, performant and interpretable models. I deal with two main types of models, to paraphrase Belinda Li:',
   ],
   modelTypes: [
     {
@@ -26,7 +26,7 @@ export const siteConfig = {
   aside: 'In my spare time, I read, write and exercise.',
   reading: 'Seamus Heaney, Annie Ernaux, EE Cummings, Jennifer Egan, Mahmoud Darwish.',
   social: [
-    { name: 'CV', url: '/LiamCawley__Resume.pdf', icon: 'cv' },
+    { name: 'CV', url: '/LiamCawleyResume.pdf', icon: 'cv' },
     { name: 'GitHub', url: 'https://github.com/cawley', icon: 'github' },
     { name: 'GitHub', url: 'https://github.com/fxcawley', icon: 'github' },
     { name: 'Scholar', url: 'https://scholar.google.com/', icon: 'scholar' },
