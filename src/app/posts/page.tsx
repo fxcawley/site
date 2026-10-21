@@ -19,7 +19,7 @@ export default function PostsPage() {
         moment.
       </p>
       <p className="text-xs mb-6" style={{ color: 'var(--fg-muted)' }}>
-        For more thoughtful commentary, check out{' '}
+        I'm a big fan of {' '}
         <a
           href="https://www.bloomberg.com/account/newsletters/money-stuff"
           target="_blank"
