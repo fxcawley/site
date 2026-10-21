@@ -15,7 +15,7 @@ export default function PostsPage() {
 
       <p className="text-sm leading-relaxed mb-1" style={{ color: 'var(--fg-muted)' }}>
         Given a binding time-budget constraint, distracted subscribers may only be able to read
-        certain posts at stochastic intervals &mdash; or, put less formally, when they have a spare
+        certain posts at stochastic intervals -- or, put less formally, when they have a spare
         moment.
       </p>
       <p className="text-xs mb-6" style={{ color: 'var(--fg-muted)' }}>
