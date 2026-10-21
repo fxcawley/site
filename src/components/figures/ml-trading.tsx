@@ -96,7 +96,7 @@ export function WhyMarkets() {
       <style>{figureCss(root)}</style>
       <rect className="panel" x="1" y="1" width="758" height="298" rx="14" />
       <text className="ttl" x="28" y="40" fontSize="18">Why markets make a demanding testbed</text>
-      <text className="sub" x="28" y="64" fontSize="13">Your mistakes cost you dearly. For an example, see the <a href="https://en.wikipedia.org/wiki/Naked_short_selling" target="_blank" rel="noopener noreferrer">naked short </a> case.</text>
+      <text className="sub" x="28" y="64" fontSize="13">Public data supports historical tests; the results must account for costs and competing traders.</text>
 
       {cols.map((c) => (
         <g key={c.t}>
@@ -225,15 +225,15 @@ export function RegimeEquity() {
 
 export function CostByFrequency() {
   const root = 'fig-cost';
-  // log scale for annual cost on a $100k account
+  // Log scale for cumulative costs on accounts starting at $100k.
   const pxY = (v: number) => 300 - (Math.log10(v) - 2) * 70; // 100 -> 300, 100000 -> 90
   return (
     <svg viewBox="0 0 760 340" style={svgStyle} className={root} role="img"
-      aria-label="Annual trading cost on a 100k account: 20 to 93 thousand dollars trading single stocks weekly, versus about 1 thousand trading ETFs monthly.">
+      aria-label="Reported cumulative trading costs: 20 to 93 thousand dollars in weekly single-stock runs and about 1 thousand in monthly ETF runs. Strategies and periods differ; each account starts at 100 thousand dollars.">
       <style>{figureCss(root)}</style>
       <rect className="panel" x="1" y="1" width="758" height="338" rx="14" />
-      <text className="ttl" x="28" y="40" fontSize="18">Trading frequency dominates cost</text>
-      <text className="sub" x="28" y="64" fontSize="13">Annual cost on a $100k account (log scale). Weekly single-stock trading is untenable.</text>
+      <text className="ttl" x="28" y="40" fontSize="18">Transaction costs reported by the backtests</text>
+      <text className="sub" x="28" y="64" fontSize="13">Totals from different strategies and periods, each starting at $100k (log scale).</text>
 
       <line className="edge" x1="120" y1="300" x2="680" y2="300" strokeWidth="1.5" />
       {[100, 1000, 10000, 100000].map((v) => (
@@ -275,8 +275,8 @@ export function AltPipelines() {
         </marker>
       </defs>
       <rect className="panel" x="1" y="1" width="758" height="318" rx="14" />
-      <text className="ttl" x="28" y="40" fontSize="18">Three alt-data pipelines, one validation bar</text>
-      <text className="sub" x="28" y="64" fontSize="13">Each looks for information price data cannot provide; each must clear the same gates.</text>
+      <text className="ttl" x="28" y="40" fontSize="18">Three alternative-data pipelines</text>
+      <text className="sub" x="28" y="64" fontSize="13">Filing, positioning, and macro signals are evaluated against the same criteria.</text>
 
       {srcs.map((s, i) => {
         const y = 100 + i * 64;
@@ -334,35 +334,36 @@ export function ValidationGates() {
 
 export function KalshiCalibration() {
   const root = 'fig-kalshi';
-  const px = (p: number) => 90 + p * 300;
-  const py = (f: number) => 320 - f * 240;
-  const market = [[0.2, 0.22], [0.35, 0.33], [0.5, 0.52], [0.65, 0.62], [0.8, 0.83], [0.9, 0.88]];
-  const ml = [[0.2, 0.45], [0.35, 0.28], [0.5, 0.66], [0.65, 0.4], [0.8, 0.55], [0.9, 0.6]];
+  const py = (score: number) => 300 - (score / 0.35) * 200;
+  // march-madness README at c919d30: 136 training markets, 59 test markets.
+  const results = [
+    { name: 'market prices', x: 200, brier: 0.233, auc: 0.611, color: TEAL },
+    { name: 'logistic regression', x: 400, brier: 0.246, auc: 0.531, color: AMBER },
+    { name: 'gradient boosting', x: 600, brier: 0.315, auc: 0.584, color: RED },
+  ];
   return (
     <svg viewBox="0 0 760 380" style={svgStyle} className={root} role="img"
-      aria-label="Calibration plot: market prices sit close to the diagonal while ML predictions scatter off it; market AUC 0.611 versus best ML 0.531.">
+      aria-label="Brier scores on 59 demo test markets: market prices 0.233, logistic regression 0.246, gradient boosting 0.315. Lower scores are better.">
       <style>{figureCss(root)}</style>
       <rect className="panel" x="1" y="1" width="758" height="378" rx="14" />
-      <text className="ttl" x="28" y="40" fontSize="18">The ML models don&rsquo;t beat the market price</text>
-      <text className="sub" x="28" y="64" fontSize="13">A well-calibrated price lies on the diagonal: a 70-cent contract resolves yes about 70% of the time.</text>
+      <text className="ttl" x="28" y="40" fontSize="18">Probability prediction error in the demo-data test</text>
+      <text className="sub" x="28" y="64" fontSize="13">Brier score on 59 test markets; lower is better. QuickSettle markets are excluded.</text>
 
-      <line className="edge" x1="90" y1="320" x2="90" y2="80" strokeWidth="1.5" />
-      <line className="edge" x1="90" y1="320" x2="390" y2="320" strokeWidth="1.5" />
-      <line x1={px(0)} y1={py(0)} x2={px(1)} y2={py(1)} stroke="var(--fg-muted)" strokeWidth="1.5" strokeDasharray="5 5" />
-      <text className="mut" x="230" y="352" fontSize="12" textAnchor="middle">predicted probability (price)</text>
-      <text className="mut" x="40" y="200" fontSize="12" textAnchor="middle" transform="rotate(-90 40 200)">realized frequency</text>
-
-      {market.map(([p, f], i) => <circle key={`m${i}`} cx={px(p)} cy={py(f)} r="6" fill={TEAL} />)}
-      {ml.map(([p, f], i) => <circle key={`l${i}`} cx={px(p)} cy={py(f)} r="6" fill={RED} opacity="0.85" />)}
-
-      <g transform="translate(470,120)">
-        <circle cx="10" cy="6" r="6" fill={TEAL} />
-        <text className="lbl" x="28" y="10" fontSize="13">market price</text>
-        <text className="mut" x="28" y="28" fontSize="12">AUC 0.611</text>
-        <circle cx="10" cy="66" r="6" fill={RED} />
-        <text className="lbl" x="28" y="70" fontSize="13">best ML model</text>
-        <text className="mut" x="28" y="88" fontSize="12">AUC 0.531</text>
-      </g>
+      <line className="edge" x1="90" y1="300" x2="690" y2="300" strokeWidth="1.5" />
+      {[0, 0.1, 0.2, 0.3].map((score) => (
+        <g key={score}>
+          <line className="edge" x1="90" y1={py(score)} x2="690" y2={py(score)} strokeWidth="1" opacity="0.5" />
+          <text className="mut" x="80" y={py(score) + 4} fontSize="11" textAnchor="end">{score.toFixed(1)}</text>
+        </g>
+      ))}
+      {results.map((r) => (
+        <g key={r.name}>
+          <rect x={r.x - 40} y={py(r.brier)} width="80" height={300 - py(r.brier)} rx="4" fill={r.color} fillOpacity="0.85" />
+          <text className="lbl" x={r.x} y={py(r.brier) - 10} fontSize="14" textAnchor="middle">{r.brier.toFixed(3)}</text>
+          <text className="lbl" x={r.x} y="322" fontSize="12" textAnchor="middle">{r.name}</text>
+          <text className="mut" x={r.x} y="344" fontSize="12" textAnchor="middle">AUC {r.auc.toFixed(3)}</text>
+        </g>
+      ))}
     </svg>
   );
 }
@@ -371,22 +372,22 @@ export function CostEatsAlpha() {
   const root = 'fig-eat';
   const x0 = 100;
   const w = 560;
-  const feePct = 0.65;
+  const feePct = (9.66 - 4.61) / 9.66;
   return (
     <svg viewBox="0 0 760 260" style={svgStyle} className={root} role="img"
-      aria-label="Fees consume 50 to 80 percent of gross alpha, leaving a small net remainder.">
+      aria-label="Calibration-bias strategy in the early demo sample: 9.66 dollars gross profit, 5.05 dollars modeled costs, and 4.61 dollars net profit.">
       <style>{figureCss(root)}</style>
       <rect className="panel" x="1" y="1" width="758" height="258" rx="14" />
-      <text className="ttl" x="28" y="40" fontSize="18">Fees consume most of the gross alpha</text>
-      <text className="sub" x="28" y="64" fontSize="13">Under realistic Kalshi costs, 50–80% of gross alpha is gone before it reaches the account.</text>
+      <text className="ttl" x="28" y="40" fontSize="18">Costs in the calibration-bias backtest</text>
+      <text className="sub" x="28" y="64" fontSize="13">Early demo sample: $9.66 gross profit across 123 simulated trades.</text>
 
       <rect x={x0} y="110" width={w} height="54" rx="8" fill={RED} fillOpacity="0.85" />
       <rect x={x0 + w * feePct} y="110" width={w * (1 - feePct)} height="54" rx="8" fill={TEAL} fillOpacity="0.9" />
-      <text x={x0 + (w * feePct) / 2} y="143" fontSize="14" textAnchor="middle" style={{ fill: '#fff', fontWeight: 700 }}>fees (50–80%)</text>
-      <text x={x0 + w * feePct + (w * (1 - feePct)) / 2} y="143" fontSize="13" textAnchor="middle" style={{ fill: '#fff', fontWeight: 600 }}>net</text>
+      <text x={x0 + (w * feePct) / 2} y="143" fontSize="14" textAnchor="middle" style={{ fill: '#fff', fontWeight: 700 }}>$5.05 modeled costs</text>
+      <text x={x0 + w * feePct + (w * (1 - feePct)) / 2} y="143" fontSize="13" textAnchor="middle" style={{ fill: '#fff', fontWeight: 600 }}>$4.61 net</text>
 
       <line className="edge" x1={x0} y1="180" x2={x0 + w} y2="180" strokeWidth="1.5" />
-      <text className="mut" x={x0} y="200" fontSize="12">gross alpha</text>
+      <text className="mut" x={x0} y="200" fontSize="12">gross profit</text>
       <text className="mut" x={x0 + w} y="200" fontSize="12" textAnchor="end">100%</text>
     </svg>
   );

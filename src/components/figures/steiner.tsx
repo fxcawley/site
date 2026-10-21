@@ -9,8 +9,8 @@ export function NetworkRedundancy() {
       aria-label="A power source feeding three sites: a hospital reached by three independent lines (one failed, two intact), a substation by two lines, and a depot by one. Critical sites keep more redundancy.">
       <style>{figureCss(root)}</style>
       <rect className="panel" x="1" y="1" width="758" height="358" rx="14" />
-      <text className="ttl" x="28" y="40" fontSize="18">Critical sites need more redundancy than ordinary ones</text>
-      <text className="sub" x="28" y="64" fontSize="13">The goal is the cheapest network that keeps every site connected, even when lines fail.</text>
+      <text className="ttl" x="28" y="40" fontSize="18">A network with different redundancy requirements</text>
+      <text className="sub" x="28" y="64" fontSize="13">Illustrative requirements: three paths to the hospital, two to the substation, one to the depot.</text>
 
       {/* hospital: 3 paths, lowest one failed */}
       <path d="M120 210 C 270 120, 460 90, 590 110" className="edge" fill="none" stroke={TEAL} strokeWidth="2.5" />
@@ -54,11 +54,11 @@ export function MstToSteiner() {
   const root = 'fig-mst';
   return (
     <svg viewBox="0 0 760 340" style={svgStyle} className={root} role="img"
-      aria-label="Left: uniform connectivity gives a minimum spanning tree, solvable exactly. Right: non-uniform requirements make the problem NP-hard.">
+      aria-label="Left: requiring one path between every pair gives a minimum spanning tree. Right: general connectivity requirements include NP-hard network design problems.">
       <style>{figureCss(root)}</style>
       <rect className="panel" x="1" y="1" width="758" height="338" rx="14" />
       <text className="ttl" x="28" y="40" fontSize="18">From spanning tree to fault-tolerant network</text>
-      <text className="sub" x="28" y="64" fontSize="13">When every pair needs one path, the answer is a minimum spanning tree. Non-uniform requirements make the problem NP-hard.</text>
+      <text className="sub" x="28" y="64" fontSize="13">MST requires one path between every pair. General connectivity requirements include NP-hard cases.</text>
 
       {/* left: MST */}
       <text className="lbl" x="190" y="104" fontSize="13" textAnchor="middle" fontWeight="600">uniform (r = 1)</text>
@@ -132,17 +132,17 @@ export function IntegralityGapLadder() {
   const py = (g: number) => base - (g / 2) * 180;
   const bars = [
     { n: 'MST', g: 1.0, note: 'solved exactly', c: TEAL },
-    { n: 'Steiner Tree', g: 1.39, note: '≈ ln 4, Byrka et al.', c: AMBER },
+    { n: 'Steiner Tree', g: 1.39, note: 'ln 4 + ε, Byrka et al.', c: AMBER },
     { n: 'general Steiner', g: 2.0, note: 'Jain 2001', c: RED },
   ];
   const xs = [190, 380, 570];
   return (
     <svg viewBox="0 0 760 340" style={svgStyle} className={root} role="img"
-      aria-label="Best known polynomial-time approximation ratios: 1 for MST, about 1.39 for Steiner Tree, 2 for general Steiner network.">
+      aria-label="Polynomial-time approximation guarantees: 1 for MST, about 1.39 for Steiner Tree, and 2 for general Steiner network. These are algorithmic guarantees, not hardness bounds.">
       <style>{figureCss(root)}</style>
       <rect className="panel" x="1" y="1" width="758" height="338" rx="14" />
-      <text className="ttl" x="28" y="40" fontSize="18">How hard each problem is to approximate</text>
-      <text className="sub" x="28" y="64" fontSize="13">Best ratio achievable in polynomial time. A ratio of 1 means the problem is solved exactly.</text>
+      <text className="ttl" x="28" y="40" fontSize="18">Known approximation guarantees</text>
+      <text className="sub" x="28" y="64" fontSize="13">Polynomial-time algorithms for the three problems. A ratio of 1 gives an exact solution.</text>
 
       {[1, 2].map((g) => (
         <g key={g}>
@@ -171,7 +171,7 @@ export function Uncrossing() {
   const root = 'fig-uncross';
   return (
     <svg viewBox="0 0 760 320" style={svgStyle} className={root} role="img"
-      aria-label="Two crossing tight cuts are replaced by their intersection and union, which are nested, yielding a laminar family.">
+      aria-label="The union/intersection branch of uncrossing: two crossing tight cuts are replaced by their intersection and union. The other branch uses their set differences.">
       <style>{figureCss(root)}</style>
       <defs>
         <marker id="unc-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
@@ -179,8 +179,8 @@ export function Uncrossing() {
         </marker>
       </defs>
       <rect className="panel" x="1" y="1" width="758" height="318" rx="14" />
-      <text className="ttl" x="28" y="40" fontSize="18">Uncrossing tight cuts into a laminar family</text>
-      <text className="sub" x="28" y="64" fontSize="13">If tight cuts S and T cross, replacing them with S∩T and S∪T keeps them tight and no longer crossing.</text>
+      <text className="ttl" x="28" y="40" fontSize="18">Uncrossing: the union/intersection case</text>
+      <text className="sub" x="28" y="64" fontSize="13">When this branch of skew supermodularity applies, S∩T and S∪T are both tight.</text>
 
       {/* left: crossing */}
       <ellipse cx="150" cy="200" rx="90" ry="58" fill={TEAL} fillOpacity="0.18" stroke={TEAL} />

@@ -2,28 +2,28 @@
 title: "Why Markets"
 tags: ["anomaly-detection", "world-modeling", "markets"]
 date: 2026-02-01
-excerpt: Using financial markets as a testbed for world modeling and anomaly detection, and why this domain is worth the trouble.
+excerpt: Using public market data to test anomaly detection, with transaction costs and benchmark returns as part of the evaluation.
 thread: "ml-trading"
 threadTitle: "World Modeling in Markets"
 threadOrder: 1
 ---
 
-I work in anomaly detection. While specifics vary, the general shape of the problem is: build a model of what "normal" looks like, then flag deviations from that model and decide which deviations matter. The interesting part is rarely the detection itself; it is the modeling of normal, which requires understanding the system well enough that anomalies stand out from noise.
+I work in anomaly detection. While specifics vary, the general shape of the problem is: build a model of what "normal" looks like, then flag deviations from that model and decide which deviations matter. The choice of what counts as normal determines which changes the detector will notice and which it will treat as noise.
 
 <AnomalyLoop />
 
-Financial markets are a useful setting in which to generalize this kind of thinking. Not the only setting, and probably not the best, but one with several properties that make it attractive as a personal research domain.
+Financial markets offer public data on which to test this approach outside my professional work.
 
-First, the data is abundant and free. Price and volume history for thousands of instruments going back decades is available through Yahoo Finance, with regulatory filings on EDGAR, macro indicators on FRED and Commitments of Traders reports from the CFTC are published weekly. The infrastructure cost for a backtesting environment is low. Now, with low cost data, there are caveats; you certainly don't get it quickly enough to compete in real time, but as a personal testing bench we are not concerned with that.
+Price and volume history is available through Yahoo Finance, regulatory filings through EDGAR, macro indicators through FRED, and weekly Commitments of Traders reports through the CFTC. These sources keep the cost of a backtesting environment low. They suit experiments at daily or monthly horizons, where access to the fastest feed is less of a constraint.
 
-Second, markets provide a built-in evaluation criterion. If a model claims to have identified something about the world, that claim can be tested by constructing a portfolio and measuring its performance against a benchmark. The feedback loop between belief and outcome is tight. There are many layers of abstraction between "I have identified a real pattern" and "this pattern generates risk-adjusted returns after transaction costs," and those layers are themselves instructive. A model that detects an anomaly in price data may still be worthless if the anomaly is too expensive to trade, or if it has already been arbitraged away, or if the detection depends on lookahead bias introduced during feature construction. Each failure mode teaches something about the relationship between a model and the system it claims to describe.
+Markets also provide a way to test whether a detected pattern is useful: construct a portfolio and measure its performance against a benchmark after transaction costs. An anomaly may be too expensive to trade, may disappear before a trade can be placed, or may owe its apparent predictive value to future information accidentally included in a feature. The backtest has to represent when the information became available and what acting on it would have cost.
 
 <BeliefToReturns />
 
-Third, financial markets are competitive and adversarial in a way that most detection problems are not. Other participants are actively trying to exploit the same patterns. This makes the domain a hard test for any modeling approach: signals that survive transaction costs and adversarial pressure are probably capturing something real about the underlying system, while signals that don't are probably capturing noise or artifacts.
+Other participants are trying to exploit the same patterns. A relationship found in historical data can weaken as trading changes prices, so the evaluation also has to test whether it persists across periods.
 
 <WhyMarkets />
 
 This thread documents a series of projects in this domain, starting with conventional price-based strategies, extending to alternative data sources, and eventually moving toward prediction markets. The long-term goal is to build a general anomaly detection framework that transfers what I have learned in my professional work to a domain where the evaluation criteria are explicit and the data is public.
 
-The results so far are largely negative, in the sense that most strategies I have tested do not produce statistically significant alpha. I consider this informative rather than discouraging. The negative results have taught me more about proper backtesting methodology, survivorship bias, transaction cost modeling, and out-of-sample validation than the positive results have.
+Most strategies I have tested have not produced statistically significant alpha. Several early positive results disappeared after corrections to rebalancing, the stock universe, and feature timestamps; the [next post](/posts/ml-trading-log-2) describes those corrections.

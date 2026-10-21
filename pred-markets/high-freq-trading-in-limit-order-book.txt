@@ -1,0 +1,597 @@
+High-frequency trading in a limit order book
+Marco Avellaneda & Sasha Stoikov
+April 24, 2006
+Abstract
+We study a stock dealer’s strategy for submitting bid and ask quotes in a
+limit order book. The agent faces an inventory risk due to the diffusive nature of
+the stock’s mid-price and a transactions risk due to a Poisson arrival of market
+buy and sell orders. After setting up the agent’s problem in a maximal expected
+utility framework, we derive the solution in a two step procedure. First, the
+dealer computes a personal indifference valuation for the stock, given his current
+inventory. Second, he calibrates his bid and ask quotes to the market’s limit
+order book. We compare this ”inventory-based” strategy to a ”naive” best
+bid/best ask strategy by simulating stock price paths and displaying the P&L
+profiles of both strategies. We find that our strategy has a P&L profile that
+has both a higher return and lower variance than the benchmark strategy.
+1 Introduction
+The role of a dealer in securities markets is to provide liquidity on the exchange by
+quoting bid and ask prices at which he is willing to buy and sell a specific quan-
+tity of assets. Traditionally, this role has been filled by market-maker or specialist
+firms. In recent years, with the growth of electronic exchanges such as Nasdaq’s Inet,
+anyone willing to submit limit orders in the system can effectively play the role of a
+dealer. Indeed, the availability of high frequency data on the limit order book (see
+www.inetats.com) ensures a fair playing field where various agents can post limit
+orders at the prices they choose. In this paper, we study the optimal submission
+strategies of bid and ask orders in such a limit order book.
+The pricing strategies of dealers have been studied extensively in the microstruc-
+ture literature. The two most often addressed sources of risk facing the dealer are
+(i) the inventory risk arising from uncertainty in the asset’s value and (ii) the asym-
+metric information risk arising from informed traders. Useful surveys of their results
+can be found in Biais et al. [1], Stoll [13] and a book by O’Hara [10]. In this paper,
+we will focus on the inventory effect. In fact, our model is closely related to a paper
+by Ho and Stoll [6], which analyses the optimal prices for a monopolistic dealer in
+1
+a single stock. In their model, the authors specify a ’true’ price for the asset, and
+derive optimal bid and ask quotes around this price, to account for the effect of the
+inventory. This inventory effect was found to be significant in an empirical study of
+AMEX Options by Ho and Macris [5]. In another paper by Ho and Stoll [7], the prob-
+lem of dealers under competition is analyzed and the bid and ask prices are shown to
+be related to the reservation (or indifference) prices of the agents. In our framework,
+we will assume that our agent is but one player in the market and the ’true’ price is
+given by the market mid-price.
+Of crucial importance to us will be the arrival rate of buy and sell orders that
+will reach our agent. In order to model these arrival rates, we will draw on recent
+results in econophysics. One of the important achievements of this literature has
+been to explain the statistical properties of the limit order book (see Bouchaud et al.
+[2], Potters and Bouchaud [11], Smith et al. [12], Luckock [8]). The focus of these
+studies has been to reproduce the observed patterns in the markets by introducing
+’zero intelligence’ agents, rather than modeling optimal strategies of rational agents.
+One possible exception is the work of Luckock [8], who defines a notion of optimal
+strategies, without resorting to utility functions. Though our objective is different to
+that of the econophysics literature, we will draw on their results to infer reasonable
+arrival rates of buy and sell orders. In particular, the results that will be most useful
+to us are the size distribution of market orders (Gabaix et al. [3], Maslow and Mills
+[9]) and the temporary price impact of market orders (Weber and Rosenow [14],
+Bouchaud et al. [2]).
+Our approach, therefore, is to combine the utility framework of the Ho and Stoll
+approach with the microstructure of actual limit order books as described in the
+econophysics literature. The main result is that the optimal bid and ask quotes are
+derived in an intuitive two-step procedure. First, the dealer computes a personal
+indifference valuation for the stock, given his current inventory. Second, he calibrates
+his bid and ask quotes to the limit order book, by considering the probability with
+which his quotes will be executed as a function of their distance from the mid-price.
+In the balancing act between the dealer’s personal risk considerations and the market
+environment lies the essence of our solution.
+The paper is organized as follows. In section 2, we describe the main building
+blocks for the model: the dynamics of the mid-market price, the agent’s utility ob-
+jective and the arrival rate of orders as a function of the distance to the mid-price. In
+section 3, we solve for the optimal bid and ask quotes, and relate them to the reserva-
+tion price of the agent, given his current inventory. We then present an approximate
+solution, numerically simulate the performance of our agent’s strategy and compare
+its Profit and Loss (P&L) profile to that of some benchmark strategies.
+2
+2 The model
+2.1 The mid-price of the stock
+For simplicity, we assume that money market pays no interest. The mid-market price,
+or mid-price, of the stock is modeled as a Brownian motion
+St = s + Wt. (2.1)
+We choose this model over the standard geometric Brownian motion because it yields
+simpler solutions and ensures that the utility functionals introduced in the sequel
+remain bounded.
+This mid-price will be used solely to value the agent’s assets at the end of the
+investment period. He may not trade costlessly at this price, but this source of
+randomness will allow us to measure the risk of his inventory in stock. In section 2.4
+we will introduce the possibility to trade through limit orders.
+2.2 The optimizing agent with finite horizon
+The agent’s objective is to maximize the expected exponential utility of his P&L
+profile at a terminal time T. This choice of convex risk measure is particularly
+convenient, since it will allow us to define reservation (or indifference) prices which
+are independent of the agent’s wealth.
+We first model an inactive trader who does not have any limit orders in the market
+and simply holds an inventory of q stocks until the terminal time T. This passive
+strategy will later prove to be useful in the case when limit orders are allowed. The
+agent’s value function is
+v(x, s, q, t) = Et[−exp(−
+(x + qST )]
+where x is the initial wealth in dollars. This value function can be written as
+v(x, s, q, t) = −exp(−
+x) exp(−
+qs) exp
+
+
+2q22(T − t)
+2
+
+(2.2)
+which shows us directly its dependence on the market parameters.
+We may now define the reservation bid and ask prices for the agent. The reserva-
+tion bid price is the price that would make the agent indifferent between his current
+portfolio and his current portfolio plus one stock. The reservation ask price is defined
+similarly below. We stress that this is a subjective valuation from the point of view
+of the agent and does not reflect a price at which trading should occur.
+Definition 1. Let v be the value function of the agent. His reservation bid price rb is
+given implicitly by the relation
+v(x − rb(s, q, t), s, q + 1, t) = v(x, s, q, t). (2.3)
+3
+The reservation ask price ra solves
+v(x + ra(s, q, t), s, q − 1, t) = v(x, s, q, t). (2.4)
+A simple computation involving equations (2.2), (2.3) and (2.4) yields a closed-
+form expression for the two prices
+ra(s, q, t) = s + (1 − 2q)
+
+2(T − t)
+2
+and
+rb(s, q, t) = s + (−1 − 2q)
+
+2(T − t)
+2
+in the setting where no trading is allowed. We will refer to the average of these two
+prices as the reservation or indifference price
+r(s, q, t) = s − q
+2(T − t),
+given that the agent is holding q stocks. This price is an adjustment to the mid-
+price, which accounts for the inventory held by the agent. If the agent is long stock
+(q > 0), the reservation price is below the mid-price, indicating a desire to liquidate
+the inventory by selling stock. On the other hand, if the agent is short stock (q < 0),
+the reservation price is above the mid-price, since the agent is willing to buy stock at
+a higher price.
+2.3 The optimizing agent with infinite horizon
+Because of our choice of a terminal time T at which we measure the performance of
+our agent, the reservation price (2.2) depends on the time interval (T −t). Intuitively,
+the closer our agent is to time T, the less risky his inventory in stock is, since it can
+be liquidated at the mid-price ST . In order to obtain a stationary version of the
+reservation price, we may consider an infinite horizon objective of the form
+¯v(x, s, q) = E
+Z 1
+0
+−exp(−!t) exp(−
+(x + qSt))dt
+
+.
+The stationary reservation prices (defined in the same way as in Definition 1) are
+given by
+¯ra(s, q) = s +
+1
+
+
+ln
+
+1 −
+(2q + 1)
+22
+2! − 
+2q22
+
+and
+¯rb(s, q) = s +
+1
+
+
+ln
+
+1 −
+(2q − 1)
+22
+2! − 
+2q22
+
+,
+where ! > 1
+2
+22q2.
+The parameter ! may therefore be interpreted as an upper bound on the inventory
+position our agent is allowed to take. The natural choice of ! = 1
+2
+22(qmax + 1)2
+would ensure that the prices defined above are bounded.
+4
+2.4 Limit orders
+We now turn to an agent who can trade in the stock through limit orders that he sets
+around the mid-price given by (2.1). The agent quotes the bid price pb and the ask
+price pa, and is committed to respectively buy and sell one share of stock at these
+prices, should he be ”hit” or ”lifted” by a market order. These limit orders pb and pa
+can be continuously updated at no cost. The distances
+b = s − pb
+and
+a = pa
+− s
+and the current shape of the limit order book determine the priority of execution
+when large market orders get executed.
+For example, when a large market order to buy Q stocks arrives, the Q limit
+orders with the lowest ask prices will automatically execute. This causes a temporary
+market impact, since transactions occur at a price that is higher than the mid-price.
+If pQ is the price of the highest limit order executed in this trade, we define
+p = pQ
+− s
+to be the temporary market impact of the trade of size Q. If our agent’s limit order
+is within range of this market order, i.e. if a < p, his limit order will be executed.
+We assume that market buy orders will ”lift” our agent’s sell limit orders at
+Poisson rate a(a), a decreasing function of a. Likewise, orders to sell stock will
+”hit” the agent’s buy limit order at Poisson rate b(b), a decreasing function of b.
+Intuitively, the further away from the mid-price the agent positions his quotes, the
+less often he will receive buy and sell orders.
+The wealth and inventory are now stochastic and depend on the arrival of market
+sell and buy orders. Indeed, the wealth in cash jumps every time there is a buy or
+sell order
+dXt = padNa
+t − pbdNb
+t
+where Nb
+t is the amount of stocks bought by the agent and Na
+t is the amount of stocks
+sold. Nb
+t and Na
+t are Poisson processes with intensities b and a. The number of
+stocks held at time t is
+qt = Nb
+t − Na
+t .
+The objective of the agent who can set limit orders is
+u(s, x, q, t) = max
+a,b
+Et[−exp(−
+(XT + qTST )))].
+Notice that, unlike the setting described in the previous subsection, the agent controls
+the bid and ask prices and therefore indirectly influences the flow of orders he receives.
+Before turning to the solution of this problem, we consider some realistic functional
+forms for the intensities a(a) and b(b) inspired by recent results in the econophysics
+literature.
+5
+2.5 The trading intensity
+One of the main focuses of the econophysics community has been to describe the laws
+governing the microstructure of financial markets. Here, we will be focussing on the
+results which address the Poisson intensity  with which a limit order will be executed
+as a function of its distance  to the mid-price. In order to quantify this, we need to
+know statistics on (i) the overall frequency of market orders (ii) the distribution of
+their size and (iii) the temporary impact of a large market order. Aggregating these
+results suggests that  should decay as an exponential or a power law function.
+For simplicity, we assume a constant frequency  of market buy or sell orders.
+This could be estimated by dividing the total volume traded over a day by the average
+size of market orders on that day.
+The distribution of the size of market orders has been found by several studies to
+obey a power law. In other word, the density of market order size is
+fQ(x) _ x−1− (2.5)
+with  = 1.53 in Gopikrishnan et al. [4] for U.S. stocks,  = 1.4 in Maslow and Mills
+[9] for shares on the NASDAQ and  = 1.5 in Gabaix et al. [3] for the Paris Bourse.
+There is less consensus on the statistics of the market impact in the econophysics
+literature. This is due to a general disagreement over how to define it and how to
+measure it. Some authors find that the change in price p following a market order
+of size Q is given by
+p _ Q (2.6)
+where  = 0.5 in Gabaix et al. [3] and  = 0.76 in Weber and Rosenow [14]. Potters
+and Bouchaud [11] find a better fit to the function
+p _ ln(Q). (2.7)
+Aggregating this information, we may derive the Poisson intensity at which our
+agent’s orders are executed. This intensity will depend only on the distance of his
+quotes to the mid-price, i.e. b(b) for the arrival of sell orders and a(a) for the
+arrival of buy orders. For instance, using (2.5) and (2.7), we derive
+() = P(p > )
+= P(ln(Q) > K)
+= P(Q > exp(K))
+= 
+R 1
+exp(K) x−1−dx
+= Aexp(−k)
+(2.8)
+where A = / and k = K. In the case of a power price impact (2.6), we obtain
+an intensity of the form
+() = B()−
+
+ .
+6
+Alternatively, since we are interested in short term liquidity, the market impact
+function could be derived directly by integrating the density of the limit order book.
+This procedure is described in Smith et al. [12] and Weber and Rosenow [14] and
+yields what is sometimes called the ”virtual” price impact.
+3 The solution
+3.1 Optimal bid and ask quotes
+Recall that our agent’s objective is given by the value function
+u(s, x, q, t) = max
+a,b
+Et[−exp(−
+(XT + qTST )))]. (3.1)
+This type of optimal dealer problem was first studied by Ho and Stoll [6]. One of the
+key steps in their analysis is to use the dynamic programming principle to show that
+the function u solves the following Hamilton-Jacobi-Bellman equation
+
+
+ut + 1
+22uss + maxb b(b)
+
+u(s, x − s + b, q + 1, t) − u(s, x, q, t)
+
++maxa a(a) [u(s, x + s + a, q − 1, t) − u(s, x, q, t)] = 0
+u(S, x, q, t) = −exp(−
+(x + qS)).
+The solution to this nonlinear PDE is continuous in the variables s, x and t and
+depends on the discrete values of the inventory q. Due to our choice of exponential
+utility, we are able to simplify the problem with the ansatz
+u(s, x, q, T) = −exp(−
+x) exp(−
+(s, q, t)). (3.2)
+Direct substitution yields the following equation for 
+
+
+t + 1
+22SS −
+1
+22
+2
+S
++maxb
+h
+b(b)
+
+ [1 − e
+(s−b−rb)]
+i
++ maxa
+h
+a(a)
+
+ [1 − e−
+(s+a−ra)]
+i
+= 0
+(s, q, T) = qs.
+(3.3)
+Applying the definition of reservation bid and ask prices (given in Section 2.2) to the
+ansatz (3.2), we find that rb and ra depend directly on this function . Indeed,
+rb(s, q, t) = (s, q + 1, t) − (s, q, t) (3.4)
+is the reservation bid price of the stock, when the inventory is q and
+ra(s, q, t) = (s, q, t) − (s, q − 1, t) (3.5)
+7
+is the reservation ask price,when the inventory is q. From the first order optimality
+condition in (3.3), we obtain the optimal distances b and a. They are given by the
+implicit relations
+s − rb(s, q, t) = b
+−
+1
+
+
+ln
+ 
+1 − 
+
+b(b)
+@b
+@ (b)
+!
+(3.6)
+and
+ra(s, q, t) − s = a
+−
+1
+
+
+ln
+ 
+1 − 
+
+a(a)
+@a
+@ (a)
+!
+. (3.7)
+In summary, the optimal bid and ask quotes are obtained through an intuitive,
+two step procedure. First, we solve the PDE (3.3) in order to obtain the reservation
+bid and ask prices rb(s, q, t) and ra(s, q, t). Second, we solve the implicit equations
+(3.6) and (3.7) and obtain the optimal distances b(s, q, t) and a(s, q, t) between the
+mid-price and optimal bid and ask quotes. This second step can be interpreted as a
+calibration of our indifference prices to the current market supply b and demand a.
+3.2 Approximations and numerical simulations
+We now test the effectiveness of our strategy by running simulations focussing pri-
+marily on the shape of the P&L profile and the final inventory qT . We will refer to
+our strategy as the ”inventory” strategy, and compare it to some benchmark strate-
+gies that are symmetric around the mid-price, regardless of the inventory. One such
+strategy, the ”best bid/best ask” strategy, consists in quoting bid and ask prices equal
+to s −
+M
+2 and s + M
+2 respectively, where M is the market spread (i.e. the difference
+between the best bid and best ask prices in the limit order book). Another such
+strategy, which we refer to as the ”symmetric” strategy, uses the same spread as the
+inventory strategy, but centers it around the mid-price, rather than the reservation
+price.
+In order to simplify computations, we assume exponential arrival rates
+() = Ae−k (3.8)
+which are consistent with the results of Potters and Bouchaud [11], as described in
+Section 2.5. Once we have chosen our time step dt, we we obtain the value for A
+through the relation
+
+
+−
+M
+2
+
+dt = AekM
+2 dt = 1. (3.9)
+Equation (3.9) says that if we post a limit order at a distance  = −
+M
+2 from the
+mid-price, this limit order is essentially a market order that will get executed with
+probability one in a dt time interval.
+In the first step of our algorithm, rather than solving (3.3) numerically to obtain
+the indifference bid and ask prices given by (3.4) and (3.5), we use the average of
+8
+the suboptimal bid and ask prices derived in section 2.2 for the static version of the
+problem. In other words we will be using the proxy
+r(s, q, t) = s − q
+2(T − t) (3.10)
+for both rb and ra. For the second step of our algorithm, we substitute the exponential
+order arrival function (3.8) into (3.6) and (3.7) and use the reservation price in (3.10)
+to obtain
+b = 
+q2(T − t) +
+1
+
+
+ln(1 +
+
+
+k
+) (3.11)
+and
+a = −
+q2(T − t) +
+1
+
+
+ln(1 +
+
+
+k
+). (3.12)
+Our inventory strategy therefore quotes a fixed spread of
+a + b =
+2
+
+
+ln(1 +
+
+
+k
+)
+centered around the reservation price (3.10).
+To illustrate the behavior of the inventory strategy over time, we simulate one mid-
+price path, and calculate our agent’s indifference (reservation) price and the optimal
+bid and ask quotes. The paths in figure 1 were simulated with the parameters s = 100,
+T = 1,  = 2, dt = 0.005, q = 0, 
+ = 0.1, k = 1.5 and M = 0.5. For this choice of
+parameters, the optimal spread is a + b = 1.29.
+0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1
+98.5
+99
+99.5
+100
+100.5
+101
+101.5
+102
+102.5
+103
+Time
+Stock
+Price
+Mid−market price
+Price asked
+Price bid
+Indifference Price
+Figure 1. The mid-price, indifference price and the optimal bid and ask quotes
+9
+Note that when the indifference price is lower than the mid-price, the relation
+(3.10) indicates that the inventory position qt must be positive. This can be observed
+at time t = 0.5 for example. Since our agent is anxious to sell due to a positive
+inventory, the bid and ask quotes are low relative to the mid-price. This, in turn,
+encourages a higher intensity of market buy orders, until time t = 0.55, where the
+inventory is back to zero and the mid-price and indifference prices overlap.
+On the other hand, at time t = 0.25, the indifference price is higher than the
+mid-price, indicating that the inventory position must be negative (or short stock).
+Since the bid price is aggressively placed near the mid-price, the inventory quickly
+returns to zero at time t = 0.3. Notice that as we approach the terminal time, the
+indifference price gets closer to the mid-price, and our agent’s bid/ask quotes look
+more like a symmetric strategy. Indeed, when we are close to the terminal time, our
+inventory position is considered less risky, since the mid-price is less likely to move
+drastically.
+We then run 1000 simulations to compare our ”inventory” strategy to the ”best
+bid/best ask” strategy. The average and standard deviations of the profit and final
+inventory are indicated in Table 1. The standard deviation of qT for our inventory
+Strategy Spread Profit std(Profit) Final q std(Final q)
+Inventory 1.29 62.94 5.89 0.10 2.80
+Best bid/best ask 0.5 48.43 14.57 0.72 9.56
+Symmetric 1.29 67.21 13.43 -0.018 8.66
+Table 1: 1000 simulations with 
+ = 0.1
+strategy is 2.80 and the standard deviation of the best bid/best ask strategy is 9.56.
+This was to be expected, since our strategy has a tendency to sell when the inventory
+is positive and buy when the inventory is negative. What is surprising, is that our
+inventory strategy has a P&L profile that has both a higher return and lower standard
+deviation than the best bid/best ask strategy. This is illustrated in figure 2, which
+displays the histogram of the two P&L profiles. The reason why the best bid/best ask
+strategy performs so poorly is that its bid/ask spread of $0.50 is significantly lower
+than the optimal of $1.29. Intuitively, the best bid/best ask strategy receives more
+orders than the inventory strategy, but the inventory strategy makes significantly
+more profit each time it receives an order.
+We then compare our ”inventory” strategy to a more sophisticated strategy, which
+we call the ”symmetric” strategy. This strategy uses the bid/ask spread of the in-
+ventory strategy, i.e. a + b = 2
+
+ ln(1 + 
+
+k ), but centers it around the mid-price. For
+example, the performance of the symmetric strategy that quotes a bid/ask spread of
+$1.29 (corresponding to the optimal agent with 
+ = 0.1) is displayed in Table 1. This
+symmetric strategy has a higher return (of $67.21 versus $62.94) and higher standard
+deviation ($13.43 versus $5.89) than the inventory strategy. The symmetric strategy
+10
+obtains a slightly higher return since it is centered around the mid-price, and there-
+fore receives a higher volume of orders than the inventory strategy. However, the
+inventory strategy obtains a P&L profile with a much smaller variance, as illustrated
+in the histogram in Figure 3.
+Figure 2. 
+ = 0.1 Figure 3. 
+ = 0.1
+The results of the simulations comparing the ”inventory” strategy for 
+ = 0.01
+with the corresponding ”symmetric” strategy are displayed in Table 2. This small
+value for 
+ represents an investor who is close to risk neutral. The inventory effect is
+therefore much smaller and the P&L profiles of the two strategies are very similar, as
+illustrated in Figure 4. In fact, in the limit as 
+ ! 0 the two strategies are identical.
+Strategy Spread Profit std(Profit) Final q std(Final q)
+Inventory 1.33 66.78 8.76 -0.02 4.70
+Symmetric 1.33 67.36 13.40 -0.31 8.65
+Table 2: 1000 simulations with 
+ = 0.01
+Finally, we display the performance of the two strategies for 
+ = 0.5 in Table 3.
+This choice corresponds to a very risk averse investor, who will go to great lengths to
+avoid accumulating an inventory. This strategy produces low standard deviations of
+profits and final inventory, but generates more modest profits than the corresponding
+symmetric strategy (see Figure 5).
+Strategy Spread Profit std(Profit) Final q std(Final q)
+Inventory 1.15 33.92 4.72 -0.02 1.88
+Symmetric 1.15 66.20 14.53 0.25 9.06
+Table 3: 1000 simulations with 
+ = 0.5
+11
+Figure 4. 
+ = 0.01 Figure 5. 
+ = 0.5
+References
+[1] B. Biais, L. Glosten and C. Spatt, The Microstructure of Stock Markets, Working
+paper (2004).
+[2] J.-P. Bouchaud, M. Mezard and M. Potters, Statistical Properties of Stock Order
+Books: Empirical Results and Models, Quantitative Finance, 2 (2002) 251-256.
+[3] X. Gabaix, P. Gopikrishnan, V. Plerou, H.E. Stanley, A Theory of Large Fluctu-
+ations in Stock Market Activity, MIT Department of Economics Working Paper
+No. 03-30.
+[4] P. Gopikrishnan, V. Plerou, X. Gabaix and H.E. Stanley, Statistical Properties
+of Share Volume Traded in Financial Markets, Physical Review E, 62 (2000)
+R4493-R4496.
+[5] T. Ho and R. Macris, Dealer Bid-Ask Quotes and Transaction Prices: An Em-
+pirical Study of Some AMEX Options, Journal of Finance, 39, (1984) 23-45.
+[6] T. Ho and H. Stoll, Optimal Dealer Pricing under Transactions and Return
+Uncertainty, Journal of Financial Economics, 9 (1981) 47-73.
+[7] T. Ho and H. Stoll, On Dealer Markets under Competition, Journal of Finance,
+35 (1980) 259-267.
+[8] H. Luckock, A Steady-State Model of the Continuous Double Auction, Quanti-
+tative Finance, 3 (2003) 385-404.
+[9] S. Maslow and M. Mills, Price Fluctuations from the Order Book Perspective:
+Empirical Facts and a Simple Model, Physica A, 299 (2001) 234-246.
+12
+[10] M. O’Hara, Market Microstructure Theory, Blackwell, Cambridge, Mas-
+sachusetts (1997).
+[11] M. Potters and J.-P. Bouchaud, More Statistical Properties of Order Books and
+Price Impact, Physica A: Statistical Mechanics and its Applications, 324 (2003)
+133-140.
+[12] E. Smith, J.D. Farmer, L. Gillemot and S. Krishnamurthy, Statistical Theory of
+the Continuous Double Auction, Quantitative Finance, 3 (2003) 481-514.
+[13] H.R. Stoll, Market Microstructure, Handbook of the Economics of Finance,
+Edited by G.M. Constantinides et al. North Holland (2003).
+[14] P. Weber and B. Rosenow, Order Book Approach to Price Impact, Quantitative
+Finance, 5 (2005) 357 - 364.
+13

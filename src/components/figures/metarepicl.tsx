@@ -121,7 +121,7 @@ export function GdVsCg() {
   const root = 'fig-gd';
   return (
     <svg viewBox="0 0 760 340" style={svgStyle} className={root} role="img"
-      aria-label="Two solvers on an ill-conditioned problem: plain gradient descent zig-zags over many steps while a second-order method reaches the solution in a few.">
+      aria-label="Schematic paths on an ill-conditioned quadratic: gradient descent takes many steps while conjugate gradients reaches the solution in two.">
       <style>{figureCss(root)}</style>
       <rect className="panel" x="1" y="1" width="758" height="338" rx="14" />
       <text className="ttl" x="28" y="40" fontSize="18">Steps to reach the same solution</text>
@@ -143,7 +143,7 @@ export function GdVsCg() {
       <polyline points="118,128 175,225 205,145 232,218 252,160 268,208 280,173 289,201 296,182 300,190"
         fill="none" stroke={RED} strokeWidth="2.5" strokeLinejoin="round" />
 
-      {/* second-order path */}
+      {/* conjugate-gradient path */}
       <polyline points="118,128 250,220 300,190" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinejoin="round" />
       <circle cx="250" cy="220" r="4" fill="var(--accent)" />
 
@@ -154,8 +154,8 @@ export function GdVsCg() {
         <text className="mut" x="40" y="22" fontSize="12">many small steps, zig-zags</text>
 
         <line x1="0" y1="52" x2="30" y2="52" stroke="var(--accent)" strokeWidth="3" />
-        <text className="lbl" x="40" y="56" fontSize="13">second-order / CG-like</text>
-        <text className="mut" x="40" y="74" fontSize="12">few decisive steps</text>
+        <text className="lbl" x="40" y="56" fontSize="13">conjugate gradients</text>
+        <text className="mut" x="40" y="74" fontSize="12">conjugate directions</text>
       </g>
     </svg>
   );
@@ -174,11 +174,11 @@ export function KernelShift() {
   const py = (y: number) => 330 - y;
   return (
     <svg viewBox="0 0 760 380" style={svgStyle} className={root} role="img"
-      aria-label="In-distribution, the model's predictions match the kernel oracle and sit on the diagonal; out-of-distribution, they scatter off it.">
+      aria-label="Schematic prediction agreement: points on the training distribution follow the kernel prediction, while points after a distribution shift depart from it.">
       <style>{figureCss(root)}</style>
       <rect className="panel" x="1" y="1" width="758" height="378" rx="14" />
-      <text className="ttl" x="28" y="40" fontSize="18">The kernel match is learned, not automatic</text>
-      <text className="sub" x="28" y="64" fontSize="13">On familiar tasks the model tracks the kernel prediction; on unfamiliar ones it drifts off.</text>
+      <text className="ttl" x="28" y="40" fontSize="18">Prediction agreement under a distribution shift</text>
+      <text className="sub" x="28" y="64" fontSize="13">Schematic points illustrating agreement on training tasks and disagreement after a shift.</text>
 
       {/* axes */}
       <line className="edge" x1="60" y1="90" x2="60" y2="330" strokeWidth="1.5" />

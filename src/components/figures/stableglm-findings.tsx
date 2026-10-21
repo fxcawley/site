@@ -7,18 +7,19 @@ export function AmbiguityBars() {
   const base = 290;
   const top = 100;
   const span = base - top;
+  // StableGLM/docs/_static/evaluation.json, tolerance 0.03 (October 2026).
   const data = [
-    { n: 'Breast Cancer', d: 'd = 30', v: 18.4, x: 190, c: TEAL },
-    { n: 'German Credit', d: 'd = 61', v: 85.4, x: 380, c: RED },
-    { n: 'Adult Census', d: 'd = 104', v: 63.8, x: 570, c: AMBER },
+    { n: 'Breast Cancer', d: 'd = 30', v: 6.2, x: 190, c: TEAL },
+    { n: 'German Credit', d: 'd = 61', v: 82.9, x: 380, c: RED },
+    { n: 'Adult Census', d: 'd = 101; n = 5,000', v: 67.8, x: 570, c: AMBER },
   ];
   return (
     <svg viewBox="0 0 760 340" style={svgStyle} className={root} role="img"
-      aria-label="Ambiguity at 3 percent loss tolerance: 18 percent for Breast Cancer, 85 percent for German Credit, 64 percent for Adult Census.">
+      aria-label="Exact ambiguity at 3 percent loss tolerance: 6.2 percent for Breast Cancer, 82.9 percent for German Credit, and 67.8 percent for the Adult Census subsample.">
       <style>{figureCss(root)}</style>
       <rect className="panel" x="1" y="1" width="758" height="338" rx="14" />
-      <text className="ttl" x="28" y="40" fontSize="18">How many predictions are up for grabs (at 3% loss tolerance)</text>
-      <text className="sub" x="28" y="64" fontSize="13">Share of points whose predicted label could change depending on which near-optimal model is chosen.</text>
+      <text className="ttl" x="28" y="40" fontSize="18">Rows whose predicted label can change (3% loss tolerance)</text>
+      <text className="sub" x="28" y="64" fontSize="13">Exact flip tests at a probability threshold of 0.5. Each row may require a different competing model.</text>
 
       {[0, 25, 50, 75, 100].map((g) => {
         const y = base - (g / 100) * span;
@@ -47,35 +48,34 @@ export function AmbiguityBars() {
 
 export function TightnessVsDim() {
   const root = 'fig-tight';
-  const py = (r: number) => 300 - (r / 13) * 200;
+  const py = (r: number) => 300 - (r / 100) * 200;
+  // Median sampled width / exact width, from the same 3% evaluation.
   const pts = [
-    { d: 'd = 30', x: 200, lo: 2.8, hi: 3.7 },
-    { d: 'd = 61', x: 400, lo: 4.4, hi: 6.2 },
-    { d: 'd = 104', x: 600, lo: 8.2, hi: 12.3 },
+    { d: 'Breast Cancer (d = 30)', x: 200, coverage: 52 },
+    { d: 'German Credit (d = 61)', x: 400, coverage: 40 },
+    { d: 'Adult (d = 101)', x: 600, coverage: 19 },
   ];
   return (
     <svg viewBox="0 0 760 340" style={svgStyle} className={root} role="img"
-      aria-label="The certificate tightness ratio grows with dimension: about 3x at d=30, 5x at d=61, and 10x at d=104.">
+      aria-label="At 3 percent loss tolerance, sampled coefficient ranges cover a median of 52 percent of the exact width on Breast Cancer, 40 percent on German Credit, and 19 percent on Adult.">
       <style>{figureCss(root)}</style>
       <rect className="panel" x="1" y="1" width="758" height="338" rx="14" />
-      <text className="ttl" x="28" y="40" fontSize="18">The fast certificate gets looser in higher dimensions</text>
-      <text className="sub" x="28" y="64" fontSize="13">Ratio of the closed-form interval to the true (sampled) interval. Closer to 1 means tighter.</text>
+      <text className="ttl" x="28" y="40" fontSize="18">How much of the coefficient range the samples cover</text>
+      <text className="sub" x="28" y="64" fontSize="13">Median sampled width / exact width, with 2,000 draws at a 3% loss tolerance.</text>
 
       <line className="edge" x1="90" y1="300" x2="690" y2="300" strokeWidth="1.5" />
       <line className="edge" x1="90" y1="100" x2="90" y2="300" strokeWidth="1.5" />
-      {[1, 5, 10].map((r) => (
+      {[0, 25, 50, 75, 100].map((r) => (
         <g key={r}>
-          <line className="edge" x1="90" y1={py(r)} x2="690" y2={py(r)} strokeWidth="1" opacity="0.5" strokeDasharray={r === 1 ? '4 4' : undefined} />
-          <text className="mut" x="80" y={py(r) + 4} fontSize="11" textAnchor="end">{r}×</text>
+          <line className="edge" x1="90" y1={py(r)} x2="690" y2={py(r)} strokeWidth="1" opacity="0.5" />
+          <text className="mut" x="80" y={py(r) + 4} fontSize="11" textAnchor="end">{r}%</text>
         </g>
       ))}
-      <text className="mut" x="694" y={py(1) + 4} fontSize="11">tight</text>
-
       {pts.map((p) => (
         <g key={p.d}>
-          <line x1={p.x} y1={py(p.lo)} x2={p.x} y2={py(p.hi)} stroke={AMBER} strokeWidth="10" strokeLinecap="round" opacity="0.85" />
-          <text className="lbl" x={p.x + 22} y={(py(p.lo) + py(p.hi)) / 2 + 4} fontSize="12">{p.lo}–{p.hi}×</text>
-          <text className="lbl" x={p.x} y="320" fontSize="13" textAnchor="middle">{p.d}</text>
+          <rect x={p.x - 40} y={py(p.coverage)} width="80" height={300 - py(p.coverage)} rx="4" fill={AMBER} fillOpacity="0.85" />
+          <text className="lbl" x={p.x} y={py(p.coverage) - 10} fontSize="13" textAnchor="middle">{p.coverage}%</text>
+          <text className="lbl" x={p.x} y="320" fontSize="12" textAnchor="middle">{p.d}</text>
         </g>
       ))}
     </svg>
@@ -124,33 +124,30 @@ export function McrBars() {
 
 export function EpsilonSweep() {
   const root = 'fig-eps';
-  const pxX = (e: number) => 90 + (e / 10) * 600;
-  const pxY = (a: number) => 300 - (a / 100) * 200;
+  const pxX = (e: number) => 90 + (e / 30) * 600;
+  const pxY = (a: number) => 300 - (a / 35) * 200;
+  // Breast Cancer full, C=1: 1%, 3%, and the CV tolerance in evaluation.json.
   const curve = [
-    [0.5, 8.8], [1, 12], [2, 25], [3, 38], [5, 50], [7, 56], [10, 60.8],
+    [1, 2.8], [3, 6.2], [26.3, 27.6],
   ];
   const pts = curve.map(([e, a]) => `${pxX(e)},${pxY(a)}`).join(' ');
   return (
     <svg viewBox="0 0 760 340" style={svgStyle} className={root} role="img"
-      aria-label="Ambiguity versus loss tolerance on Breast Cancer: it rises fastest in the 1 to 5 percent band.">
+      aria-label="Exact ambiguity on Breast Cancer is 2.8 percent at 1 percent relative loss tolerance, 6.2 percent at 3 percent, and 27.6 percent at the 26.3 percent cross-validation tolerance.">
       <style>{figureCss(root)}</style>
       <rect className="panel" x="1" y="1" width="758" height="338" rx="14" />
-      <text className="ttl" x="28" y="40" fontSize="18">Ambiguity rises fastest in a narrow tolerance band</text>
-      <text className="sub" x="28" y="64" fontSize="13">Breast Cancer: how ambiguity grows as the loss tolerance ε is loosened.</text>
-
-      {/* phase transition band */}
-      <rect x={pxX(1)} y="100" width={pxX(5) - pxX(1)} height="200" fill={AMBER} fillOpacity="0.12" />
-      <text className="mut" x={(pxX(1) + pxX(5)) / 2} y="118" fontSize="11" textAnchor="middle">rapid-change region</text>
+      <text className="ttl" x="28" y="40" fontSize="18">Ambiguity at three loss tolerances</text>
+      <text className="sub" x="28" y="64" fontSize="13">Breast Cancer, 30 features, C = 1. Exact flip rates; the rightmost point uses the CV tolerance.</text>
 
       <line className="edge" x1="90" y1="300" x2="690" y2="300" strokeWidth="1.5" />
       <line className="edge" x1="90" y1="100" x2="90" y2="300" strokeWidth="1.5" />
-      {[0, 25, 50, 75].map((a) => (
+      {[0, 10, 20, 30].map((a) => (
         <text key={a} className="mut" x="80" y={pxY(a) + 4} fontSize="11" textAnchor="end">{a}%</text>
       ))}
-      {[0.5, 1, 3, 5, 10].map((e) => (
+      {[0, 5, 10, 20, 30].map((e) => (
         <text key={e} className="mut" x={pxX(e)} y="320" fontSize="11" textAnchor="middle">{e}%</text>
       ))}
-      <text className="mut" x="390" y="336" fontSize="12" textAnchor="middle">loss tolerance ε</text>
+      <text className="mut" x="390" y="336" fontSize="12" textAnchor="middle">tolerance as a percentage of optimal loss</text>
 
       <polyline points={pts} fill="none" stroke={TEAL} strokeWidth="2.5" />
       {curve.map(([e, a]) => (

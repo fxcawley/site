@@ -1,0 +1,181 @@
+\documentclass{resume} % Use the custom resume.cls style
+\usepackage{times}
+\usepackage{paralist}
+
+\usepackage[left=0.5in,top=0.2in,right=0.5in,bottom=0.5in]{geometry} % Adjusted margins
+\newcommand{\tab}[1]{\hspace{.2667\textwidth}\rlap{#1}} 
+\newcommand{\itab}[1]{\hspace{0em}\rlap{#1}}
+\name{Liam Cawley} % Your name
+\address{+1 (917) 319-9518 \\ New York, NY \\ \href{mailto:cawleyl@umich.edu}{cawleyl@umich.edu} \\ github.com/fxcawley}
+\usepackage{setspace}
+
+\begin{document}
+\begin{spacing}{0.9}
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION SECTION
+%----------------------------------------------------------------------------------------
+\vspace{-0.5em}
+
+
+\begin{rSection}{Education}
+{\bf UNIVERSITY OF MICHIGAN}, {\bf College of Engineering} \hfill {May 2025}\\
+{\bf Bachelor of Engineering}, Computer Science Engineering, Minor in Mathematics
+\end{rSection}
+\vspace{-0.75em}
+
+%----------------------------------------------------------------------------------------
+%	RELEVANT COURSEWORK
+%----------------------------------------------------------------------------------------
+
+\begin{rSection}{Coursework}
+\vspace{-0.25em}
+\begin{inparaitem}
+    \item Random Numerical Linear Algebra
+    \item Principles of Machine Learning
+    \item Science of Language Models
+    \item Game Theory
+    \item Linear Algebra
+\end{inparaitem}
+\vspace{-0.5em}
+
+\begin{inparaitem}
+    \item Graph Algorithms
+    \item Mathematics of Finance
+    \item Probability Theory
+    \item Randomness and Computation
+    \item Matrix Algebra
+    \item Computer Vision 
+\end{inparaitem}
+\end{rSection}
+\vspace{-0.75em}
+
+
+\begin{rSection}{Experience}
+\vspace{-0.5em}
+
+
+\textbf{Machine Learning Engineer} \hfill May 2025 -- Present \\
+KLA Corporation \hfill \textit{Ann Arbor, MI}
+\vspace{-0.5em}
+
+\begin{itemize}\itemsep 0pt
+    \item Led backend implementation of a production ETL and inference pipeline (DAL) that served proprietary encrypted vision models as a child of a legacy 12-microservice, 8 compute node Docker swarm (DART) deployed to on prem 12-GPU rack. 
+    
+    \item Developed a hybrid local/remote inter-process communication model, utilizing POSIX Shared Memory (/dev/shm) for zero-copy local fast-path IPC on single-node GPU workers, and gRPC for cross-node inter-service communication.
+
+    \item Led release engineering for target-node deployments, including appsettings configuration, dependency validation, service health checks, and CI/CD orchestration across Docker Swarm nodes.
+    
+    \item Built an AI analysis service with Gemma-4-26B-A4B served via  vLLM container with TensorRT (orchestrated with LangGraph) with multiple subagents, RAG, in-memory session management, and 20 integrated tools with realtime DART service integration. 
+    
+    \item Awarded 1st Place at KLA's global algorithms conference for developing a Physics-Informed Neural Network system and presenting its technical roadmap to senior division leadership.
+        
+
+\end{itemize}
+\vspace{-0.25em}
+
+\textbf{High Performance Computing Intern} \hfill May 2024 -- Aug 2024 \\
+KLA Corporation \hfill \textit{San Jose, CA}
+\vspace{-0.5em}
+
+\begin{itemize}\itemsep 0pt
+  \item Built a proprietary vision model system as a proof of the hypothesis that physical chip layout geometries could be associated with systematic occurrences of atomic-scale transistor defects.
+ 
+  \item Co-authored a high-performance design-geometry parser by extending KLA’s internal \textbf{GDSTK} C++ engine, optimizing the extraction and localization of layout structures for specific wafer defect locations.
+ 
+  \item Implemented custom CUDA rasterization and defect-centered cropping operations bound to Python via \textbf{pybind11}, accelerating geometry-to-tensor rendering on the GPU and bypassing slow CPU-to-GPU memory copies.
+ 
+  \item Engineered an asynchronous data loader using \textbf{NVIDIA DALI} to pipeline and overlap file prefetching and GPU tensor transfers with active deep learning inference via concurrent CUDA streams.
+ 
+  \item Demonstrated that design-derived feature vectors performed on-par with legacy physical optical metrics, significantly improving the classification accuracy of production Gradient Boosted Decision Tree (GBDT) ensembles.
+\end{itemize}
+\vspace{-0.25em}
+
+\textbf{Machine Learning Intern} \hfill May 2023 -- Aug 2023 \\
+EMAG Technologies, Inc. \hfill \textit{Ann Arbor, MI}
+\vspace{-0.5em}
+
+\begin{itemize}\itemsep 0pt
+  \item Built a closed-loop calibration application for active electronically scanned phased-array radar, optimizing 6-bit discrete phase-shifter and attenuator states on Anokiwave AWS-0103 beamforming ICs.
+ 
+  \item Engineered the optimization loop around physical latency constraints, utilizing metaheuristic search algorithms (Genetic Algorithms / PSO) integrated with a software-state caching layer to prevent redundant SPI programming and SDR digitizing runs.
+ 
+  \item Developed a CNN-based physical surrogate model that treated the 16$\times$16 aperture array as a 2D grid, learning mutual coupling and non-linear AM/PM distortion to predict optimal phase adjustments in software and bypass slow physical measurements.
+ 
+  \item Achieved a \textbf{6.5$\times$ reduction} in post-calibration beam synthesis error compared to the baseline Sample Matrix Inversion (SMI) method under representative hardware-in-the-loop test configurations.
+  \vspace{-0.25em}
+
+\end{itemize}
+\vspace{-0.5em}
+
+\end{rSection}
+
+\begin{rSection}{Projects} 
+\vspace{-0.5em}
+
+\textbf{Autonomous Fixed-Wing UAV with Object Classification} \hfill {\small C++, Python, OpenCV, ArduPilot, QGroundControl}
+
+\vspace{-0.5em}
+\begin{itemize}\itemsep -2pt
+  \item Built a fully autonomous 1.6m fixed-wing UAV (MFD Crosswind Mini) for the AUVSI search-and-rescue competition; integrated Pixhawk Cube Orange, RTK GPS, dual-camera payload, and 900\,MHz telemetry into a CG-constrained airframe.
+  \item Tuned ArduPilot's \textbf{EKF3 state estimation} and closed-loop control loops (\textbf{PID / TECS}) to achieve stable autonomous takeoff, waypoint-navigation, and failsafe maneuvers under variable wind conditions.
+  \item Developed an Object Detection, Classification, and Localization (ODCL) pipeline utilizing a \textbf{YOLOv5} model to detect and geolocate targets in real-time from high-resolution Sony A6000 aerial imagery.
+  \vspace{-0.25em}
+
+\end{itemize}
+\vspace{-0.5em}
+
+
+\end{rSection}
+
+\begin{rSection}{Selected Open-Source / Research}
+\vspace{-0.5em}
+
+\textbf{MetaRep (ICL $\leftrightarrow$ Kernel Ridge):} theory + experiments validating ridge-like ICL; reproducible harnesses and proofs. \\
+\textbf{StableGLM (Rashomon sets for GLMs):} $\varepsilon$-Rashomon membership/certificates and set-level interpretability metrics. \\
+\end{rSection}
+\vspace{-0.5em}
+
+\vspace{-0.5em}
+\vspace{-0.5em}
+\vspace{-0.5em}
+
+
+
+
+
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE SECTION
+%----------------------------------------------------------------------------------------
+
+
+
+%----------------------------------------------------------------------------------------
+%	PROJECTS SECTION
+%----------------------------------------------------------------------------------------
+
+
+%----------------------------------------------------------------------------------------
+%	SKILLS SECTION
+%----------------------------------------------------------------------------------------
+
+\begin{rSection}{Skills}
+\vspace{-0.2em}
+
+\textbf{Programming Languages}: Python, C++, C, \text{C#}, TypeScript, Java, SQL, MATLAB, \LaTeX, Mojo
+\vspace{-0.5em}
+
+\textbf{HPC \& Acceleration}: CUDA, NVIDIA DALI, pybind11, Nsight Systems, gRPC / Protocol Buffers, GDSTK, OpenMP
+\vspace{-0.5em}
+
+\textbf{ML \& Infrastructure}: PyTorch, TensorFlow, Docker, Kubernetes, Docker Swarm, Postgres, Git, XGBoost / GBDTs
+\vspace{-0.5em}
+
+\textbf{Activities}: UM HuggingFace Admin, UM Hackers Quant Team, FPV Building/Racing, Archery 
+\vspace{-1.5em}
+
+\end{rSection}
+
+\end{spacing}
+\end{document}

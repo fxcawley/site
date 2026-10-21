@@ -17,6 +17,6 @@ Though I'm quite satisfied showing my work on [GitHub](https://github.com/fxcawl
 
 Apart from all these, since I use $\LaTeX$ a **LOT**, and the only way I know how to render $\LaTeX$ formula on GitHub is *ugly*, and it can only render fixed color texts, hence this makes me made my mind eventually. For example, we can easily print out some beautiful formula like
 
-$$ \frac{1}{m(B(x, r))}\int_{B(x, r)}\left\vert f(y) - f(x) \right\vert\,\mathrm{d}y = 0 \text{ for a.e. } x $$
+$$ \lim_{r \to 0^+}\frac{1}{m(B(x, r))}\int_{B(x, r)}\left\vert f(y) - f(x) \right\vert\,\mathrm{d}y = 0 \text{ for a.e. } x $$
 
 for $f\in L^1$, which is the statement of [Lebesgue Differentiation Theorem](https://en.wikipedia.org/wiki/Lebesgue_differentiation_theorem).

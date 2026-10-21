@@ -5,21 +5,17 @@ date: 2025-02-17
 excerpt: Notes on what happens to LP relaxations when connectivity requirements go from uniform to non-uniform, and how Jain's iterative rounding recovers a 2-approximation. From EECS 598 with Euiwoong Lee.
 ---
 
-Well designed infrastructure is often taken for granted. What does it take to design a power utility well? A specific failure mode of a public service network (e.g., water line, power line, internet cables, etc) motivates the exploration of the tradeoffs between cost and reliability.
-
-When a hospital loses grid power, the margin for error is measured in minutes. Operating rooms, ventilators, and the refrigerators holding blood and vaccines all depend on the supply "staying up." The same is true of emergency dispatch centers, water treatment plants, and the networks that carry financial transactions. Utilities and network operators guard against this by building in the ability to "stay up" when their main transmission channels are disrupted. Here, this means enforcing redundancy constraints such that no singular failed line, severed cable, or fallen tree can isolate a critical site. 
-
-Of course, there is a price to required redundancy, and as we will see, its price is non-uniform across sites. A hospital might have to survive several simultaneous failures, an ordinary substation only one, and a storage yard none at all. Designing the least-cost network that still meets every site's reliability requirement is, abstractly, the Steiner Network Design problem, and the step from connecting everything to connecting everything with varying degrees of redundancy marks a sharp jump in computational difficulty. 
+A minimum spanning tree connects every vertex at the least cost, but loses connectivity when any edge fails. A simple graph model of fault tolerance assigns a required number of edge-disjoint paths between selected pairs: perhaps three from a source to a hospital, two to a substation, and one to a depot.
 
 <NetworkRedundancy />
 
-The Steiner Network Design problem asks for the cheapest subgraph of a given graph that meets prescribed edge-connectivity requirements between specified pairs of vertices. When those requirements are all equal to 1 and every vertex participates, this reduces to the minimum spanning tree, which is solvable in polynomial time. When the requirements are allowed to vary, the problem becomes NP-hard, and the clean structure that makes MST exactly solvable no longer applies.
+The Steiner Network Design problem asks for the cheapest subgraph of a given graph that meets these pairwise edge-connectivity requirements. Requiring one path between every pair of vertices gives the minimum spanning tree problem. Requiring connectivity only among a specified set of terminals gives Steiner Tree, which is already NP-hard; allowing higher requirements adds redundancy to the design.
 
 <MstToSteiner />
 
-To understand what breaks when requirements vary, it helps to see MST through the lens of linear programming. A linear program (LP) is an optimization problem with a linear objective and linear constraints, but with variables allowed to take continuous values rather than being restricted to integers. Many combinatorial problems can be written as integer programs; their LP relaxations drop the integrality requirement, often yielding problems that are efficiently solvable. When the relaxation happens to have integral optimal solutions, the original hard problem becomes tractable. MST is one such case, although, as the next section shows, the formulation responsible is a more careful one than the cut relaxation.
+Linear programming gives a way to compare these problems. A linear program (LP) has a linear objective and linear constraints, with variables allowed to take continuous values. Many combinatorial problems can be written as integer programs; their LP relaxations drop the integrality requirement. An efficiently solvable integral relaxation gives an exact algorithm for the integer problem. MST has such a formulation, though the simpler cut relaxation below can have fractional optima.
 
-What makes the problem worth studying in some detail, at least in the context of this course, is that the transition from MST to general Steiner networks is clean. The structural properties that make MST tractable (submodularity of cut functions, the matroid structure that makes the spanning-tree polytope integral) do not vanish entirely; they degrade in a way that can be precisely characterized, and the 2-approximation algorithm due to Jain (2001) exploits exactly what remains.
+[Jain's (2001) algorithm](https://doi.org/10.1007/s004930170004) uses the structure of tight cut constraints to find an edge whose fractional value is at least $1/2$. Selecting such edges one at a time gives a solution costing at most twice the LP optimum.
 
 These are reworked notes from EECS 598-001 (Hardness of Approximation) with Euiwoong Lee, organized around that transition.
 
@@ -39,15 +35,17 @@ $$
 
 Each constraint requires that for every proper nonempty subset $S$ of $V$, at least one selected edge crosses the cut $(S, V \setminus S)$. This is equivalent to requiring connectivity.
 
-It is tempting to expect this relaxation to be integral, but it is not. On the triangle with unit edge costs, setting every $x_e = 1/2$ satisfies all three cut constraints at cost $3/2$, while any spanning tree costs $2$; on the $n$-cycle the same construction gives cost $n/2$ against a tree cost of $n-1$, so the ratio approaches $2$. What actually makes MST tractable is not this formulation but the matroid structure of spanning trees. Edmonds' spanning-tree polytope, described by the rank constraints $\sum_{e \subseteq S} x_e \leq |S| - 1$ together with $\sum_e x_e = |V| - 1$, is integral, and greedy algorithms like Kruskal's optimize over it directly. The cut-covering LP written above is the weaker relaxation that generalizes to the Steiner setting, and its worst-case looseness, already a factor of $2$ on the cycle, is what the rest of this post is about.
+Relaxing the variables to $0 \leq x_e \leq 1$ permits fractional solutions. On the triangle with unit edge costs, setting every $x_e = 1/2$ satisfies all three cut constraints at cost $3/2$, while any spanning tree costs $2$. On the $n$-cycle the same construction gives cost $n/2$ against a tree cost of $n-1$, so the ratio approaches $2$.
+
+Edmonds' spanning-tree polytope uses stronger constraints: $x_e \geq 0$, $\sum_{e \subseteq S}x_e \leq |S|-1$ for nonempty $S \subseteq V$, and $\sum_e x_e = |V|-1$. It is integral, reflecting the matroid structure of spanning trees. The weaker cut-covering relaxation is the one that extends to Steiner networks.
 
 ## The general problem
 
-Now suppose the connectivity requirements are non-uniform. A function $r: V \times V \to \mathbb{Z}_{\geq 0}$ specifies, for each pair $(u,v)$, the number of edge-disjoint paths required between them.
+Now allow non-uniform requirements in an undirected graph. A symmetric function $r: V \times V \to \mathbb{Z}_{\geq 0}$ specifies, for each pair of distinct vertices $(u,v)$, the number of edge-disjoint paths required between them.
 
 > **Steiner Network Design.** Given $G = (V, E)$ with costs $c(e) \geq 0$ and requirements $r(u,v)$, find the minimum-cost subgraph $H \subseteq G$ such that the edge-connectivity $\lambda_H(u,v) \geq r(u,v)$ for all pairs.
 
-When all non-zero requirements equal 1 and only a subset of vertices need to be connected, this is the Steiner Tree problem, which is already NP-hard. Allowing requirements of 2 or more yields the general Steiner Network problem.
+Steiner Tree is the special case with $r(u,v)=1$ for every pair in a terminal set $T$, and zero otherwise. Arbitrary required pairs with demands in $\{0,1\}$ give Steiner Forest. Higher demands require redundant paths.
 
 The practical motivation for higher connectivity requirements comes from Menger's theorem: requiring $r(u,v) = k$ edge-disjoint paths is equivalent to requiring that $u$ and $v$ remain connected after the removal of any $k-1$ edges. This is the standard formalization of fault tolerance in network design.
 
@@ -59,72 +57,75 @@ The integer program follows the same pattern as MST. Define the **cut demand** f
 
 $$r(S) = \max_{\substack{u \in S,\; v \notin S}} r(u, v)$$
 
-Then:
+Set $r(\emptyset)=r(V)=0$. Each available edge can be selected once:
 
 $$
 \begin{aligned}
 \min \quad & \sum_{e \in E} c(e)\, x_e \\
 \text{s.t.} \quad & \sum_{e \in \delta(S)} x_e \geq r(S) \quad \forall\; \emptyset \subset S \subset V \\
-& x_e \in \{0, 1, 2, \ldots\} \quad \forall\; e \in E
+& x_e \in \{0, 1\} \quad \forall\; e \in E
 \end{aligned}
 $$
 
-Relaxing to $x_e \geq 0$ gives exponentially many constraints, but the ellipsoid method with a min-cut separation oracle solves the LP in polynomial time.
+Relaxing to $0 \leq x_e \leq 1$ gives exponentially many cut constraints. They can be checked in polynomial time by finding a minimum $u$–$v$ cut with capacities $x_e$ for each pair with positive demand. Any cut with capacity below $r(u,v)$ violates a constraint. This separation oracle allows the ellipsoid method to solve the LP without listing every cut.
 
-The LP optimum $\text{OPT}_{\text{LP}}$ lower-bounds the integer optimum $\text{OPT}_{\text{IP}}$. Their ratio, the integrality gap, measures how much is lost by relaxing integrality. For this cut-covering relaxation the gap is already $2$ in the worst case (the $n$-cycle above, even with all requirements equal to $1$), and Jain's rounding shows a factor of $2$ is achievable, so the gap of the relaxation is exactly $2$.
+The LP optimum $\text{OPT}_{\text{LP}}$ lower-bounds the integer optimum $\text{OPT}_{\text{IP}}$. The integrality gap is the worst-case ratio $\text{OPT}_{\text{IP}}/\text{OPT}_{\text{LP}}$. The $n$-cycle gives ratios approaching $2$, even with all requirements equal to $1$. Jain's rounding supplies the matching upper bound, so this relaxation's integrality gap is exactly $2$.
 
-What does improve as the problem specializes is the best approximation ratio obtainable in polynomial time. Minimum spanning tree is solved exactly (ratio $1$). Steiner Tree admits a $\ln 4 \approx 1.39$ approximation (Byrka, Grandoni, Rothvoß, and Sanità, 2010), and its exact integrality gap for the strongest known relaxations is still open, with lower bounds around $1.2$. For general Steiner Network the best known ratio is $2$, due to Jain (2001), and whether a polynomial-time algorithm can beat $2$ remains open.
+Approximation guarantees for the underlying problems can be better than this cut LP's gap. MST is solved exactly. Steiner Tree admits a $\ln 4+\varepsilon$ approximation for any fixed $\varepsilon>0$ (Byrka, Grandoni, Rothvoß, and Sanità, 2010), using a stronger relaxation. Jain's guarantee for general Steiner Network is $2$.
 
 <IntegralityGapLadder />
 
 ## Submodularity and uncrossing
 
-The LP relaxation is no longer integral, but the question is how much structure remains. The remaining structures will determine whether other approximation algorithms can still succeed.
+The rounding argument uses two properties of cuts: submodularity of their capacities and an uncrossing property of tight constraints.
 
-The surviving structures are submodularity and uncrossing.
-
-**Submodularity.** The cut capacity function, that is, the number of edges crossing a cut, is submodular:
+**Submodularity.** For fixed nonnegative capacities $x_e$, the cut capacity $f(S)=\sum_{e\in\delta(S)}x_e$ is submodular:
 
 $$f(A) + f(B) \geq f(A \cup B) + f(A \cap B)$$
 
-This is what makes min-cut computable in polynomial time, and consequently what allows the LP to be solved despite having exponentially many constraints.
+Undirected cut capacities also satisfy $f(A)+f(B)\geq f(A\setminus B)+f(B\setminus A)$.
 
 The demand function $r(S) = \max_{u \in S,\, v \notin S} r(u,v)$ is *weakly* (skew) supermodular: for any two sets $A$ and $B$, at least one of
 
 $$r(A) + r(B) \leq r(A \cup B) + r(A \cap B) \qquad \text{or} \qquad r(A) + r(B) \leq r(A \setminus B) + r(B \setminus A)$$
 
-holds. It is not supermodular in the full sense, but this weaker property is exactly what Jain's analysis requires. The interaction between the submodular capacity and the weakly supermodular demand is what drives the argument.
+holds. The alternative involving set differences is needed when the union/intersection inequality fails.
 
-**Uncrossing.** A family of sets $\mathcal{F} \subseteq 2^V$ is **laminar** if any two members are either disjoint or nested. Laminar families have size at most $2|V| - 1$.
+**Uncrossing.** A family of sets $\mathcal{F} \subseteq 2^V$ is **laminar** if any two members are either disjoint or nested. A laminar family of nonempty sets has size at most $2|V| - 1$.
 
-At an optimal LP extreme point, the tight constraints (those binding with equality) may initially cross in complicated ways. But if two tight cuts $S$ and $T$ cross, then the case of weak supermodularity that pairs $S \cap T$ with $S \cup T$ applies, and combined with submodularity of the capacity it forces both to be tight as well:
+A cut $S$ is *tight* when its constraint holds with equality, $f(S)=r(S)$. Suppose tight cuts $S$ and $T$ cross. In the branch of weak supermodularity involving their intersection and union, feasibility and submodularity give:
 
-$$r(S \cap T) + r(S \cup T) \geq r(S) + r(T)$$
+$$
+\begin{aligned}
+r(S)+r(T) &= f(S)+f(T) \\
+&\geq f(S\cap T)+f(S\cup T) \\
+&\geq r(S\cap T)+r(S\cup T) \\
+&\geq r(S)+r(T).
+\end{aligned}
+$$
 
-$$|\delta(S \cap T)| + |\delta(S \cup T)| \leq |\delta(S)| + |\delta(T)|$$
+Equality must hold throughout, so the intersection and union are tight. In the other branch, the same argument makes $S\setminus T$ and $T\setminus S$ tight.
 
-Iterating this procedure yields a laminar family of tight constraints, a reduction from exponentially many constraints to at most $2|V| - 1$. This structural result enables Jain's iterative rounding, which achieves the best known approximation bound of 2 for the general Steiner Network problem.
+Uncrossing allows the tight cut constraints needed to describe an extreme point to be chosen as a laminar family, after accounting for variables at their bounds. The LP still contains all its cut constraints; the laminar basis is used in the analysis of the selected extreme point.
 
 <Uncrossing />
 
 ## Jain's iterative rounding
 
-The algorithm itself is straightforward:
+The iterative rounding algorithm is:
 
-1. Solve the LP relaxation.
-2. If any variable satisfies $x_e \geq 1/2$, round it up to $\lceil x_e \rceil$ and fix it.
-3. Remove the fixed edge, update the problem, and repeat.
+1. Solve the residual LP and obtain an optimal extreme point. Discard edges with $x_e=0$.
+2. Select an edge with $x_e\geq 1/2$ and fix its value to $1$.
+3. Remove that edge from the remaining instance, reduce the demand of each cut it crosses by one, and repeat until the selected edges satisfy all requirements.
 
-The argument that this terminates relies on the laminar structure established above: at every extreme point, the number of tight constraints is at most $2|V| - 1$, which bounds the number of fractional variables, and a counting argument ensures that at least one variable is $\geq 1/2$.
+Jain's theorem guarantees the edge required in step 2 whenever the residual problem is nontrivial. Its proof uses a counting argument on the laminar basis; the bound on the family's size alone is insufficient. [Chekuri's lecture notes](https://courses.grainger.illinois.edu/cs598csc/sp2009/lectures/lecture_14_draft.pdf) give the full argument.
 
-Since each variable is rounded up by at most a factor of 2 (from $\geq 1/2$ to at most 1), the total cost of the rounded solution satisfies
+Selecting an edge costs at most twice its current fractional contribution. The remaining fractional solution stays feasible for the residual demands, and reoptimizing can only reduce its cost. Charging each selected edge against the corresponding decrease in the LP objective gives
 
 $$\text{cost} \leq 2 \cdot \text{OPT}_{\text{LP}} \leq 2 \cdot \text{OPT}_{\text{IP}}.$$
 
-This gives a 2-approximation in polynomial time for a problem that is NP-hard to solve exactly. No improvement to this ratio has been found in over two decades for the general case.
+Each iteration removes an edge from the residual instance, so the algorithm makes at most $|E|$ LP solves and gives a polynomial-time 2-approximation.
 
 ## Remarks
 
-The Steiner Network problem is useful as a case study in approximation because the gap between MST and the general problem isolates exactly what LP integrality buys and what it costs to lose it. The techniques involved (submodularity of cut functions, uncrossing to obtain laminar families, iterative rounding) appear repeatedly in the network design literature, including in work on survivable network design and related problems covered later in the course.
-
-It is worth noting that the 2-approximation, while the best known, is not known to be tight. Whether the integrality gap for general Steiner Network is strictly less than 2 is an open question.
+The factor $2$ is tight relative to this cut relaxation, as the cycle example shows. A hardness-of-approximation bound would require a separate argument about the underlying problem; MST has the same cut-LP gap and admits an exact algorithm.

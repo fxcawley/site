@@ -11,7 +11,7 @@ export function RashomonSet() {
       <style>{figureCss(root)}</style>
       <rect className="panel" x="1" y="1" width="758" height="358" rx="14" />
       <text className="ttl" x="28" y="40" fontSize="18">Many parameter settings fit almost equally well</text>
-      <text className="sub" x="28" y="64" fontSize="13">The shaded valley holds every model within ε of the best loss. Any of them could be the one your solver returns.</text>
+      <text className="sub" x="28" y="64" fontSize="13">The shaded region contains models within ε of the best loss, including alternatives to the fitted optimum.</text>
 
       <g transform="translate(300,220)">
         <ellipse className="edge" cx="0" cy="0" rx="240" ry="82" strokeWidth="1.5" />
@@ -75,7 +75,7 @@ export function FlatDirection() {
       aria-label="An elongated Rashomon ellipsoid: along its long flat axis the model can change a lot without raising the loss, so explanations are unstable there.">
       <style>{figureCss(root)}</style>
       <rect className="panel" x="1" y="1" width="758" height="338" rx="14" />
-      <text className="ttl" x="28" y="40" fontSize="18">Flat directions are where explanations wobble</text>
+      <text className="ttl" x="28" y="40" fontSize="18">Coefficient changes along a flat direction</text>
       <text className="sub" x="28" y="64" fontSize="13">A small curvature (Hessian eigenvalue) means the coefficients can drift far while the loss barely changes.</text>
 
       <defs>
@@ -129,7 +129,7 @@ export function SignFlipCloud() {
       <style>{figureCss(root)}</style>
       <rect className="panel" x="1" y="1" width="758" height="378" rx="14" />
       <text className="ttl" x="28" y="40" fontSize="18">A coefficient's sign can flip across equally good models</text>
-      <text className="sub" x="28" y="64" fontSize="13">Each bar is one feature's coefficient range over the Rashomon set. Bars that cross zero have no stable sign.</text>
+      <text className="sub" x="28" y="64" fontSize="13">Schematic coefficient ranges over a Rashomon set. Bars that cross zero have no stable sign.</text>
 
       {/* zero line */}
       <line x1={zero} y1="90" x2={zero} y2="330" stroke="var(--fg-muted)" strokeWidth="1.5" strokeDasharray="4 4" />

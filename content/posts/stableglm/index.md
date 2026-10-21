@@ -10,37 +10,25 @@ threadOrder: 1
 
 ## The short version
 
-Interpreting a fitted model usually begins by treating it as *the* model: the one the data singled out, whose coefficients therefore say something about the world. For many problems that premise is shakier than it looks. When features are correlated or the signal is weak, a whole population of different models fit the data almost equally well, and they can disagree about which features matter. Which one you end up examining is then partly an accident of where the solver happened to stop.
+When features are correlated or the signal is weak, many parameter vectors fit the data almost equally well, and they can disagree about which features matter. This can happen even when a regularized model has a unique optimum: the alternatives only need to fall within a chosen loss tolerance.
 
 <RashomonSet />
 
-This is the Rashomon effect, named by Breiman (2001) after the Kurosawa film of contradictory eyewitness accounts. StableGLM is a toolkit for taking it seriously in generalized linear models: rather than interpreting a single fitted model, it characterizes the whole set of near-optimal models and asks which conclusions hold across all of them. The rest of this post develops that idea.
+This is the Rashomon effect, named by Breiman (2001) after the Kurosawa film of contradictory eyewitness accounts. [StableGLM](https://github.com/fxcawley/StableGLM) examines it in generalized linear models. The package is now published as `rashomon-py`; its entry point, `rashomon.audit(model, X, y)`, accepts a fitted scikit-learn linear or logistic regression model and reports which coefficient signs and predicted labels can change across the near-optimal set.
 
-## The problem, more carefully
+## Bootstrap intervals and the Rashomon set
 
-Most interpretability work treats the fitted model as given and asks what it has learned. The implicit assumption is that the model is, in some meaningful sense, *the* model, the one that best explains the data, and whose internal structure therefore reflects the data's structure. But for many practical problems, especially those involving correlated or noisy features, many parameter vectors achieve nearly the same loss. This is the Rashomon effect, named by Breiman (2001) after the Kurosawa film in which several witnesses give contradictory but internally consistent accounts of the same event.
+Bootstrapping resamples the data, refits the estimator, and reports how much the estimates vary. A Rashomon analysis holds the data fixed and examines models within a specified loss tolerance. A narrow bootstrap interval can coexist with a wide range of coefficients across those models.
 
-The difficulty this creates for interpretability is straightforward: if a feature appears important under one near-optimal model but irrelevant under another, the importance ranking is an artifact of which particular optimum the solver happened to find. It is a property of the optimization trajectory, not of the data.
+For an $\ell_2$-penalized GLM, these intervals are mathematically related. To second order, the Rashomon set is a highest-posterior-density region of the Laplace posterior under the prior implied by the penalty. The tolerance determines the region's posterior mass. Penalization also affects the bootstrap: it can hold coefficients close together across refits even along directions poorly determined by the data. Comparing interval widths therefore requires accounting for both the penalty and the tolerance.
 
-## Why standard uncertainty quantification is not enough
+The toolkit computes explicit alternatives: a model with a reversed coefficient sign, or one that assigns a different label to a particular row, while satisfying the loss constraint. The [benchmark post](/posts/stableglm-findings) compares these computations with sampling and the quadratic approximation.
 
-The usual response to uncertainty about a fitted model is to compute bootstrap confidence intervals: resample the data, refit the model, and report the variability of the estimates. But bootstrap CIs address a specific question, namely how much the result depends on the particular sample of data that was collected. They assume that the model structure is correct and that only sampling noise matters. The Rashomon set addresses a different question: how much the result depends on which model was selected from the pool of near-optimal candidates. These are distinct sources of uncertainty, and the second can dominate even when the first is small.
-
-<TwoUncertainties />
-
-Fisher, Rudin, and Dominici (2019) formalize this distinction through Model Class Reliance, showing that a variable's importance can range from strongly positive to strongly negative across models that all achieve nearly the same loss. A bootstrap interval around a single model's importance score will be tight if the sample is large, but it will not reveal that an equally good model assigns the opposite sign to the same feature. The Rashomon interval captures this model selection ambiguity that bootstrap intervals, by construction, cannot see.
-
-The practical consequences extend beyond academic interest. In domains where models inform consequential decisions (credit scoring, clinical risk stratification, recidivism prediction) the Rashomon set has a direct implication for algorithmic fairness. If the set is large, there may exist a near-optimal model that relies less on ethically problematic features than the one the solver returned. Rudin (2019) argues that in such settings, the existence of interpretable and fair alternatives within the Rashomon set means that deploying a black-box model is a choice, not a necessity. The set makes that choice visible: if a less biased model with comparable loss exists, the decision to use the biased one requires justification.
-
-There is also a subtlety about how these two kinds of uncertainty scale with data. Bootstrap CIs shrink as $n$ grows, because sampling noise decreases. Model multiplicity does not necessarily shrink, because it depends on the geometry of the loss surface rather than on the variance of the estimator. Semenova, Rudin, and Parr (2022) show that the Rashomon set can remain large even with abundant data if the underlying phenomenon is underspecified, that is, if the features and model class do not uniquely determine a mapping from inputs to outputs. In such cases, collecting more data resolves sampling uncertainty but leaves model selection ambiguity intact. A practitioner who monitors only bootstrap CIs will see increasing confidence in a result whose foundations remain arbitrary.
-
-## The toolkit
-
-StableGLM is a toolkit for making this problem concrete in the setting of generalized linear models. Rather than examining a single fitted $\hat\theta$, it characterizes the full $\varepsilon$-Rashomon set, the set of all parameter vectors whose loss is within $\varepsilon$ of optimal, and computes interpretability metrics over that set. The question shifts from "what did this model learn?" to "what do all near-optimal models agree on?"
+The set may also contain a model that relies less on a problematic feature, at little cost in predictive performance. This possibility is relevant to Rudin's (2019) argument for interpretable models in consequential settings. The loss constraint supplies candidates; a fairness criterion still has to be specified and evaluated.
 
 ## The geometry of near-optimality
 
-For a GLM with convex loss $L(\theta) = \frac{1}{n}\sum_i \ell(y_i, x_i^\top\theta) + \frac{\lambda}{2}\lVert\theta\rVert^2$, the $\varepsilon$-Rashomon set is
+For a GLM with convex loss $L(\theta) = \frac{1}{n}\sum_i \ell(y_i, x_i^\top\theta) + \frac{\lambda}{2}\theta^\top M\theta$, where $M$ is diagonal with ones for penalized coefficients and zero for an unpenalized intercept, the $\varepsilon$-Rashomon set is
 
 $$\mathcal{R}_\varepsilon = \bigl\{\theta : L(\theta) \leq L(\hat\theta) + \varepsilon\bigr\}.$$
 
@@ -48,32 +36,30 @@ Because the loss is convex, this is a convex sublevel set. Near the optimum, a s
 
 $$\mathcal{E}_\varepsilon = \bigl\{\hat\theta + \Delta : \Delta^\top H \Delta \leq 2\varepsilon\bigr\}.$$
 
-The ellipsoid is analytically tractable. For any linear functional $s^\top\theta$ (for instance, a single coefficient, or a linear combination corresponding to a prediction at a particular point) the extrema over $\mathcal{E}_\varepsilon$ have closed forms involving $\lVert s \rVert_{H^{-1}}$. For exact computations over the true (non-ellipsoidal) Rashomon set, the toolkit uses hit-and-run sampling with a membership oracle.
+When $H$ is positive definite, the range of any linear functional $s^\top\theta$ over the ellipsoid is $s^\top\hat\theta \pm \sqrt{2\varepsilon\,s^\top H^{-1}s}$. This gives coefficient ranges and ranges of the linear predictor in closed form. For logistic loss, the ellipsoid is a local approximation; `functional_range()` instead solves the constrained optimization problem over the true loss sublevel set. Hit-and-run sampling explores that set, but finite samples generally miss its extrema.
 
-The shape of the ellipsoid is informative in itself. Directions in parameter space along which the Hessian has small eigenvalues correspond to "flat" directions of the loss landscape, directions in which the model can change substantially without incurring much additional loss. These are the directions along which explanations are least stable.
+Small Hessian eigenvalues identify directions in which coefficients can move substantially with little increase in loss. Correlated features often produce such directions because changes in their coefficients can offset one another.
 
 <FlatDirection />
 
 ## What gets computed
 
-The toolkit produces several quantities, each measuring a different aspect of explanation stability:
+The toolkit reports:
 
-**Prediction bands.** For each data point, the range of predictions $[p_i^{\min}, p_i^{\max}]$ across all models in $\mathcal{R}_\varepsilon$. Points with wide bands are ambiguous in a precise sense: the model's output depends on which near-optimal parameter vector was selected.
+**Prediction bands.** For each data point, a range of predictions $[p_i^{\min}, p_i^{\max}]$. The audit estimates these from sampled models, so the reported intervals can be narrower than the full ranges over $\mathcal{R}_\varepsilon$.
 
-**Variable Importance Clouds.** The range of each coefficient $\theta_j$ across the Rashomon set. A feature whose coefficient changes sign within $\mathcal{R}_\varepsilon$ has unstable importance: it could plausibly be either helpful or harmful, depending on the model.
+**Variable Importance Clouds.** The variation of each coefficient $\theta_j$ across the Rashomon set. A coefficient that changes sign has an unstable direction of association. The audit computes its extrema by convex optimization when the problem size allows, and labels sampled ranges when it uses them.
 
 <SignFlipCloud />
 
-**Model Class Reliance.** The range of permutation-based feature importance scores across the set. This addresses a slightly different question: not whether the coefficient is stable, but whether the feature's contribution to predictive accuracy is stable.
+**Model Class Reliance.** Following Fisher, Rudin, and Dominici (2019), this examines variation in permutation-based feature importance across the set. The implementation reports extrema over sampled models. A negative importance score means that permuting the feature improved the chosen evaluation score for that model; it does not establish that removing the feature and refitting would help.
 
-**Predictive multiplicity metrics.** Ambiguity (the fraction of points whose predicted label changes across $\mathcal{R}_\varepsilon$), discrepancy (maximum pairwise disagreement), and Rashomon capacity (a measure of the effective volume of the set).
+**Predictive multiplicity metrics.** Ambiguity is the fraction of points whose label can change across $\mathcal{R}_\varepsilon$. A different model may account for each flip. Discrepancy asks how many labels a single competing model changes relative to the fitted model; the lower-level API also estimates maximum pairwise disagreement. The toolkit includes a volume diagnostic for the approximating ellipsoid.
 
 ## Calibrating the tolerance
 
-The parameter $\varepsilon$ controls the size of the Rashomon set. Too small and the set contains only models indistinguishable from $\hat\theta$; too large and it admits models that are meaningfully worse. The toolkit supports three calibration strategies: a proportional slack ($\varepsilon = \rho \cdot L(\hat\theta)$), a likelihood-ratio inversion ($2n\varepsilon \approx \chi^2_{d,1-\alpha}$), and a high-dimensional correction for settings where $d/n$ is not negligible.
+The parameter $\varepsilon$ controls how much additional loss is acceptable. The audit defaults to one standard error of the cross-validated loss. It also accepts a proportional slack ($\varepsilon = \rho \cdot L(\hat\theta)$) and likelihood-ratio calibrations. For an unpenalized fit under the usual asymptotic assumptions, $2n\varepsilon = \chi^2_{d,1-\alpha}$ gives a joint confidence region; using $\chi^2_{1,1-\alpha}$ instead gives profile-likelihood intervals for individual coefficients.
 
-## Connection to the broader theme
+Results should be reported with the tolerance. Whether the set shrinks as more data arrive depends on identifiability and on how $\varepsilon$ scales with sample size.
 
-This project is part of a broader interest in what are called self-models: understanding a model's own computations, behaviors, and limitations, rather than just its predictions. StableGLM addresses this from the perspective of *explanation multiplicity*: when the model class admits many near-optimal solutions, how much of what we claim to have learned from the model is actually determined by the data?
-
-The companion post on [MetaRepICL](/posts/metarepicl) approaches a related question from the opposite direction: rather than asking whether explanations are stable across models, it asks whether our mechanistic understanding of what a model *computes* is stable across input distributions. Both projects share the premise that understanding a model requires understanding the boundaries of that understanding.
+The companion post on [MetaRepICL](/posts/metarepicl) examines the stability of a different kind of explanation: an account of the algorithm a transformer implements, tested across input distributions.

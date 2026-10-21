@@ -2,68 +2,70 @@
 title: "Benchmarks, Tightness, and What the Data Says"
 tags: ["interpretability", "rashomon-sets", "generalized-linear-models", "benchmarks", "predictive-multiplicity"]
 date: 2026-03-15
-excerpt: Running StableGLM on real datasets. The toolkit works, the bounds are useful in low dimension, and German Credit has 85% ambiguity at 3% loss tolerance. No feature is indispensable.
+excerpt: Comparing exact coefficient ranges and label-flip tests with sampling and the Hessian approximation on three classification datasets.
 thread: "stableglm"
 threadTitle: "StableGLM"
 threadOrder: 2
 ---
 
-The [initial post](/posts/stableglm) described the toolkit's design: ellipsoidal approximation, hit-and-run sampling, and a collection of interpretability metrics computed over the Rashomon set. This post covers what happened when the toolkit was applied to real data, and the results are more informative than I expected.
+The [initial post](/posts/stableglm) described the toolkit's design: characterize the set of near-optimal GLMs, then measure how much their coefficients and predictions can vary. The evaluation compares three ways of computing those quantities: constrained optimization over the loss sublevel set, hit-and-run sampling, and a Hessian-based ellipsoidal approximation.
 
-The short version of what follows: on some datasets the set of near-optimal models is small and predictions are stable, while on others it is large enough that a substantial share of predictions could flip depending on which near-optimal model happened to be fit. German Credit is the extreme case, and no feature turns out to be indispensable.
+*Updated October 2026 using the current `rashomon-py` evaluation. The earlier version treated sampled ranges as if they were exact extrema and described the ellipsoid as a certified outer bound. Both interpretations were incorrect.*
 
 ## Benchmark datasets
 
-The evaluation uses three standard classification datasets of increasing size and dimensionality: Wisconsin Breast Cancer ($n = 569$, $d = 30$), German Credit ($n = 1{,}000$, $d = 61$), and Adult Census ($n = 30{,}162$, $d = 104$). All models are $\ell_2$-regularized logistic regression fitted by the toolkit's own solver, cross-checked against scikit-learn (accuracy within 2.2% on all datasets). The tolerance is set at $\varepsilon = 0.03 \cdot L(\hat\theta)$, which corresponds to a 3% relative increase in loss over the optimum.
+The evaluation fits scikit-learn $\ell_2$-regularized logistic regression on standardized features, choosing $C$ by five-fold cross-validation on log-loss. The three datasets below are Wisconsin Breast Cancer ($n = 569$, $d = 30$), German Credit ($n = 1{,}000$, $d = 61$), and a 5,000-row subsample of Adult Census ($d = 101$ after encoding). The selected values of $C$ are 1, 0.03, and 0.03, respectively.
 
-The headline numbers at 3% tolerance:
+At $\varepsilon = 0.03 \cdot L(\hat\theta)$, a 3% increase in the regularized loss, the [saved evaluation](https://github.com/fxcawley/StableGLM/blob/main/docs/_static/evaluation.json) reports:
 
-| Dataset | Ambiguity | Discrepancy bound | Empirical discrepancy |
+| Dataset | Exact ambiguity | Sampled ambiguity | Ellipsoid estimate |
 |---|---|---|---|
-| Breast Cancer ($d = 30$) | 18.4% | 18.4% | 4.6% |
-| German Credit ($d = 61$) | 85.4% | 85.4% | 2.6% |
-| Adult Census ($d = 104$) | 63.8% | 63.8% | 3.6% |
+| Breast Cancer ($d = 30$) | 6.2% | 2.5% | 6.7% |
+| German Credit ($d = 61$) | 82.9% | 41.7% | 84.8% |
+| Adult Census ($d = 101$) | 67.8% | 14.8% | 72.6% |
 
 <AmbiguityBars />
 
-Ambiguity here is the fraction of data points whose predicted label could change across the Rashomon set. German Credit is striking: at a 3% loss tolerance, 85% of data points receive a label that depends on which near-optimal model the solver happened to find. The empirical discrepancy (computed from sampled model pairs) is much lower because finite sampling rarely finds the extremal models, but the analytic bound confirms that those extremal models exist within the set.
+Ambiguity is the fraction of rows whose label can change across the set, using a probability threshold of 0.5. For each of 82.9% of German Credit rows, some near-optimal model can reverse the fitted label. A different model may be needed for each row; finding one model that changes many labels is a separate optimization problem.
+
+The exact flip test minimizes loss subject to the row's logit being on the decision boundary, $x_i^\top\theta = 0$, and compares that loss with $L(\hat\theta)+\varepsilon$. The sampled calculation only checks the 2,000 models visited by the chain, so it gives a lower bound on ambiguity.
 
 ## Ellipsoid tightness
 
-The ellipsoidal approximation is central to the toolkit's speed. It replaces the true convex sublevel set $\mathcal{R}_\varepsilon$ with a quadratic approximation $\mathcal{E}_\varepsilon$ defined by the Hessian at the optimum, which makes all linear functional extrema available in closed form. The question is how conservative this approximation is.
+The ellipsoidal approximation replaces the true convex sublevel set $\mathcal{R}_\varepsilon$ with a quadratic approximation $\mathcal{E}_\varepsilon$ defined by the Hessian at the optimum. Linear-functional extrema over this ellipsoid have closed forms. For logistic loss, the true set can extend beyond the ellipsoid in some directions and fall short of it in others.
 
-The tightness ratio (certificate interval width divided by empirical interval width from hit-and-run sampling) varies with dimensionality in a consistent pattern:
+The earlier comparison divided ellipsoid interval widths by sampled interval widths and called the ratio "tightness." That confounded approximation error with the sampler's failure to find extreme points. At 3% tolerance, the median sampled coefficient range covers:
 
-- **Breast Cancer ($d = 30$):** ratio 2.8--3.7$\times$. The certificates are reasonably tight. If the ellipsoid says a coefficient could change sign, it almost certainly can.
-- **German Credit ($d = 61$):** ratio 4.4--6.2$\times$. The certificates are valid upper bounds but overestimate the true range by a moderate factor. Still useful for screening.
-- **Adult Census ($d = 104$):** ratio 8.2--12.3$\times$. The certificates are conservative. In this regime, the ellipsoid is a loose outer approximation, and supplementing with hit-and-run sampling is necessary for conclusions that depend on tight bounds.
+- **Breast Cancer:** 52% of the exact range.
+- **German Credit:** 40% of the exact range.
+- **Adult Census:** 19% of the exact range.
 
 <TightnessVsDim />
 
-This is not surprising. The ellipsoidal approximation becomes less accurate as the loss surface becomes less quadratic further from the optimum, and higher-dimensional sets have more room for the true sublevel set to deviate from the ellipsoidal shape. The practical implication is that for $d \leq 30$ or so, the fast closed-form certificates are sufficient; for $d > 100$, sampling is needed; and the intermediate range requires judgment.
+The median ratios of ellipsoid width to exact width are 1.00, 1.00, and 0.96 on the same datasets. These medians conceal errors in individual coefficients and in the positions of interval endpoints. An accurate width does not ensure that an interval contains the true extremes. Coefficient signs should be checked using the constrained optimization result when it is affordable.
+
+On Adult, the minimum effective sample size is only about 4 for 2,000 draws. The chain mixes poorly there, and its ranges and disagreement measurements substantially understate the variation in the set.
 
 ## Variable importance stability
 
-The Variable Importance Cloud (VIC) analysis on the Breast Cancer tutorial case study produces a finding that I consider the most important practical result so far: every single feature has $\text{MCR}^- < 0$. Model Class Reliance measures the range of permutation-based importance scores across the Rashomon set. An $\text{MCR}^-$ below zero means that there exists a near-optimal model under which that feature's contribution to accuracy is negative. In other words, that feature is actively harmful according to at least one model in the set.
+At 3% tolerance, the exact coefficient ranges retain the fitted sign for 3 of 30 Breast Cancer features, 0 of 61 German Credit features, and 1 of 101 Adult features. For the other coefficients, the set contains parameter vectors on both sides of zero. These are statements about fitted associations under a specified loss tolerance.
 
-<McrBars />
+Permutation importance requires a separate calculation: permute a feature and measure the change in a model's evaluation score. The toolkit estimates its range over sampled models. A negative value means that the permutation improved the score for that model on those data. The earlier claim that "no feature is indispensable" went beyond this measurement.
 
-No feature is indispensable. Every feature importance ranking produced by a single fitted model is, strictly speaking, an artifact of the particular optimum that was found. This does not mean that all features are useless; the $\text{MCR}^+$ values (the maximum importance across the set) are positive for most features. It means that the sign and magnitude of a feature's importance depend on which near-optimal model is being queried.
-
-The comparison against bootstrap confidence intervals is also informative. Bootstrap CIs are 4--11$\times$ narrower than VIC intervals. This is expected: bootstrap resampling explores variation due to data sampling noise, while VIC explores variation due to model selection ambiguity. These are different sources of uncertainty, and the VIC intervals being wider indicates that model selection ambiguity dominates data sampling noise for these problems. The Bayesian (Laplace approximation) intervals are wider still, reflecting the additional epistemic uncertainty captured by the prior.
+The earlier Bayesian comparison also used the wrong prior scaling. For an objective defined as mean loss plus $\lambda\lVert\theta\rVert^2/2$, the corresponding prior precision is $n\lambda$ on the penalized coefficients. The Laplace posterior covariance is $(nH)^{-1}$, and the half-width of coefficient $j$'s range over the quadratic Rashomon set is $\sqrt{2n\varepsilon}$ times its posterior standard deviation. Differences from bootstrap widths depend on the tolerance and the penalty; they do not measure an additional, independent source of uncertainty.
 
 ## Epsilon sensitivity
 
-The choice of $\varepsilon$ determines how much of the parameter space is explored. On the Breast Cancer dataset, ambiguity ranges from 8.8% at $\varepsilon = 0.5\%$ to 60.8% at $\varepsilon = 10\%$. The relationship is monotone but not linear; there is a phase-transition region (roughly 1--5% for this dataset) in which ambiguity increases rapidly. Below this range, the Rashomon set is small enough that most predictions are stable. Above it, the set admits models that are meaningfully different in their predictions.
+For the 30-feature Breast Cancer model, exact ambiguity is 2.8% at a 1% relative loss tolerance and 6.2% at 3%. The default cross-validation rule gives a much larger tolerance on this dataset, 26.3% of the optimal loss, with 27.6% ambiguity. The sets are nested, so ambiguity must be nondecreasing with $\varepsilon$.
 
 <EpsilonSweep />
 
-A diagnostic sweep on German Credit with varying regularization strength illustrates the interaction between $\varepsilon$ and the model class. At $C = 0.1$ (strong regularization), the null model is inside the Rashomon set and ambiguity is 100% (a degenerate case: the set includes models that predict uniformly). At $C = 1.0$, the null model is excluded and ambiguity is 85.4%, reflecting predictive multiplicity in the data. At $C = 5.0$, ambiguity drops slightly to 80.2%. The fact that it remains above 80% across a wide range of regularization strengths suggests that the multiplicity in German Credit is a property of the data and the model class, not an artifact of a particular regularization choice.
+Regularization must be recorded as well. The audit reconstructs scikit-learn's logistic objective using $\lambda = 1/(Cn)$ with an unpenalized intercept. The lower-level `RashomonSet.C` uses a different convention, so passing the same numerical $C$ to both interfaces would define different sets.
 
 ## Scaling
 
-The toolkit handles moderate-scale data without difficulty. On Adult Census ($n = 30{,}162$, $d = 104$), fitting takes 0.25 seconds, ellipsoid sampling takes 0.05 seconds, and 500 hit-and-run steps take 6.8 seconds. The Hessian and its Cholesky factorization are cached after the first computation, so repeated queries (sampling, certificates, VIC) amortize the upfront cost. For problems at this scale, the toolkit is fast enough for interactive exploration.
+In the evaluation, exact coefficient ranges take about 0.3 seconds at $d=10$ and up to 19 seconds on the Adult subsample ($n=5{,}000$, $d=101$). The exact flip test takes under a second on the Breast Cancer datasets and about 45 seconds on Adult. The audit chooses exact computations within configured cost limits and labels sampled quantities when it falls back to sampling.
 
-## What remains
+## Reproducing the results
 
-The core pipeline is functional and validated. MCR was cross-checked against an independent implementation of Fisher et al. (2019) with zero discrepancy. The areas that remain open are less about correctness than about completeness: Jupyter notebook tutorials, a PyPI release, Sphinx API documentation, fairness-oriented experiments (Shapley-VIC with protected attributes), and the red-team experiments (collinearity sweeps, proxy variable analysis) that would stress-test the toolkit's behavior in adversarial settings. There is also a draft of an MLOSS-style paper that has not been finalized.
+The package is available as `rashomon-py`. [`scripts/evaluate.py`](https://github.com/fxcawley/StableGLM/blob/main/scripts/evaluate.py) generates the benchmark measurements, and the [evaluation documentation](https://github.com/fxcawley/StableGLM/blob/main/docs/evaluation.md) records the preprocessing, tolerances, and comparisons with exact extrema. The tutorial's numerical claims are regenerated by a separate script and checked in CI.
