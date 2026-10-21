@@ -1,0 +1,9 @@
+{
+  "scope": "synthetic regression checks; no recovered DIV2K checkpoint",
+  "legacy_psnr_for_perfect_signed_prediction": 4.770538708547398,
+  "restored_max_pixel_error": 1.4210854715202004e-14,
+  "overlapping_split_rejected_before_training": true,
+  "normalized_inputs_and_outputs_verified": true,
+  "corrected_perfect_upsampler_psnr": 164.98659471246413,
+  "corrected_perfect_upsampler_ssim": 0.9999999999999997
+}

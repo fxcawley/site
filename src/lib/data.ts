@@ -10,7 +10,7 @@ export const siteConfig = {
   location: 'New York, NY',
   professions: ['Machine Learning Engineer'],
   introduction: [
-    'I work in the plasma group at KLA where I develop machine learning systems to examine semiconductor wafers.',
+    'I work in the broadband plasma group at KLA where I develop machine learning systems that examine semiconductor wafers.',
     'I am broadly interested in building robust, performant and interpretable models. I deal with two main types of models, to paraphrase Belinda Li:',
   ],
   modelTypes: [
@@ -24,12 +24,10 @@ export const siteConfig = {
     },
   ],
   aside: 'In my spare time, I read, write and exercise.',
-  reading: 'Seamus Heaney, Annie Ernaux, EE Cummings, Jennifer Egan, Mahmoud Darwish.',
+  reading: 'Seamus Heaney, Annie Ernaux, EE Cummings, Jennifer Egan, and Mahmoud Darwish.',
   social: [
     { name: 'CV', url: '/LiamCawleyResume.pdf', icon: 'cv' },
-    { name: 'GitHub', url: 'https://github.com/cawley', icon: 'github' },
     { name: 'GitHub', url: 'https://github.com/fxcawley', icon: 'github' },
-    { name: 'Scholar', url: 'https://scholar.google.com/', icon: 'scholar' },
   ],
 };
 
@@ -49,6 +47,7 @@ export const education = [
 ];
 
 export const interests = [
+  { title: 'Robotics', icon: 'cubes' },
   { title: 'Machine Learning', icon: 'cubes' },
   { title: 'Mechanistic Interpretability', icon: 'layer-group' },
   { title: 'Open Source Community', icon: 'linux' },
@@ -89,9 +88,9 @@ export const experience = [
       {
         date: 'June 2022 - August 2022',
         title: 'Line Cook/Handyman',
-        location: "Little Frankie's, New York, NY",
+        location: "New York, NY",
         description:
-          "Worked night shifts, built out shelving, painted and cooked for the late night extension of Little Frankies.",
+          "Worked night shifts painting mailboxes and afternoons at Little Frankie's, built out shelving, painted and cooked for the late night extension of Little Frankies.",
       },
     ],
   },
@@ -136,7 +135,7 @@ export const experience = [
 ];
 
 export const awards = [
-  { date: 'December 2020', title: 'USA Computing Olympiad Silver' },
+  { date: 'March 2021', title: 'USA Computing Olympiad Silver' },
   { date: 'February 2020', title: 'AIME Qualification' },
-  { date: 'February 2019', title: 'AMC 10 8th Place in School' },
+  { date: 'February 2019', title: 'AMC 10 Honorable Mention' },
 ];
