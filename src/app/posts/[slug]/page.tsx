@@ -84,28 +84,28 @@ export default async function PostDetailPage({ params }: Props) {
             &larr; {threadInfo.thread.title}: thread overview
           </Link>
           <div className="flex items-start justify-between gap-6">
-          {threadInfo.index > 0 ? (
-            <Link
-              href={`/posts/${threadInfo.thread.posts[threadInfo.index - 1].slug}`}
-              className="text-sm hover:underline"
-              style={{ color: 'var(--accent)' }}
-            >
-              &larr; {threadInfo.thread.posts[threadInfo.index - 1].frontmatter.title}
-            </Link>
-          ) : (
-            <span />
-          )}
-          {threadInfo.index < threadInfo.thread.posts.length - 1 ? (
-            <Link
-              href={`/posts/${threadInfo.thread.posts[threadInfo.index + 1].slug}`}
-              className="text-sm hover:underline text-right"
-              style={{ color: 'var(--accent)' }}
-            >
-              {threadInfo.thread.posts[threadInfo.index + 1].frontmatter.title} &rarr;
-            </Link>
-          ) : (
-            <span />
-          )}
+            {threadInfo.index > 0 ? (
+              <Link
+                href={`/posts/${threadInfo.thread.posts[threadInfo.index - 1].slug}`}
+                className="text-sm hover:underline"
+                style={{ color: 'var(--accent)' }}
+              >
+                &larr; {threadInfo.thread.posts[threadInfo.index - 1].frontmatter.title}
+              </Link>
+            ) : (
+              <span />
+            )}
+            {threadInfo.index < threadInfo.thread.posts.length - 1 ? (
+              <Link
+                href={`/posts/${threadInfo.thread.posts[threadInfo.index + 1].slug}`}
+                className="text-sm hover:underline text-right"
+                style={{ color: 'var(--accent)' }}
+              >
+                {threadInfo.thread.posts[threadInfo.index + 1].frontmatter.title} &rarr;
+              </Link>
+            ) : (
+              <span />
+            )}
           </div>
         </nav>
       )}
