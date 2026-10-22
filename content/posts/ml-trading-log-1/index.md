@@ -6,6 +6,11 @@ excerpt: Using public market data to test anomaly detection, with transaction co
 thread: "ml-trading"
 threadTitle: "World Modeling in Markets"
 threadOrder: 1
+threadOverview: >-
+  Applying anomaly-detection ideas to market data.
+  The posts move from defining the evaluation to repairing price-based
+  backtests, then to alternative-data pipelines and early prediction-market
+  experiments, with costs and benchmarks included throughout.
 ---
 
 I work in anomaly detection. While specifics vary, the general shape of the problem is: build a model of what "normal" looks like, then flag deviations from that model and decide which deviations matter. The choice of what counts as normal determines which changes the detector will notice and which it will treat as noise.

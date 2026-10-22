@@ -7,20 +7,27 @@ export default function PostCard({ entry }: { entry: PostEntry }) {
     const { thread } = entry;
     return (
       <article className="panel">
-        <div className="flex flex-wrap items-baseline gap-3 mb-2">
+        <Link
+          href={`/threads/${thread.id}`}
+          className="thread-card-heading flex flex-wrap items-baseline gap-3 mb-2"
+          aria-label={`${thread.title}: thread overview`}
+        >
           <span
             className="text-xs font-medium px-2 py-0.5 rounded-full shrink-0"
             style={{ background: 'var(--accent)', color: '#fff' }}
           >
             thread
           </span>
-          <span className="text-base font-semibold" style={{ color: 'var(--fg-heading)' }}>
+          <span className="thread-card-title text-base font-semibold" style={{ color: 'var(--fg-heading)' }}>
             {thread.title}
           </span>
           <span className="text-sm" style={{ color: 'var(--fg-muted)' }}>
             {thread.posts.length} {thread.posts.length === 1 ? 'post' : 'posts'}
           </span>
-        </div>
+          <span aria-hidden="true" className="ml-auto" style={{ color: 'var(--accent)' }}>
+            &rarr;
+          </span>
+        </Link>
 
         <PostTimeline startedAt={thread.startedAt} updatedAt={thread.updatedAt} />
 

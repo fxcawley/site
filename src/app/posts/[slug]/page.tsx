@@ -39,8 +39,9 @@ export default async function PostDetailPage({ params }: Props) {
       </Link>
 
       {threadInfo && (
-        <div
-          className="mt-3 flex items-center gap-2 text-sm"
+        <Link
+          href={`/threads/${threadInfo.thread.id}`}
+          className="thread-context-link mt-3 inline-flex flex-wrap items-center gap-2 text-sm"
           style={{ color: 'var(--fg-muted)' }}
         >
           <span
@@ -49,10 +50,11 @@ export default async function PostDetailPage({ params }: Props) {
           >
             thread
           </span>
-          <span style={{ color: 'var(--fg-secondary)' }}>
+          <span className="thread-context-title" style={{ color: 'var(--fg-secondary)' }}>
             {threadInfo.thread.title} &middot; {threadInfo.index + 1}/{threadInfo.thread.posts.length}
           </span>
-        </div>
+          <span aria-hidden="true" style={{ color: 'var(--accent)' }}>&rarr;</span>
+        </Link>
       )}
 
       <header className="mt-4 mb-8">
@@ -70,9 +72,18 @@ export default async function PostDetailPage({ params }: Props) {
 
       {threadInfo && (
         <nav
-          className="mt-12 pt-6 flex items-center justify-between"
+          aria-label="Thread navigation"
+          className="mt-12 pt-6"
           style={{ borderTop: '1px solid var(--border)' }}
         >
+          <Link
+            href={`/threads/${threadInfo.thread.id}`}
+            className="inline-block text-sm hover:underline mb-5"
+            style={{ color: 'var(--accent)' }}
+          >
+            &larr; {threadInfo.thread.title}: thread overview
+          </Link>
+          <div className="flex items-start justify-between gap-6">
           {threadInfo.index > 0 ? (
             <Link
               href={`/posts/${threadInfo.thread.posts[threadInfo.index - 1].slug}`}
@@ -95,6 +106,7 @@ export default async function PostDetailPage({ params }: Props) {
           ) : (
             <span />
           )}
+          </div>
         </nav>
       )}
     </div>

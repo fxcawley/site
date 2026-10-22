@@ -25,6 +25,14 @@ Posts can be grouped into threads via frontmatter:
 - `thread: "thread-id"`  groups posts
 - `threadTitle: "Display Name"`  shown in UI (only needs to appear on one post)
 - `threadOrder: 1`  ordering within the thread
+- `threadOverview: "..."`  optional overview for the thread landing page; set on the first post
+- `threadTransition: { label: "...", description: "..." }`  optional explanation of the transition **into** this post from the preceding one
+
+Thread pages live at `/threads/<thread-id>`. They use each post's excerpt as its
+summary, the existing dates and Git-derived update dates for the timeline, and
+`threadOrder` for the reading path. Publication date and slug break ordering ties.
+Without an overview, the first post's excerpt is used; an unannotated transition
+is labeled “Next post.”
 
 ## Build
 

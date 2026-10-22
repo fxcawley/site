@@ -6,6 +6,12 @@ excerpt: SEC filing sentiment, CFTC positioning, and early experiments with Kals
 thread: "ml-trading"
 threadTitle: "World Modeling in Markets"
 threadOrder: 3
+threadTransition:
+  label: "Try new data and contracts"
+  description: >-
+    The price-based tests found no significant alpha.
+    The search extends to filings, positioning, macro data, and Kalshi
+    contracts, with publication timing, leakage, and fees part of the evaluation.
 ---
 
 The [previous post](/posts/ml-trading-log-2) found no statistically significant alpha among the price-based strategies tested. [alt-strats](https://github.com/fxcawley/alt-strats) extends the search to filings, positioning reports, and macro data. A separate [Kalshi project](https://github.com/fxcawley/march-madness) compares predictions with event-contract prices.

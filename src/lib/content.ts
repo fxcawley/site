@@ -15,6 +15,11 @@ export interface PostFrontmatter {
   thread?: string;
   threadTitle?: string;
   threadOrder?: number;
+  threadOverview?: string;
+  threadTransition?: {
+    label: string;
+    description?: string;
+  };
 }
 
 export interface ResearchFrontmatter {
@@ -131,6 +136,7 @@ export function getPostBySlug(slug: string): ContentItem<PostFrontmatter> | unde
 export interface ThreadInfo {
   id: string;
   title: string;
+  overview: string;
   startedAt: string;
   updatedAt: string;
   posts: ContentItem<PostFrontmatter>[];
@@ -146,6 +152,7 @@ export function getThreads(posts = getAllPosts()): ThreadInfo[] {
       threadMap.set(tid, {
         id: tid,
         title: post.frontmatter.threadTitle || tid,
+        overview: '',
         startedAt: post.frontmatter.date,
         updatedAt: post.frontmatter.updatedAt,
         posts: [],
@@ -161,11 +168,22 @@ export function getThreads(posts = getAllPosts()): ThreadInfo[] {
   const result = Array.from(threadMap.values());
   for (const thread of result) {
     thread.posts.sort(
-      (a, b) => (a.frontmatter.threadOrder ?? 0) - (b.frontmatter.threadOrder ?? 0)
+      (a, b) =>
+        (a.frontmatter.threadOrder ?? 0) - (b.frontmatter.threadOrder ?? 0) ||
+        a.frontmatter.date.localeCompare(b.frontmatter.date) ||
+        a.slug.localeCompare(b.slug)
     );
+    thread.overview =
+      thread.posts.find((post) => post.frontmatter.threadOverview)?.frontmatter.threadOverview ||
+      thread.posts[0].frontmatter.excerpt ||
+      '';
   }
 
   return result;
+}
+
+export function getThreadById(id: string): ThreadInfo | undefined {
+  return getThreads().find((thread) => thread.id === id);
 }
 
 export type PostEntry =

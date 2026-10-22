@@ -6,6 +6,12 @@ excerpt: Comparing trained regression models with iterative solvers, then testin
 thread: "metarepicl"
 threadTitle: "MetaRepICL"
 threadOrder: 2
+threadTransition:
+  label: "Test the proposed computation"
+  description: >-
+    The construction motivates comparisons with trained transformers.
+    Coordinate permutations then test whether agreement with a solver's
+    prediction trajectory identifies the computation.
 ---
 
 The [initial post](/posts/metarepicl) described a proposed mapping from linear attention to conjugate gradient (CG), together with numerical checks and a softmax extension. This post compares trained transformers with iterative solvers for the same regression problems.

@@ -6,6 +6,10 @@ excerpt: The Rashomon effect means many parameter vectors achieve nearly the sam
 thread: "stableglm"
 threadTitle: "StableGLM"
 threadOrder: 1
+threadOverview: >-
+  Auditing how coefficients and predicted labels vary among near-optimal GLMs.
+  The thread develops the loss-set geometry and toolkit, then compares sampling
+  and the quadratic approximation with exact optimization.
 ---
 
 ## The short version

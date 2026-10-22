@@ -6,6 +6,12 @@ excerpt: Comparing exact coefficient ranges and label-flip tests with sampling a
 thread: "stableglm"
 threadTitle: "StableGLM"
 threadOrder: 2
+threadTransition:
+  label: "Compare against exact optimization"
+  description: >-
+    The geometric approximation and sampled summaries need a reference.
+    The benchmarks compare them with exact coefficient ranges and label-flip
+    tests, revising the earlier interpretation of sampling and interval widths.
 ---
 
 The [initial post](/posts/stableglm) described the toolkit's design: characterize the set of near-optimal GLMs, then measure how much their coefficients and predictions can vary. The evaluation compares three ways of computing those quantities: constrained optimization over the loss sublevel set, hit-and-run sampling, and a Hessian-based ellipsoidal approximation.

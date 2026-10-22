@@ -6,6 +6,10 @@ excerpt: MetaRepICL studies how attention can carry out kernel regression, then 
 thread: "metarepicl"
 threadTitle: "MetaRepICL"
 threadOrder: 1
+threadOverview: >-
+  Testing whether kernel regression describes a transformer's in-context computation.
+  The thread moves from construction sketches to trained-model comparisons and
+  coordinate controls that overturned the original CG interpretation.
 ---
 
 ## The short version

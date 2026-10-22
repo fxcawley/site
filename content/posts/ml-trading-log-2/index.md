@@ -6,6 +6,12 @@ excerpt: Testing about 20 strategy variants across 20 years of ETF and equity da
 thread: "ml-trading"
 threadTitle: "World Modeling in Markets"
 threadOrder: 2
+threadTransition:
+  label: "Implement and audit the backtest"
+  description: >-
+    Public data and evaluation criteria become an implemented backtest.
+    Rebalancing, universe selection, and signal timing are checked before
+    interpreting strategy returns.
 ---
 
 The [strat-testing](https://github.com/fxcawley/strat-testing) project is a backtesting sandbox that went through four major iterations before producing results I was willing to trust.

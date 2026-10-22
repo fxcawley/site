@@ -48,7 +48,9 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isActive = (href: string) =>
-    href === '/' ? pathname === '/' : pathname?.startsWith(href);
+    href === '/'
+      ? pathname === '/'
+      : pathname?.startsWith(href) || (href === '/posts' && pathname?.startsWith('/threads/'));
 
   return (
     <header className="sticky top-0 z-50" style={{ background: 'var(--bg)' }}>
