@@ -9,25 +9,23 @@ date: 2026-01-01
 venue: ""
 authors:
   - name: "Liam Cawley"
-excerpt: "A toolkit for computing ε-Rashomon sets, membership certificates, and set-level interpretability metrics for GLMs. Addresses the question: when many models fit the data equally well, which explanations are stable?"
+excerpt: "A stability audit for fitted scikit-learn linear and logistic regression models. Computes coefficient ranges and label-flip tests over a loss-tolerance set, with explicit comparisons against sampling and quadratic approximations."
 selected: true
 priority: 2
 links:
   - name: "code"
     url: "https://github.com/fxcawley/StableGLM"
+  - name: "package"
+    url: "https://pypi.org/project/rashomon-py/"
 ---
 
-# StableGLM: Rashomon Sets for Generalized Linear Models
+StableGLM, published as `rashomon-py`, asks how much a fitted model's coefficients and predictions can change while its loss remains close to optimal. Correlated features can admit substantially different coefficients with similar predictions, even when regularization gives the fitting problem a unique optimum.
 
-## Problem
-
-Interpretability methods typically report properties of a single fitted model. But in practice, many parameter vectors achieve nearly the same loss --- the Rashomon effect. If a feature appears important under one near-optimal model but irrelevant under another, the explanation is an artifact of model selection, not a property of the data.
-
-StableGLM makes this concrete for generalized linear models by characterizing the full set of near-optimal models and computing interpretability metrics over that set.
+The public entry point is `rashomon.audit(model, X, y)`. It accepts a fitted scikit-learn linear or logistic regression model, including supported preprocessing pipelines, and reconstructs its objective before examining the alternatives.
 
 ## Setup
 
-For a GLM with convex loss $L(\theta) = \frac{1}{n}\sum_i \ell(y_i, x_i^\top\theta) + \frac{\lambda}{2}\lVert\theta\rVert^2$, the ε-Rashomon set is
+For a regularized loss $L(\theta)$ and fitted optimum $\hat\theta$, the $\varepsilon$-Rashomon set is
 
 $$\mathcal{R}_\varepsilon = \{\theta : L(\theta) \leq L(\hat\theta) + \varepsilon\}.$$
 
@@ -35,22 +33,34 @@ This is a convex sublevel set. Near the optimum, the Hessian $H = \nabla^2 L(\ha
 
 $$\mathcal{E}_\varepsilon = \{\hat\theta + \Delta : \Delta^\top H \Delta \leq 2\varepsilon\}.$$
 
-The ellipsoid is cheap to work with analytically. For arbitrary linear functionals $s^\top\theta$, the extrema over $\mathcal{E}_\varepsilon$ have closed forms involving $\lVert s \rVert_{H^{-1}}$. For exact (non-approximate) computations, we sample uniformly from $\mathcal{R}_\varepsilon$ using hit-and-run with a membership oracle.
+For positive-definite $H$, the range of $s^\top\theta$ over the ellipsoid is $s^\top\hat\theta \pm \sqrt{2\varepsilon\,s^\top H^{-1}s}$. This gives a fast approximation to coefficient and linear-predictor ranges. For logistic loss, the ellipsoid can miss the true boundary on either side.
 
 ## What the toolkit computes
 
-**Per-point prediction bands.** For each data point, the range of predictions $[p_i^{\min}, p_i^{\max}]$ across all models in $\mathcal{R}_\varepsilon$. Points with wide bands are *ambiguous*: the model's prediction depends on which near-optimal $\theta$ was chosen.
+**Coefficient ranges.** Constrained convex optimization finds the minimum and maximum of each coefficient over the true loss sublevel set. The audit uses these exact optimizations within its computation budget and labels sampled ranges when it falls back to sampling.
 
-**Variable Importance Clouds (VIC).** The range of each coefficient $\theta_j$ across the Rashomon set, and Shapley-weighted variants that account for feature correlations.
+**Label-flip tests.** For each classification row, the toolkit tests whether a model within the loss tolerance can reach the decision boundary. The fraction of rows that can flip is ambiguity. Each row may require a different competing model.
 
-**Model Class Reliance (MCR).** The range of permutation-based feature importance scores across the set, answering: could this feature be unimportant under some near-optimal model?
+**Sampled quantities.** Hit-and-run sampling supplies prediction ranges, disagreement estimates, and permutation-importance distributions. Extremes over the visited models are inner bounds on the full set's extremes. Effective sample size is reported because a long, poorly mixed chain can still explore little of the set.
 
-**Predictive multiplicity metrics.** Ambiguity (fraction of points whose predicted label changes across $\mathcal{R}_\varepsilon$), discrepancy (maximum pairwise disagreement), and Rashomon capacity (effective volume of the set).
+## Evaluation
+
+The [evaluation script](https://github.com/fxcawley/StableGLM/blob/main/scripts/evaluate.py) compares exact optimization, sampling, and the Hessian approximation. At a 3% relative increase in the regularized loss, the saved classification results are:
+
+| Dataset | Exact ambiguity | Sampled ambiguity | Ellipsoid estimate |
+|---|---|---|---|
+| Breast Cancer, 569 rows, 30 features | 6.2% | 2.5% | 6.7% |
+| German Credit, 1,000 rows, 61 features | 82.9% | 41.7% | 84.8% |
+| Adult Census subsample, 5,000 rows, 101 features | 67.8% | 14.8% | 72.6% |
+
+The sampler used 2,000 draws. On Adult, its minimum effective sample size was about four. The evaluation therefore uses exact extrema as its reference; a sampled interval being much narrower than an ellipsoid interval does not establish that the ellipsoid is too wide.
+
+These numbers depend on preprocessing, regularization, and tolerance. They describe the fitted classification problems, including a 0.5 probability threshold.
 
 ## Calibrating ε
 
-The choice of $\varepsilon$ determines the size of the set. We support three calibration modes: (1) percent loss slack ($\varepsilon = \rho \cdot L(\hat\theta)$), (2) likelihood-ratio inversion ($2n\varepsilon \approx \chi^2_{d,1-\alpha}$), and (3) a high-dimensional correction for the $d/n \not\ll 1$ regime.
+The audit defaults to a loss tolerance of one standard error of cross-validated loss. It also accepts relative or absolute loss tolerances and likelihood-ratio calibrations under their statistical assumptions. The earlier purported high-dimensional likelihood-ratio correction was removed from the current implementation.
 
-## Takeaway
+For an $\ell_2$-penalized likelihood, the quadratic Rashomon set is a highest-posterior-density region of the Laplace posterior $N(\hat\theta,(nH)^{-1})$. The corresponding prior precision is $n\lambda$ on the penalized coefficients. The analysis is mathematically related to uncertainty intervals; its practical use here is to compute explicit alternative coefficients and decisions at a stated loss tolerance.
 
-For any GLM fit on correlated or noisy features, single-model explanations are likely unstable. The Rashomon set makes this instability visible and quantifiable. The practical message: before trusting a feature importance ranking, check whether it survives across near-optimal models. If it doesn't, the ranking reflects optimization noise, not signal.
+The [benchmark post](/posts/stableglm-findings) explains the corrections to the sampling and interval comparisons in more detail.

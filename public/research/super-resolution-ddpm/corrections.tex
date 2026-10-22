@@ -1,0 +1,64 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,hyperref}
+\setlength{\emergencystretch}{1em}
+\title{Corrections to the Super-Resolution Project Report}
+\author{Liam Cawley}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+The original report by Sophia Tesic, Liam Cawley, Alexandra Lavacek,
+Namitha John, and Dennis Lin follows this correction. Its appended notebook
+contains training output, but the published evaluation has errors that prevent
+the tables from establishing held-out performance.
+
+\section*{Training and evaluation used the same split}
+In the appended \texttt{train\_and\_evaluate\_model} function, the argument named
+\texttt{val\_dataset} is passed to \texttt{model.fit} and then reused for scoring.
+The calling cell builds it with \texttt{subset='valid'}. These scores therefore
+cannot be presented as an independent evaluation on held-out DIV2K images.
+The corrected wrapper requires separate training and evaluation manifests and
+rejects overlapping image IDs before fitting.
+
+\section*{The simple model's pixel range was mishandled}
+The simple model uses a tanh output and is trained on images transformed by
+$x/127.5-1$. The later comparison sends it unnormalized inputs, clips its output
+to $[0,255]$, and casts directly to \texttt{uint8}. An output in $[-1,1]$ first
+needs the inverse transform $127.5(x+1)$.
+
+This failure is reproducible without training a network. A perfect signed-range
+prediction of a synthetic RGB gradient scores $4.77054$ dB under the old cast;
+inverse normalization reconstructs the reference to numerical precision.
+This demonstrates that the reported $4.80$ dB is not evidence that direct image
+prediction inherently fails. It does not recover the original model's true
+performance, since the input preprocessing was also inconsistent.
+
+\section*{Metrics and comparisons}
+The replacement evaluator uses RGB float images in $[0,1]$, a fixed
+\texttt{data\_range=1}, and SSIM with \texttt{channel\_axis=-1} and an
+11-pixel window. It scores each supplied evaluation image for both the model
+and the bicubic baseline and retains per-image results.
+It avoids inferring the metric range from each image's minimum and maximum.
+
+The report contains several comparisons on different subsets and configurations.
+For example, its summary table and its later side-by-side comparisons use
+different bicubic averages. They cannot be combined into one estimate of gain.
+Architecture, optimization, and preprocessing also changed together, so the
+tables do not isolate the effect of residual learning or perceptual loss.
+
+\section*{Available correction and remaining work}
+\texttt{evaluation.py} repairs the split and preprocessing contracts and includes
+the reproducible range-error check. The archived checkpoints are unavailable;
+there is no new held-out model-performance claim in this correction. A valid
+comparison requires training on the training split and scoring all methods on
+the same untouched evaluation images under the declared pixel convention.
+
+The implemented networks are direct image-to-image models. The diffusion
+terminology describes their architectural inspiration; they do not implement a
+noise-conditioned reverse-diffusion sampling process.
+
+\noindent Code and check results:
+\url{https://cawley.dev/research/super-resolution-ddpm/evaluation.py}\\
+\url{https://cawley.dev/research/super-resolution-ddpm/evaluation_checks.json}
+\end{document}

@@ -67,6 +67,9 @@ def verify():
     exact_ranks, exact_value = exact_allocation(gains, costs, budget)
     assert greedy_ranks == (1, 0) and greedy_value == 3
     assert exact_ranks == (0, 1) and exact_value == 4
+    _, ratio_greedy = greedy_allocation([[3.0], [100.0]], [2, 100], 100)
+    _, ratio_optimum = exact_allocation([[3.0], [100.0]], [2, 100], 100)
+    assert ratio_greedy / ratio_optimum == 0.03
 
     rng = np.random.default_rng(42)
     max_svd_error = 0.0
@@ -128,6 +131,11 @@ def verify():
             "actual_loss_increase": actual_increase,
             "quadratic_term_only": quadratic_only,
             "corrected_bound": corrected_bound,
+        },
+        "unequal_cost_greedy_ratio_example": {
+            "costs": [2, 100], "budget": 100,
+            "greedy_gain": ratio_greedy, "optimal_gain": ratio_optimum,
+            "approximation_ratio": ratio_greedy / ratio_optimum,
         },
         "max_weighted_svd_error": max_svd_error,
         "max_symmetric_operator_error": max_operator_error,

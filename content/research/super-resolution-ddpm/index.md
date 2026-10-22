@@ -5,47 +5,46 @@ tags:
   - "computer-vision"
   - "super-resolution"
   - "diffusion-models"
-date: 2024-02-30
+date: 2024-04-30
 venue: "Course project, University of Michigan"
 authors:
+  - name: "Sophia Tesic"
   - name: "Liam Cawley"
   - name: "Alexandra Lavacek"
-  - name: "Sophia Tesic"
-excerpt: "Adapting denoising diffusion concepts to single-image super resolution. We progressively build from a naive upsampler to a residual architecture with channel attention and perceptual loss, achieving 34.0 dB PSNR on DIV2K at 2x upscaling."
+  - name: "Namitha John"
+  - name: "Dennis Lin"
+excerpt: "A course project exploring direct image-to-image models for 2× super resolution. Review of the retained notebook exposed training/evaluation overlap and a pixel-range error; the published record now includes corrected evaluation code and reproducible checks."
 selected: false
 priority: 4
 links:
   - name: "paper"
     url: "/research/super-resolution-ddpm/442_final_report-combined.pdf"
+  - name: "evaluation code"
+    url: "/research/super-resolution-ddpm/evaluation.py"
+  - name: "correction source"
+    url: "/research/super-resolution-ddpm/corrections.tex"
 ---
 
-# DDPM-Inspired Single Image Super Resolution
+This team course project explored $2\times$ single-image super resolution using DIV2K. The models mapped a low-resolution image directly to a larger image. Diffusion models were an architectural reference; the implementation had no noise-conditioned reverse-diffusion sampling chain.
 
-## Motivation
+The retained report includes notebook code and training output. Reviewing that code exposed evaluation errors that invalidate the earlier interpretation of its performance table.
 
-Denoising diffusion probabilistic models (DDPMs) generate high-quality images by learning to reverse a noise process. The core idea --- iteratively refining a corrupted signal toward a clean target --- is naturally suited to super resolution, where the low-resolution input can be viewed as a degraded version of the high-resolution target.
+## Models explored
 
-We adapt this perspective to build a single-image super resolution model, drawing on the residual denoising structure of DDPMs without the full iterative sampling chain.
+The simple model used convolutional layers, transposed-convolution upsampling, and a tanh output. A second model used six residual blocks with channel attention, pixel-shuffle upsampling, and a global connection from the bilinearly upsampled input. Later configurations increased the number of residual blocks and considered VGG-19 feature loss alongside a pixel loss.
 
-## Approach
+These configurations changed several architectural and training choices together. The record does not isolate the contribution of residual learning, attention, or perceptual loss.
 
-We trained three models of increasing complexity on DIV2K (800 training images, 2x downsampling factor):
+## Errors reproduced in the evaluation
 
-1. **Baseline**: Direct upsampling with a shallow convolutional network. This establishes the floor and fails catastrophically (4.8 dB PSNR), confirming that naive regression to the mean is insufficient.
+The function named `train_and_evaluate_model` passed `val_dataset` to `model.fit` and then scored the same dataset. The calling cell loaded DIV2K's validation split. The resulting numbers therefore do not establish held-out performance.
 
-2. **Residual model**: Eight residual blocks with channel attention. The network predicts the residual between bilinear upsampling and the ground truth. This alone raises PSNR to 33.7 dB, demonstrating that the residual formulation --- learning the correction rather than the image --- is the dominant factor.
+The simple model also had incompatible preprocessing in the final comparison. It was trained on inputs and targets in $[-1,1]$, then given raw pixel inputs during evaluation. Its signed output was clipped to $[0,255]$ and cast directly to an 8-bit image, without inverse normalization.
 
-3. **DDPM-inspired model**: Adds U-Net-style skip connections and replaces pixel-wise MSE loss with a perceptual loss (VGG-19 feature matching) plus a small MSE term. The perceptual loss encourages the model to recover high-frequency texture rather than blurring. Final PSNR: 34.0 dB, SSIM: 0.927.
+The range error is reproducible without model training: a perfect signed-range prediction of a synthetic RGB gradient receives **4.77054 dB** under the old cast. Applying the inverse transform reconstructs the reference to numerical precision. The reported 4.80 dB consequently cannot support the earlier claim that direct image prediction inherently failed.
 
-## Results
+## Corrected evaluation
 
-| Model | PSNR | SSIM |
-|-------|:----:|:----:|
-| Bicubic interpolation | 32.29 | 0.904 |
-| Baseline (direct) | 4.80 | 0.025 |
-| Residual + attention | 33.71 | 0.924 |
-| DDPM-inspired (full) | 34.00 | 0.927 |
+The [replacement code](/research/super-resolution-ddpm/evaluation.py) requires separate training and evaluation image IDs, applies explicit input and output conventions, and computes metrics in RGB float space with a fixed range. It scores the model and bicubic baseline on every supplied evaluation image and retains per-image results. The [checks](/research/super-resolution-ddpm/evaluation_checks.json) verify range handling and reject overlapping splits before training.
 
-## Takeaway
-
-The iterative refinement framing from diffusion models is useful even in a single-pass architecture. The two critical ingredients are (1) predicting residuals rather than pixels, and (2) perceptual loss to avoid regression-to-the-mean blurring. The gap between our best model and the bicubic baseline (+1.7 dB) is meaningful but modest; closing it further likely requires either the full iterative diffusion process or substantially more training data.
+The original checkpoints are not in the available source bundle, so these repairs do not produce a replacement held-out score. The previously quoted PSNR/SSIM table is withdrawn as evidence of generalization. The [report](/research/super-resolution-ddpm/442_final_report-combined.pdf) now begins with the correction and retains the original notebook afterward.

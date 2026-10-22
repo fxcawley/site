@@ -1,0 +1,66 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,hyperref}
+\setlength{\emergencystretch}{1em}
+\title{Build Record and Corrections to the 2021 UAV Design}
+\author{Liam Cawley}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+The archived design report follows this note. It combines proposed mission
+requirements, component choices, and engineering estimates. Several statements
+need correction before the document is used as a record of the completed build.
+
+\section*{The aircraft that was built}
+The completed airframe was the 1.6 m MFD Crosswind Mini. It integrated a Pixhawk
+Cube Orange running ArduPilot, RTK GPS, telemetry, and a camera payload.
+Autonomous takeoff and waypoint flights were conducted. The later vision
+pipeline used YOLOv5 with Sony A6000 imagery.
+The report's 1.9 m Crosswind/Nimbus Pro and Keras letter-classifier descriptions
+belong to the earlier design. Their dimensions and balance target should not
+be transferred to the Mini as measured specifications.
+
+\section*{Competition requirements and certification}
+The four-mile course, 250,000 m$^2$ imaging task, and 40-minute mission budget
+were competition requirements. They are not measured endurance or mapping
+performance in this report. Completing an AUVSI SUAS mission does not confer a
+federal ``level-5 autonomy'' certification. The original conclusion conflated a
+competition demonstration, an autonomy classification, and regulatory approval.
+
+\section*{Electrical estimates}
+Motor $K_v$ is a speed constant in rpm per volt, not kilovoltage. The current
+calculation in the report uses a 4300 $K_v$, 4.1-inch propeller example even
+though the selected system is described as 800 $K_v$ with an 8-by-6 propeller.
+That calculation does not establish the selected propulsion system's current.
+Its 30 A cruise and 65 A acceleration figures should not be presented as
+measurements.
+
+There is also a useful consistency check: at 60 A total current, a 6 Ah battery
+provides an ideal $6/60=0.1$ hours, or six minutes, before accounting for reserve
+and losses. The quoted currents cannot support a 40-minute endurance claim.
+Endurance needs measurements from the actual battery, propellers, aircraft
+weight, and flight profile.
+
+\section*{Control and geolocation}
+A PID controller produces corrective control commands from feedback; it does
+not create a gyroscopic effect or eliminate all disturbances. Trim balance
+alone also does not establish static stability or stall margins.
+
+Target geolocation from an image requires camera geometry and aircraft pose
+and altitude, together with an appropriate ground model. Elapsed time and
+distance along the flight path alone do not determine the coordinates of an
+arbitrary pixel. No localization-error measurement is supplied by the report.
+
+\section*{Unverified mission components}
+The parachute drop, ground-vehicle survival, self-righting behavior, and
+autonomous ground traversal are design requirements in the document. A wide
+wheelbase alone does not establish self-righting, and the report includes no
+drop-test record supporting survival from 150 ft if the parachute fails.
+Agricultural cost or emissions savings likewise require a separate measured
+comparison; the motivating discussion does not establish them.
+
+The retained photographs document bench work and airframe integration. They
+complement the autonomous-flight account, without supplying the mission-level
+performance measurements listed above.
+\end{document}

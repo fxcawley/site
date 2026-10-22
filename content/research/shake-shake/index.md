@@ -9,43 +9,39 @@ date: 2023-05-01
 venue: "Course project, University of Michigan (Qing Qu)"
 authors:
   - name: "Liam Cawley"
-excerpt: "An empirical comparison of stochastic regularization methods --- Shake-Shake, Mixup, and Cutout --- in residual networks on CIFAR-10, with analysis of when and why each technique helps."
+excerpt: "A CIFAR-10 course project comparing CNN configurations with Cutout and Mixup and a custom ResNet with Shake-Shake. The report records configuration-level accuracy differences, without a controlled ranking of the regularizers."
 selected: false
 priority: 5
 links:
   - name: "paper"
     url: "/research/shake-shake/shake-shake.pdf"
+  - name: "source"
+    url: "/research/shake-shake/shake-shake.tex"
 ---
 
-# Shake-Shake Regularization in ResNet Architectures
-
-## Context
-
-Standard empirical risk minimization (ERM) on finite training sets overfits. Regularization methods address this, but the landscape of non-ERM techniques for deep networks is fragmented: dropout operates on activations, weight decay on parameters, and data augmentation on inputs. A newer family of methods --- Shake-Shake, Mixup, Cutout --- intervenes at different points in the forward pass and has distinct inductive biases.
-
-This project compares these methods on CIFAR-10 to understand the mechanism by which each improves generalization.
+This course project compared several CNN and residual-network configurations on CIFAR-10. It considered three forms of regularization: masking input patches with Cutout, interpolating images and labels with Mixup, and stochastically weighting parallel residual branches with Shake-Shake.
 
 ## Methods
 
-**Shake-Shake** stochastically interpolates the outputs of two residual branches with random coefficients during training, then uses a fixed 0.5/0.5 blend at test time. This injects noise into the forward pass at the level of feature maps, acting as an implicit ensemble over exponentially many sub-architectures.
+**Shake-Shake** uses two parallel residual branches. During training, the forward pass mixes them with one random coefficient and the backward pass uses a separately sampled coefficient. At evaluation, the branches are averaged. This requires a modified residual block; an ordinary single-branch ResNet does not already supply that structure.
 
-**Mixup** linearly interpolates both inputs and labels between random training pairs. Unlike standard augmentation, it operates in the input-label space simultaneously, encouraging the model to learn linear behavior between training examples.
+**Mixup** linearly interpolates both inputs and labels between training pairs.
 
-**Cutout** zeroes out random rectangular patches of the input image, forcing the network to use spatially distributed features rather than relying on any single discriminative region.
+**Cutout** masks random patches of an input image during training.
 
-## Findings
+## Reported configurations
 
-| Model | Test Accuracy |
+| Model | Reported accuracy |
 |-------|:---:|
-| ResNet-50 (baseline) | 92.0% |
-| + Shake-Shake | 93.0% |
-| Basic CNN (baseline) | 78.0% |
-| + Combined regularization | 88.0% |
+| Three-layer CNN | 78% |
+| Ten-layer CNN | 85% |
+| Ten-layer CNN with Cutout | 87% |
+| Ten-layer CNN with Mixup | 88% |
+| Custom ResNet-50 | 92% |
+| Custom ResNet-50 with Shake-Shake | 93% |
 
-The methods are not interchangeable. Shake-Shake provides the largest marginal gain on ResNets, where the multi-branch architecture gives it a natural hook. Cutout helps most when the model is overfitting to localized features (visible via GradCAM analysis showing more distributed attention maps). Mixup's benefit is largest at small data sizes, consistent with its role as a data-efficient regularizer.
+These values come from Table 1 of the original report. The 78-to-88 comparison includes both a depth change and Mixup. It was incorrectly described on this page as a combined-regularization result.
 
-Combining all three methods yields diminishing returns --- the regularization effects partially overlap, particularly Shake-Shake and Mixup, which both smooth the loss landscape in complementary ways.
+The report gives one value per configuration without repeated-seed uncertainty. It contains no GradCAM study, small-data sweep, or experiment combining all three methods. Those earlier claims have been removed.
 
-## Conclusion
-
-The choice of regularizer should be informed by the failure mode. If the model memorizes spatially localized cues, Cutout is most effective. If the decision boundary is overly sharp, Mixup or Shake-Shake smooth it. The practical takeaway: Shake-Shake is the strongest single addition to a ResNet, but only because it exploits the multi-branch topology that ResNets already provide.
+The corrected TeX source also fixes the ResNet layer count and residual-gradient formula and makes Shake-Shake's separate backward coefficient explicit. The recorded comparison supports differences among these configurations; isolating the effect of a regularizer would require a fixed architecture and training protocol across repeated runs.

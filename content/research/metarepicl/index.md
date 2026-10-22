@@ -9,7 +9,7 @@ date: 2026-01-15
 venue: ""
 authors:
   - name: "Liam Cawley"
-excerpt: "Investigating whether transformer in-context learning implements kernel ridge regression on learned hidden representations. We construct explicit linear-attention-to-conjugate-gradient mappings and study the softmax extension."
+excerpt: "Regression transformers matched iterative solvers on their training distribution but failed under coordinate permutations. The controls exposed dependence on a fixed ordering of feature variances and overturned the original CG identification claim."
 selected: true
 priority: 2
 links:
@@ -17,39 +17,34 @@ links:
     url: "https://github.com/fxcawley/MetaRepICL"
 ---
 
-# MetaRepICL: In-Context Learning as Kernel Regression on Learned Representations
+MetaRepICL began by asking whether kernel regression could describe a transformer's in-context computation. The project moved from hand-written numerical constructions to trained regression transformers, then to controls testing whether the proposed algorithm predicted behavior beyond the training distribution.
 
-## Question
+## Trained models and solver comparisons
 
-A transformer performing in-context learning (ICL) takes a sequence of $(x_i, y_i)$ pairs followed by a query $x_*$ and produces a prediction $\hat y_*$ all without updating its weights. Recent theory has shown that single-layer linear attention implements one step of gradient descent on a least-squares objective, and by extension, that a depth-$t$ linear-attention transformer implements $t$ steps of preconditioned gradient descent, which converges to the kernel ridge regression (KRR) solution.
+The experiments trained small transformers on synthetic linear regression tasks with controlled feature covariances. A 12-layer model used ten features; a larger 24-layer model used twenty. Separately trained linear readouts produced query predictions from intermediate layers, which were compared with iterative least-squares solvers.
 
-We ask whether this connection extends to trained transformers with softmax attention operating on learned representations.
+On the original task distribution, conjugate gradient (CG), preconditioned CG, and preconditioned gradient descent fit those readouts better than the reference vanilla GD trajectory. This agreement initially motivated a CG-class interpretation. The later controls contradicted it.
 
-## Approach
+## Changing the coordinate basis
 
-The project has two aims:
+The training generator used diagonal covariances with a fixed variance ordering: coordinate zero always had the largest variance. A model could exploit that ordering to rescale particular inputs.
 
-**Aim 1: Constructive mapping (linear attention).** We build an explicit transformer architecture whose layers exactly implement conjugate gradient (CG) iterations for solving the KRR normal equations $(\mathbf{K} + \lambda I)\alpha = \mathbf{y}$, where $\mathbf{K}$ is the kernel matrix over support representations. The construction uses:
-- Attention heads that compute kernel matrix-vector products $(K\mathbf{p})_j$ via query-key-value projections over support tokens
-- Aggregator tokens that compute global reductions (residual norms, step sizes)
-- MLP blocks that perform the per-token CG state updates ($\alpha, r, p$)
+The [basis-dependence experiment](https://github.com/fxcawley/MetaRepICL/blob/main/docs/experiments/basis_dependence.md) changed the coordinate basis while retaining the covariance spectrum. For the twenty-feature model at $\kappa=500$, the recorded ratios of model MSE to the reference ridge MSE were approximately:
 
-This demonstrates that a linear-attention transformer of depth $t$ can represent $t$-step CG --- which converges at a rate determined by the condition number $\kappa$ of $\mathbf{K}$ --- and therefore approximates KRR to arbitrary precision given sufficient depth.
+| Input basis | Model MSE / reference ridge MSE |
+|---|---|
+| Training coordinates | $3\times$ |
+| Random coordinate permutation | $69{,}000\times$ |
+| Random rotation | $72{,}000\times$ |
 
-**Aim 2: Softmax extension.** Softmax attention computes $\text{softmax}(QK^\top / \sqrt{d})V$, which induces an exponential kernel $k(x, x') \propto \exp(x^\top x' / \sqrt{d})$ rather than a linear one. We study whether the softmax-attention ICL prediction matches KRR under this exponential kernel, measuring operator-norm proximity $\lVert \tilde{K} - K_{\exp} \rVert_2$ on the support set.
+The reference uses ridge coefficient $\lambda=0.1$. CG predictions are invariant to a coordinate permutation applied consistently to support and query inputs. The trained model's failure under that transformation rules out the original solver interpretation for this model.
 
-## Current findings
+Retraining with a random covariance basis per task substantially reduced the permutation sensitivity while preserving performance on the original task distribution. Tests with different eigenvalue spectra still produced degradation. Removing the fixed coordinate ordering addressed one dependence in the training data.
 
-![Algorithm identification summary](/research/metarepicl/algo_id_summary.png)
+## Construction sketches and corrected numerical checks
 
-- The constructive CG mapping works: a hand-wired linear-attention stack converges to the KRR solution at the expected CG rate on synthetic tasks.
-- Width matters: under a rank-$m$ random projection (simulating finite head dimension), prediction error approaches the oracle as $m$ increases, tracking the effective dimension $d_{\text{eff}}(\lambda)$.
-- The softmax-kernel alignment holds for in-distribution tasks but degrades on out-of-distribution prompts, suggesting the learned kernel specializes to the training distribution.
+The constructive work implements CG and attention-style matrix-vector products in NumPy. The mapping to transformer blocks remains a proof sketch, with unresolved details concerning masking, numerical precision, and architecture. A working numerical solver alone does not establish that a trained network implements it.
 
-![Convergence by condition number](/research/metarepicl/convergence_by_kappa.png)
+A separate comparison of fixed kernel estimators contained a random-number error: restarting the generator made the regression weight vector equal to the first support example. This artificially strengthened the linear baseline. The generator has been corrected, the comparison rerun, and regression tests now check the independence of target weights and the numerical stability of softmax. The [correction record](https://github.com/fxcawley/MetaRepICL/blob/main/docs/experiments/silent_failure.md) includes the revised measurements. These numerical comparisons contain no trained transformer.
 
-Moving from hand-wired constructions to *trained* transformers complicates the identification story. Comparing a trained model's per-layer predictions against six named iterative solvers (GD, CG, preconditioned GD, heavy ball, Chebyshev, preconditioned CG) with bootstrap confidence intervals, the model separates cleanly from vanilla GD (a stable $R^2$ gap of about 0.20, consistent with second-order convergence) but does not separate within the CG class: CG, preconditioned CG, and preconditioned GD sit within 0.004 of one another, well inside their combined 95% CI of 0.017. The reason is structural with features $p \le$ depth $L$, every CG-class method converges within the available layers, so late layers carry no discriminating signal. At these scales the honest description is a convergence class (CG-like, second-order) rather than a specific named algorithm, and observational comparison alone would require a regime with $p \gg L$ to do better. Linear probes further complicate the picture: they recover GD-like state variables more readily than CG-like ones despite the CG-like convergence, though the absolute similarities are low enough that I read this as unresolved rather than as evidence of a mechanism.
-
-## Takeaway
-
-For linear attention, the connection between ICL and kernel regression is an exact correspondence mediated by conjugate gradient, and that construction is unaffected by the trained-model results. What the trained-model experiments qualify is the identification claim: a trained transformer behaves like a member of the CG convergence class rather than vanilla GD, but which member is not identifiable at current experimental scales, so specific claims of the form "ICL implements preconditioned GD" are underdetermined by this kind of evidence. The softmax case introduces an exponential kernel the transformer only approximates, and the approximation fails silently in high dimensions and ill-conditioned regimes, where average error stays plausible while the prediction ordering is destroyed.
+The project closed in October 2026 with the original CG identification claim withdrawn. The coordinate dependence is consistent with prior work on regression transformers; it is not presented as a new general result about language models. The [experiment log](https://github.com/fxcawley/MetaRepICL/blob/main/ACTION_PLAN.md) records the controls and failed predictions, and the [blog thread](/posts/metarepicl-findings) gives a longer account.
