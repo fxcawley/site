@@ -52,6 +52,7 @@ export default async function ResearchDetailPage({ params }: Props) {
               {new Date(item.frontmatter.date).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
+                timeZone: 'UTC',
               })}
             </span>
           )}

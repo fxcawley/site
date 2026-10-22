@@ -11,7 +11,7 @@ authors:
   - name: "Hugh van Deventer"
   - name: "Itamar Pres"
   - name: "Liam Cawley"
-excerpt: "A benchmark for evaluating steering methods that operate through a language model's unembedding matrix. Provides standardized comparisons across extraction methods, models, and tasks."
+excerpt: "Sentiment-steering experiments comparing learned directions with token-unembedding baselines. The evaluator now counterbalances answer positions, and a retained Qwen recheck measures a preset intervention against an unsteered baseline."
 selected: false
 priority: 7
 links:
@@ -19,26 +19,34 @@ links:
     url: "https://github.com/hughvd/unembedding-steering-benchmark"
 ---
 
-# Unembedding Steering Benchmark
+This collaboration with Hugh van Deventer and Itamar Pres asks how learned activation-steering directions compare with simpler directions built from token unembeddings. The concrete experiments in the repository focus on sentiment.
 
-## Background
+My contributions included the initial experiment runner and a prototype that penalizes overlap with positive-token directions. The shared evaluation data, probes, and layer/scale searches were collaborative work.
 
-Steering methods modify a language model's internal representations at inference time to control its behavior --- increasing truthfulness, reducing toxicity, or shifting style --- without fine-tuning. A growing family of methods operates through the unembedding matrix $W_U$, exploiting its role as the final linear projection from residual stream to vocabulary logits.
+## Original retained experiments
 
-Different papers extract steering vectors using different methods (mean difference, PCA, distributed alignment search), evaluate on different tasks, and report different metrics. Direct comparison is not possible.
+The saved Gemma-2-2b grids cover 26 layers and ten steering strengths on 48 multiple-choice sentiment prompts. They include token-unembedding averages, contrastive activation differences, linear probes, and probes trained with an overlap penalty.
 
-## What the benchmark provides
+The original score was the next-token logit difference between options A and B, with the positive answer always assigned to A. That confounded the intended preference with answer-position bias. Selecting the best cell from the same evaluation grid also does not provide a held-out performance estimate.
 
-**Fixed experimental protocol.** We standardize the model, dataset, layer selection, and evaluation pipeline. Steering methods plug into a common interface and are evaluated under identical conditions.
+The repository does not establish the broader claims previously made here about DAS comparisons, human-rated coherence, cross-task specificity, or transfer across model scales.
 
-**Extraction methods compared.** Mean-difference vectors (the difference in mean activations between contrastive prompt sets), PCA directions (principal components of activation differences), and DAS-optimized directions. Each is evaluated at multiple injection layers and scaling coefficients.
+## Evaluation repairs
 
-**Evaluation dimensions.**
-- *Effectiveness*: does the steering vector reliably shift behavior in the intended direction? Measured via classifier accuracy on the target attribute.
-- *Coherence*: does the steered model still produce fluent, on-topic text? Measured via perplexity delta and human evaluation.
-- *Specificity*: does steering affect only the targeted behavior, or does it degrade unrelated capabilities? Measured via cross-task performance.
-- *Transferability*: do steering vectors generalize across prompts, tasks, and model scales?
+The evaluator now presents both answer orders and averages logit differences oriented toward the positive answer. A regression check verifies that a fixed preference for A cancels. A zero-strength run supplies the unsteered reference.
 
-## Takeaway
+The steering hooks now preserve tensor and tuple outputs and scale interventions separately for each example. The SAE prototypes also needed coordinate corrections: latent directions must be decoded before comparison with residual-space unembeddings or injection into a transformer layer. Their overlap penalty is a soft constraint; it does not establish exact orthogonality.
 
-Steering vectors are easy to extract and often work surprisingly well, but the field's evaluation standards are inconsistent enough that it is hard to know which methods actually improve on the baselines. This benchmark is an attempt to fix the measurement problem so that progress can be assessed clearly.
+## Retained controlled recheck
+
+A new check used the locally available `Qwen/Qwen2.5-3B-Instruct` on all 48 prompts. Layer 27 and strengths 0, 0.1, and 0.5 were preset. The direction averaged the unembeddings of ` good`, ` great`, and ` happy`; the scale multiplies each example's last-token residual norm.
+
+| Strength | Mean counterbalanced score | Paired change from unsteered |
+|---|---|---|
+| 0 | 7.957 | 0 |
+| 0.1 | 8.043 | +0.086 |
+| 0.5 | 6.693 | −1.263 |
+
+The larger intervention lowered this score. These values describe one choice-logit diagnostic on one model, not a ranking of steering methods or a measurement of free-generation sentiment. The [run record](/research/unembedding-steering/counterbalanced_results.json) includes both option-order scores for each prompt.
+
+The original Gemma/probe sweeps have not been regenerated under the corrected protocol. They remain historical exploratory results, with the evaluation changes made explicit.

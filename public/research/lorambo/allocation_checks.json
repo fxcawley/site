@@ -32,6 +32,16 @@
     "quadratic_term_only": 0.005000000000000001,
     "corrected_bound": 0.10500000000000001
   },
+  "unequal_cost_greedy_ratio_example": {
+    "costs": [
+      2,
+      100
+    ],
+    "budget": 100,
+    "greedy_gain": 3.0,
+    "optimal_gain": 100.0,
+    "approximation_ratio": 0.03
+  },
   "max_weighted_svd_error": 1.2505552149377763e-12,
   "max_symmetric_operator_error": 9.094947017729282e-13,
   "dynamic_program_matches_enumeration": true,

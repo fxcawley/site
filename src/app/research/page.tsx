@@ -42,7 +42,7 @@ export default function ResearchPage() {
                 {item.frontmatter.date && (
                   <>
                     {item.frontmatter.venue && <span style={{ color: 'var(--border)' }}>|</span>}
-                    <span>{new Date(item.frontmatter.date).getFullYear()}</span>
+                    <span>{new Date(item.frontmatter.date).getUTCFullYear()}</span>
                   </>
                 )}
               </div>

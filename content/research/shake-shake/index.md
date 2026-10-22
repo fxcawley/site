@@ -45,3 +45,5 @@ These values come from Table 1 of the original report. The 78-to-88 comparison i
 The report gives one value per configuration without repeated-seed uncertainty. It contains no GradCAM study, small-data sweep, or experiment combining all three methods. Those earlier claims have been removed.
 
 The corrected TeX source also fixes the ResNet layer count and residual-gradient formula and makes Shake-Shake's separate backward coefficient explicit. The recorded comparison supports differences among these configurations; isolating the effect of a regularizer would require a fixed architecture and training protocol across repeated runs.
+
+The [original report](/research/shake-shake/shake-shake_legacy.pdf) is retained alongside the corrected version.

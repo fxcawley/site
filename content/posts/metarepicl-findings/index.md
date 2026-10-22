@@ -26,7 +26,7 @@ The $\kappa$-weighted results at the larger scale ($p = 20$, $24$ layers, $30{,}
 |---|---|---|
 | Preconditioned CG | 0.922 | $\pm$ 0.008 |
 | CG | 0.918 | $\pm$ 0.009 |
-| Preconditioned GD | 0.910 | $\pm$ 0.011 |
+| Preconditioned GD | 0.909 | $\pm$ 0.011 |
 | Chebyshev | 0.780 | $\pm$ 0.042 |
 | GD | 0.721 | $\pm$ 0.060 |
 | Heavy Ball | 0.581 | $\pm$ 0.046 |
@@ -37,7 +37,7 @@ The $\kappa$-weighted results at the larger scale ($p = 20$, $24$ layers, $30{,}
 
 CG, preconditioned CG, and preconditioned GD each score above 0.90, compared with 0.72 for vanilla GD. On these problems, their prediction trajectories fit the readouts better than the reference GD trajectory does.
 
-The top two scores differ by 0.004; the top three span 0.012 and have overlapping intervals. Their ordering also depends on the condition number and metric: an MSE-profile distance disagrees with $R^2$ at several $\kappa$ values. These comparisons did not identify a specific algorithm.
+The top two scores differ by about 0.004; the top three span about 0.013 and have overlapping reported intervals. Their ordering also depends on the condition number and metric: an MSE-profile distance disagrees with $R^2$ at several $\kappa$ values. These comparisons did not identify a specific algorithm.
 
 There is a limitation in this experimental regime. With $p = 20$ features and 24 layers, CG and preconditioned CG terminate within $p$ iterations in exact arithmetic. Once solvers approach the same ridge solution, their predictions provide little evidence about the path taken to reach it. Preconditioned GD has no corresponding finite-step guarantee. The later permutation control exposed a further problem with interpreting the agreement as evidence for an algorithm.
 
@@ -55,20 +55,24 @@ The absolute similarities, roughly 0.06 to 0.14, are too low to support a claim 
 
 A separate [numerical experiment](https://github.com/fxcawley/MetaRepICL/blob/main/experiments/silent_failure.py) compares three estimators on synthetic regression data. Softmax smoothing predicts $\sum_i w_i y_i$ with normalized weights $w_i \propto \exp(x_q^\top x_i / \tau)$, a Nadaraya–Watson estimator. The other two estimators are exponential-kernel and linear-kernel ridge regression, computed by direct linear solves. This experiment uses no trained transformer.
 
+*October 2026 correction: the original generator restarted its random-number stream, making the target weight vector equal to the first support example. That invalidated the near-perfect high-dimensional linear baseline. The generator has been repaired and these measurements rerun with independent target weights.*
+
 ![Predictions from the softmax smoother and exponential-kernel ridge solve on five synthetic examples](/research/metarepicl/silent_failure_demo.png)
 
 The [saved examples](https://github.com/fxcawley/MetaRepICL/blob/main/figures/silent_failure/silent_failure_results.json), with 32 support points and seed 42, report:
 
-| Regime | Softmax RMSE | Exponential KRR RMSE | Softmax rank corr. $\rho$ |
-|---|---|---|---|
-| Reference ($\tau=1$, $p=8$) | 2.46 | 6.55 | 0.71 |
-| High dimension ($p=64$) | 8.20 | 6.87 | 0.22 |
-| Low temperature ($\tau=0.05$) | 3.12 | $1.75 \times 10^{24}$ | 0.72 |
-| Ill-conditioned ($\kappa=500$, $\tau=0.5$) | 2.79 | $5.01 \times 10^{12}$ | 0.24 |
+| Regime | Softmax RMSE | Exponential KRR RMSE | Linear ridge RMSE | Softmax rank corr. $\rho$ |
+|---|---|---|---|---|
+| Reference ($\tau=1$, $p=8$) | 1.63 | 5.97 | 0.067 | 0.65 |
+| High dimension ($p=64$) | 8.43 | 7.81 | 4.218 | 0.46 |
+| Low temperature ($\tau=0.05$) | 1.82 | $1.53 \times 10^{24}$ | 0.067 | 0.65 |
+| Ill-conditioned ($\kappa=500$, $\tau=0.5$) | 4.52 | $6.82 \times 10^{12}$ | 0.069 | 0.88 |
 
-At $p=64$, softmax's RMSE is about 19% above the exponential-kernel result, while its rank correlation with the targets is only 0.22. In the low-temperature and ill-conditioned examples, the exponential-kernel matrix is severely ill-conditioned and the direct solve produces enormous errors. Using its error as the denominator of an RMSE ratio makes softmax look artificially good.
+At $p=64$, softmax's RMSE of 8.43 exceeds the 7.81 obtained by predicting zero. The corrected linear baseline has RMSE 4.218, compared with the earlier 0.087. In the ill-conditioned example, softmax's rank correlation is now 0.88; the earlier collapse to 0.24 is not reproduced. The exponential-kernel reference is severely ill-conditioned in the low-temperature and ill-conditioned cases, so a small RMSE ratio against it is not a useful success criterion.
 
 The dimension sweep draws unnormalized Gaussian features while keeping $\tau$ fixed, so increasing $p$ also changes the scale of the attention logits. It does not isolate dimension from kernel bandwidth, and it does not support the earlier explanation that the weights become uniform because inner products approach zero.
+
+The [correction record](https://github.com/fxcawley/MetaRepICL/blob/main/docs/experiments/silent_failure.md) links the original values, corrected data, and regression tests. The previous interpretation of these examples as evidence for silent failures in trained softmax transformers is withdrawn.
 
 ## The coordinate-permutation control
 

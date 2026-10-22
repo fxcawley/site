@@ -9,7 +9,7 @@ date: 2024-05-01
 venue: ""
 authors:
   - name: "Liam Cawley"
-excerpt: "A minimal distributed training sandbox for nanoGPT. Experiments with MIG partitioning, NCCL collectives, Kubernetes orchestration, and mixed-precision training on small-scale hardware."
+excerpt: "A nanoGPT notebook and deployment notes for a single Linux host with three A10 GPUs. The corrected CPU smoke configuration has been run; distributed-scaling and collective-performance results are not part of the retained record."
 selected: false
 priority: 6
 links:
@@ -17,24 +17,18 @@ links:
     url: "https://github.com/fxcawley/nanoSandbox"
 ---
 
-# nanoSandbox
+nanoSandbox is a small environment for inspecting nanoGPT training and launch configurations. The public repository contains a Colab companion and deployment notes. The notes describe one Linux host with three physical NVIDIA A10 GPUs, with either one multi-GPU pod or three single-GPU pods.
 
-## Purpose
+The container builds and Kubernetes manifests referenced by the earlier README are not in the checkout. Those instructions have been replaced with an account of the available notebook and the documented deployment design.
 
-Production distributed training frameworks (Megatron-LM, DeepSpeed, FSDP) are complex enough that it is difficult to reason about what any single component is doing. This project strips the stack down to its essentials: nanoGPT's training loop, PyTorch DDP, and raw NCCL, running on a small cluster orchestrated by Kubernetes.
+## Notebook repairs
 
-The goal is not to train a useful model. It is to build intuition for the infrastructure primitives by working with them directly, at a scale where every gradient synchronization and memory allocation is visible.
+The optional DDP cell originally launched two CUDA workers whenever it detected any GPU. On a one-GPU VM, the second worker has no distinct device. The cell now requires two visible GPUs and sets gradient accumulation to a multiple of the world size.
 
-## Components
+The execution cells also mixed notebook Python with shell heredoc syntax. They now use ordinary Python subprocess calls. The setup retains the runtime's installed PyTorch build, and the CPU check explicitly selects float32 and disables compilation.
 
-**MIG (Multi-Instance GPU).** NVIDIA's Multi-Instance GPU partitions a single A100 into isolated GPU instances, each with its own memory and compute. We use MIG to simulate multi-GPU training on a single card --- useful for testing DDP logic without needing multiple physical GPUs, and for understanding the performance implications of memory bandwidth partitioning.
+## What was run
 
-**NCCL collectives.** All-reduce, reduce-scatter, and all-gather are the building blocks of gradient synchronization. We instrument the training loop to log per-collective latency and bandwidth utilization, and experiment with different algorithmic choices (ring vs. tree all-reduce) to understand their scaling behavior.
+The corrected CPU configuration was executed against Tiny Shakespeare using a two-layer, two-head model with embedding width 64, block size 128, and batch size 16. Training and evaluation completed through step 50. The [validation record](/research/nanosandbox/smoke-results.json) includes the upstream nanoGPT commit, software versions, configuration, and recorded losses.
 
-**Kubernetes orchestration.** Training jobs run as StatefulSets with RDMA-capable networking (where available). The manifests handle node affinity, GPU resource requests, and checkpoint storage on persistent volumes. The emphasis is on understanding pod scheduling and inter-node communication rather than on high-availability production patterns.
-
-**Mixed precision.** FP16 and BF16 training with dynamic loss scaling. We profile the memory and throughput differences between precision modes and document the cases where FP16 loss scaling fails (gradient underflow at low learning rates).
-
-## Takeaway
-
-The single most important thing this project clarified is that distributed training performance is dominated by communication, not compute. On a small cluster, the ratio of time spent in NCCL collectives to time spent in forward/backward passes is surprisingly high, and most "optimization" at this scale is really about hiding communication latency behind compute.
+The GPU-count guard was checked for zero, one, and two visible devices. A two-GPU training run was not performed on this machine. There are no retained measurements here of MIG partitioning, RDMA, precision-mode trade-offs, or NCCL collective performance, so the earlier claim that communication dominated this setup is withdrawn.
